@@ -1,9 +1,18 @@
 {
   "version": 2,
+  "buildCommand": "",
+  "installCommand": "",
   "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "maze-technologies.html", "use": "@vercel/static" },
+    { "src": "dashboard.html", "use": "@vercel/static" },
+    { "src": "dashboard.htm", "use": "@vercel/static" },
+    { "src": "css/**", "use": "@vercel/static" },
+    { "src": "js/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/dashboard/", "dest": "/dashboard.html" }
   ]
 }
