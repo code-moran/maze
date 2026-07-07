@@ -38,7 +38,7 @@ export default function RootLayout({
         {children}
         <Script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
       </body>
     </html>
