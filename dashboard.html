@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Maze content dashboard for pages, product details, inquiries, and SEO management.">
+  <title>Dashboard | Maze</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body class="dashboard-shell">
+  <div class="topbar d-none d-md-block">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-3">
+        <span><i class="bi bi-shield-lock-fill me-1"></i>Content Dashboard</span>
+        <span><i class="bi bi-database-fill me-1"></i>Local browser storage powered</span>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        <a href="maze-technologies.html" class="text-white-50">View Website</a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand" href="maze-technologies.html">Maze<span>Tech</span></a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <a href="maze-technologies.html" class="btn btn-maze-outline btn-sm"><i class="bi bi-globe me-1"></i>View Site</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="breadcrumb-bar">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb maze-breadcrumb mb-0" id="dashboardBreadcrumb"></ol>
+      </nav>
+    </div>
+  </div>
+
+  <section class="dashboard-hero">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <p class="section-label text-white mb-2" style="letter-spacing:3px">MazeTech Admin</p>
+          <h1>Website Dashboard</h1>
+          <p class="mb-0 text-white-50">Manage home page text, product images and descriptions, inquiries, and meta SEO details from one place.</p>
+        </div>
+        <div class="col-lg-4">
+          <div class="dashboard-note">
+            Changes save to this browser and immediately update the main website in the same device/browser.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="py-5">
+    <div class="container">
+      <div id="dashboardAlert" class="alert alert-success d-none mb-4" role="alert"></div>
+
+      <div class="row g-4">
+        <div class="col-lg-3">
+          <div class="dashboard-nav">
+            <a class="nav-link active" href="#overview"><i class="bi bi-speedometer2 me-2"></i>Overview</a>
+            <a class="nav-link" href="#general-settings"><i class="bi bi-sliders2-vertical me-2"></i>Settings</a>
+            <a class="nav-link" href="#installation-charges"><i class="bi bi-cash-coin me-2"></i>Charges</a>
+            <a class="nav-link" href="#page-content"><i class="bi bi-layout-text-window-reverse me-2"></i>Page Text</a>
+            <a class="nav-link" href="#products-manager"><i class="bi bi-box-seam me-2"></i>Products</a>
+            <a class="nav-link" href="#subproducts-manager"><i class="bi bi-diagram-3 me-2"></i>Sub Products</a>
+            <a class="nav-link" href="#inquiries-manager"><i class="bi bi-chat-dots me-2"></i>Inquiries</a>
+            <a class="nav-link" href="#blogs-manager"><i class="bi bi-journal-text me-2"></i>Blogs</a>
+            <a class="nav-link" href="#seo-manager"><i class="bi bi-search-heart me-2"></i>SEO</a>
+          </div>
+        </div>
+
+        <div class="col-lg-9">
+          <section id="overview" class="mb-4">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="dashboard-stat">
+                  <div class="value" id="statProducts">0</div>
+                  <div class="label">Products Managed</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="dashboard-stat">
+                  <div class="value" id="statInquiries">0</div>
+                  <div class="label">Saved Inquiries</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="dashboard-stat">
+                  <div class="value" id="statSeo">0</div>
+                  <div class="label">SEO Records</div>
+                </div>
+              </div>
+            </div>
+            <div class="dashboard-panel mt-4">
+              <h3>Data Actions</h3>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-maze" type="button" id="exportDataBtn"><i class="bi bi-download me-2"></i>Export Dashboard Data</button>
+                <button class="btn btn-maze-outline" type="button" id="resetDataBtn"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset To Defaults</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="general-settings" class="dashboard-panel mb-4">
+            <h3>General Settings</h3>
+            <form id="generalSettingsForm" class="dashboard-form">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Mobile Number</label>
+                  <input type="text" class="form-control" id="settingsPhone" placeholder="+254 700 000 000">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Email</label>
+                  <input type="email" class="form-control" id="settingsEmail" placeholder="info@example.com">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">WhatsApp Number</label>
+                  <input type="text" class="form-control" id="settingsWhatsapp" placeholder="+254 700 000 000">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Location</label>
+                  <input type="text" class="form-control" id="settingsLocation" placeholder="Moi Avenue, Nairobi CBD">
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Google Map Embed</label>
+                  <textarea class="form-control" id="settingsMapEmbed" placeholder="Paste a Google Maps embed URL or full iframe code"></textarea>
+                  <div class="form-text">Paste the Google Maps embed link or iframe code and it will show in the frontend location section.</div>
+                </div>
+                <div class="col-12">
+                  <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                    <h5 class="fw-bold mb-0">Social Media Links</h5>
+                    <button class="btn btn-maze-outline btn-sm" type="button" id="addSocialBtn"><i class="bi bi-plus-lg me-1"></i>Add Platform</button>
+                  </div>
+                  <div class="dashboard-table-wrap">
+                    <table class="table dashboard-table mb-0" style="min-width:760px">
+                      <thead>
+                        <tr>
+                          <th style="width:22%">Platform</th>
+                          <th style="width:18%">Icon</th>
+                          <th style="width:18%">Handle</th>
+                          <th>Link</th>
+                          <th style="width:12%">Active</th>
+                          <th style="width:10%">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="socialLinksBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save Settings</button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <section id="installation-charges" class="dashboard-panel mb-4">
+            <h3>Installation Charges</h3>
+            <form id="serviceChargesForm" class="dashboard-form">
+              <div class="dashboard-table-wrap">
+                <table class="table dashboard-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Service</th>
+                      <th>Charge Display</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="fw-semibold">TV Mounting</td>
+                      <td><input class="form-check-input" type="checkbox" id="chargeTvEnabled"></td>
+                      <td><input type="text" class="form-control form-control-sm" id="chargeTvAmount" placeholder="From KSh 1,500"></td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">Solar Installation</td>
+                      <td><input class="form-check-input" type="checkbox" id="chargeSolarEnabled"></td>
+                      <td><input type="text" class="form-control form-control-sm" id="chargeSolarAmount" placeholder="From KSh 5,000"></td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">Electrical Work</td>
+                      <td><input class="form-check-input" type="checkbox" id="chargeElectricalEnabled"></td>
+                      <td><input type="text" class="form-control form-control-sm" id="chargeElectricalAmount" placeholder="From KSh 1,000"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="mt-3">
+                <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save Installation Charges</button>
+              </div>
+            </form>
+          </section>
+
+          <section id="page-content" class="dashboard-panel mb-4">
+            <h3>Page Text Manager</h3>
+            <form id="pageContentForm" class="dashboard-form">
+              <div class="row g-4">
+                <div class="col-12">
+                  <h5 class="fw-bold">Hero Slides</h5>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Slide 1 Badge</label>
+                  <input type="text" class="form-control" id="hero1Badge">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label small fw-semibold">Slide 1 Title</label>
+                  <textarea class="form-control" id="hero1Title"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Slide 1 Description</label>
+                  <textarea class="form-control" id="hero1Description"></textarea>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Slide 2 Badge</label>
+                  <input type="text" class="form-control" id="hero2Badge">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label small fw-semibold">Slide 2 Title</label>
+                  <textarea class="form-control" id="hero2Title"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Slide 2 Description</label>
+                  <textarea class="form-control" id="hero2Description"></textarea>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Slide 3 Badge</label>
+                  <input type="text" class="form-control" id="hero3Badge">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label small fw-semibold">Slide 3 Title</label>
+                  <textarea class="form-control" id="hero3Title"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Slide 3 Description</label>
+                  <textarea class="form-control" id="hero3Description"></textarea>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Products Label</label>
+                  <input type="text" class="form-control" id="productsLabelInput">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Products Title</label>
+                  <input type="text" class="form-control" id="productsTitleInput">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Products Subtitle</label>
+                  <input type="text" class="form-control" id="productsSubtitleInput">
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Services Label</label>
+                  <input type="text" class="form-control" id="servicesLabelInput">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Services Title</label>
+                  <input type="text" class="form-control" id="servicesTitleInput">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Services Subtitle</label>
+                  <input type="text" class="form-control" id="servicesSubtitleInput">
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">About Label</label>
+                  <input type="text" class="form-control" id="aboutLabelInput">
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label small fw-semibold">About Title</label>
+                  <input type="text" class="form-control" id="aboutTitleInput">
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">About Paragraph One</label>
+                  <textarea class="form-control" id="aboutParagraphOneInput"></textarea>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">About Paragraph Two</label>
+                  <textarea class="form-control" id="aboutParagraphTwoInput"></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Vision Title</label>
+                  <input type="text" class="form-control" id="visionTitleInput">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Mission Title</label>
+                  <input type="text" class="form-control" id="missionTitleInput">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Vision Text</label>
+                  <textarea class="form-control" id="visionTextInput"></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Mission Text</label>
+                  <textarea class="form-control" id="missionTextInput"></textarea>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Contact Label</label>
+                  <input type="text" class="form-control" id="contactLabelInput">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Contact Title</label>
+                  <input type="text" class="form-control" id="contactTitleInput">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Contact Subtitle</label>
+                  <input type="text" class="form-control" id="contactSubtitleInput">
+                </div>
+
+                <div class="col-12">
+                  <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save Page Text</button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          <section id="products-manager" class="dashboard-panel mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <h3 class="mb-0">Products Manager</h3>
+              <button class="btn btn-maze" type="button" id="addProductBtn"><i class="bi bi-plus-lg me-2"></i>Add Product</button>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-lg-5">
+                <div class="dashboard-list" id="productList"></div>
+              </div>
+              <div class="col-lg-7">
+                <form id="productForm" class="dashboard-form">
+                  <input type="hidden" id="productId">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Product Name</label>
+                      <input type="text" class="form-control" id="productName" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Category</label>
+                      <select class="form-select" id="productCategory" required>
+                        <option value="tv-mounts">TV Wall Mounts</option>
+                        <option value="guards">Guards</option>
+                        <option value="solar">Solar Outdoor Lights</option>
+                        <option value="cables">Extension Cables</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Sub Product</label>
+                      <select class="form-select" id="productSubCategory" required></select>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Product Images</label>
+                      <input type="file" class="form-control" id="productImageFiles" accept="image/*" multiple>
+                      <input type="file" id="productReplaceFile" accept="image/*" class="d-none">
+                      <div class="mt-2 d-flex flex-wrap gap-2" id="productImagePreview"></div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Short Description</label>
+                      <textarea class="form-control" id="productShortDesc" required></textarea>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Full Description</label>
+                      <textarea class="form-control" id="productDesc" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">SEO Title</label>
+                      <input type="text" class="form-control" id="productSeoTitle">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">SEO Description</label>
+                      <textarea class="form-control" id="productSeoDescription"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Specifications</label>
+                      <textarea class="form-control" id="productSpecs" placeholder="Compatibility: 32-75 inch TVs"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Features</label>
+                      <textarea class="form-control" id="productFeatures" placeholder="One feature per line"></textarea>
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2">
+                      <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save Product</button>
+                      <button class="btn btn-maze-outline" type="button" id="deleteProductBtn"><i class="bi bi-trash me-2"></i>Delete Product</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <section id="subproducts-manager" class="dashboard-panel mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <h3 class="mb-0">Sub Products Manager</h3>
+              <button class="btn btn-maze" type="button" id="addSubProductBtn"><i class="bi bi-plus-lg me-2"></i>Add Sub Product</button>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-lg-5">
+                <label class="form-label small fw-semibold">Main Category</label>
+                <select class="form-select mb-3" id="subProductCategorySelect">
+                  <option value="tv-mounts">TV Wall Mounts</option>
+                  <option value="guards">Guards</option>
+                  <option value="solar">Solar Outdoor Lights</option>
+                  <option value="cables">Extension Cables</option>
+                </select>
+                <div class="dashboard-list" id="subProductList"></div>
+              </div>
+              <div class="col-lg-7">
+                <form id="subProductForm" class="dashboard-form">
+                  <input type="hidden" id="subProductOriginalId">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Sub Product ID</label>
+                      <input type="text" class="form-control" id="subProductId" placeholder="e.g. fixed" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Sub Product Name</label>
+                      <input type="text" class="form-control" id="subProductLabel" placeholder="e.g. Fixed Wall Mounts" required>
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2">
+                      <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save Sub Product</button>
+                      <button class="btn btn-maze-outline" type="button" id="deleteSubProductBtn"><i class="bi bi-trash me-2"></i>Delete</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <section id="inquiries-manager" class="dashboard-panel mb-4">
+            <h3>Inquiry Manager</h3>
+            <div class="dashboard-table-wrap">
+              <table class="table dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="inquiriesTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="blogs-manager" class="dashboard-panel mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+              <h3 class="mb-0">Blogs</h3>
+              <button class="btn btn-maze" type="button" id="addBlogBtn"><i class="bi bi-plus-lg me-2"></i>Add Blog</button>
+            </div>
+
+            <div class="row g-4">
+              <div class="col-lg-5">
+                <div class="dashboard-list" id="blogList"></div>
+              </div>
+              <div class="col-lg-7">
+                <form id="blogForm" class="dashboard-form">
+                  <input type="hidden" id="blogId">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Title</label>
+                      <input type="text" class="form-control" id="blogTitle" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Date</label>
+                      <input type="date" class="form-control" id="blogDate" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small fw-semibold">Author</label>
+                      <input type="text" class="form-control" id="blogAuthor" placeholder="Admin">
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Blog Image</label>
+                      <input type="file" class="form-control" id="blogImageFile" accept="image/*">
+                      <div class="mt-2" id="blogImagePreview"></div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Excerpt</label>
+                      <textarea class="form-control" id="blogExcerpt" required></textarea>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Full Blog Content</label>
+                      <textarea class="form-control" id="blogContent" required></textarea>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small fw-semibold">Optional Source Link</label>
+                      <input type="text" class="form-control" id="blogLink" placeholder="#">
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2">
+                      <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save Blog</button>
+                      <button class="btn btn-maze-outline" type="button" id="deleteBlogBtn"><i class="bi bi-trash me-2"></i>Delete Blog</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+          <section id="seo-manager" class="dashboard-panel">
+            <h3>Meta SEO Manager</h3>
+            <form id="seoForm" class="dashboard-form">
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Website Meta Title</label>
+                  <input type="text" class="form-control" id="siteMetaTitle">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Meta Keywords</label>
+                  <input type="text" class="form-control" id="siteMetaKeywords">
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Website Meta Description</label>
+                  <textarea class="form-control" id="siteMetaDescription"></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Open Graph Title</label>
+                  <input type="text" class="form-control" id="siteOgTitle">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Open Graph Description</label>
+                  <textarea class="form-control" id="siteOgDescription"></textarea>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-4" id="sectionSeoFields"></div>
+              <div class="row g-3" id="categorySeoFields"></div>
+
+              <div class="mt-4">
+                <button class="btn btn-maze" type="submit"><i class="bi bi-save me-2"></i>Save SEO Settings</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="inquiryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:14px;overflow:hidden">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="fw-bold mb-0">Inquiry</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body pt-2">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="small text-secondary">Name</div>
+              <div class="fw-semibold" id="inquiryViewName"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-secondary">Phone</div>
+              <div class="fw-semibold" id="inquiryViewPhone"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-secondary">Email</div>
+              <div class="fw-semibold" id="inquiryViewEmail"></div>
+            </div>
+            <div class="col-md-6">
+              <div class="small text-secondary">Subject</div>
+              <div class="fw-semibold" id="inquiryViewSubject"></div>
+            </div>
+            <div class="col-12">
+              <div class="small text-secondary">Message</div>
+              <div class="p-3 rounded-3" style="background:var(--gray-light)" id="inquiryViewMessage"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/site-data.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

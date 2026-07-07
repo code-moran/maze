@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" id="metaDescription" content="Maze - Premium TV Wall Mounts, Guards, Solar Outdoor Lights & Professional Installation Services in Kenya">
+<meta name="keywords" id="metaKeywords" content="TV wall mounts, solar lights, extension cables, Kenya, Nairobi">
+<meta property="og:title" id="metaOgTitle" content="Maze - Smart Home Solutions">
+<meta property="og:description" id="metaOgDescription" content="Premium products and professional installation services">
+<meta property="og:type" content="website">
+<title>Maze | Smart Home Solutions</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar d-none d-md-block">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="d-flex gap-3">
+      <span><i class="bi bi-telephone-fill me-1"></i><a id="topPhoneLink" href="tel:+254700000000">+254 700 000 000</a></span>
+      <span><i class="bi bi-envelope-fill me-1"></i><a id="topEmailLink" href="mailto:info@mazetechnologies.co.ke">info@mazetechnologies.co.ke</a></span>
+    </div>
+    <div class="d-flex gap-2 align-items-center" id="topSocialLinks"></div>
+  </div>
+</div>
+
+<!-- STICKY NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="#home">Maze<span>Tech</span></a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-label="Toggle navigation">
+      <i class="bi bi-list fs-4" style="color:var(--maze-green)"></i>
+    </button>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto align-items-center gap-1">
+        <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">About Us</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#about"><i class="bi bi-building me-2 text-success"></i>About Maze</a></li>
+            <li><a class="dropdown-item" href="#blog"><i class="bi bi-newspaper me-2 text-success"></i>Blog</a></li>
+            <li><a class="dropdown-item" href="#location"><i class="bi bi-geo-alt me-2 text-success"></i>Location</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Products</a>
+          <div class="dropdown-menu mega-menu p-0 overflow-hidden" id="productsMegaMenu"></div>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#services">Installation Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb-bar">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb maze-breadcrumb mb-0" id="siteBreadcrumb"></ol>
+    </nav>
+  </div>
+</div>
+
+<!-- MOBILE OFFCANVAS MENU -->
+<div class="offcanvas offcanvas-start" id="mobileMenu" tabindex="-1">
+  <div class="offcanvas-header" style="background:var(--maze-green)">
+    <span class="fw-bold fs-5 text-white">Maze<span style="color:#c8f5c8">Tech</span></span>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <div class="accordion accordion-flush" id="mobileAccordion">
+      <div class="accordion-item border-0">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mc1">About Us</button></h2>
+        <div id="mc1" class="accordion-collapse collapse" data-bs-parent="#mobileAccordion">
+          <div class="accordion-body py-0">
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark border-bottom" href="#about" data-bs-dismiss="offcanvas">About Maze</a>
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark border-bottom" href="#blog" data-bs-dismiss="offcanvas">Blog</a>
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark" href="#location" data-bs-dismiss="offcanvas">Location</a>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item border-0">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mc2">Products</button></h2>
+        <div id="mc2" class="accordion-collapse collapse" data-bs-parent="#mobileAccordion">
+          <div class="accordion-body py-0">
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark border-bottom" href="#products" data-bs-dismiss="offcanvas" onclick="filterProducts('tv-mounts')">TV Wall Mounts</a>
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark border-bottom" href="#products" data-bs-dismiss="offcanvas" onclick="filterProducts('guards')">Guards</a>
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark border-bottom" href="#products" data-bs-dismiss="offcanvas" onclick="filterProducts('solar')">Solar Outdoor Lights</a>
+            <a class="d-block py-2 ps-3 text-decoration-none text-dark" href="#products" data-bs-dismiss="offcanvas" onclick="filterProducts('cables')">Extension Cables</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a href="#services" class="d-block px-4 py-3 border-top text-decoration-none text-dark fw-500" data-bs-dismiss="offcanvas">Installation Services</a>
+    <a href="#contact" class="d-block px-4 py-3 border-top text-decoration-none text-dark fw-500" data-bs-dismiss="offcanvas">Contact Us</a>
+    <div class="px-4 pt-3">
+      <a href="tel:+254700000000" class="btn btn-maze w-100"><i class="bi bi-telephone-fill me-2"></i>+254 700 000 000</a>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH BAR -->
+<div class="search-bar-wrap">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-7 col-lg-6 position-relative">
+        <div class="input-group">
+          <input type="text" class="form-control" id="searchInput" placeholder="Search products, categories..." autocomplete="off">
+          <button class="btn" onclick="doSearch()"><i class="bi bi-search"></i></button>
+        </div>
+        <div id="searchResults"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO CAROUSEL -->
+<section id="home">
+  <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active" style="background:linear-gradient(135deg,#003300 0%,#005500 60%,#007700 100%)">
+        <div class="hero-overlay" style="background:transparent"></div>
+        <div class="d-flex align-items-center justify-content-center" style="height:100%">
+          <div style="position:absolute;right:0;top:0;bottom:0;width:45%;background:url('https://images.unsplash.com/photo-1593784991095-a205069470b6?w=900&auto=format&fit=crop') center/cover;opacity:.4"></div>
+        </div>
+        <div class="hero-caption">
+          <div class="fade-up">
+            <span class="badge mb-3" id="heroBadge1" style="background:rgba(255,255,255,.15);color:#c8f5c8;font-size:.8rem;padding:6px 14px;border-radius:20px">Premium TV Mounts</span>
+            <h1 id="heroTitle1">Mount Your TV<br>Like a Pro</h1>
+            <p id="heroDesc1">Full-motion, fixed, and tilting TV wall mounts for every screen size. Professional installation included.</p>
+            <div class="d-flex flex-wrap gap-2">
+              <a href="#products" class="btn btn-maze">View Products</a>
+              <a href="#services" class="btn btn-maze-outline" style="border-color:#c8f5c8;color:#c8f5c8">Request Installation</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item" style="background:linear-gradient(135deg,#002200 0%,#004400 60%,#006600 100%)">
+        <div style="position:absolute;right:0;top:0;bottom:0;width:45%;background:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&auto=format&fit=crop') center/cover;opacity:.4"></div>
+        <div class="hero-caption">
+          <span class="badge mb-3" id="heroBadge2" style="background:rgba(255,255,255,.15);color:#c8f5c8;font-size:.8rem;padding:6px 14px;border-radius:20px">Solar Energy</span>
+          <h1 id="heroTitle2">Power Your Outdoors<br>with Solar Light</h1>
+          <p id="heroDesc2">Eco-friendly solar outdoor lights — no wiring, no electricity bills. Illuminate your compound sustainably.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="#products" onclick="filterProducts('solar')" class="btn btn-maze">Shop Solar Lights</a>
+            <a href="#contact" class="btn btn-maze-outline" style="border-color:#c8f5c8;color:#c8f5c8">Contact Us</a>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item" style="background:linear-gradient(135deg,#001800 0%,#003300 60%,#005500 100%)">
+        <div style="position:absolute;right:0;top:0;bottom:0;width:45%;background:url('https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=900&auto=format&fit=crop') center/cover;opacity:.4"></div>
+        <div class="hero-caption">
+          <span class="badge mb-3" id="heroBadge3" style="background:rgba(255,255,255,.15);color:#c8f5c8;font-size:.8rem;padding:6px 14px;border-radius:20px">Professional Services</span>
+          <h1 id="heroTitle3">Expert Installation<br>at Your Doorstep</h1>
+          <p id="heroDesc3">TV mounting, solar, and electrical installations by certified technicians across Nairobi.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="#services" class="btn btn-maze">Our Services</a>
+            <a href="#contact" class="btn btn-maze-outline" style="border-color:#c8f5c8;color:#c8f5c8">Get a Quote</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3 stat-item"><div class="stat-num">2,400+</div><div class="stat-label">Products Installed</div></div>
+      <div class="col-6 col-md-3 stat-item"><div class="stat-num">1,800+</div><div class="stat-label">Happy Clients</div></div>
+      <div class="col-6 col-md-3 stat-item"><div class="stat-num">8+</div><div class="stat-label">Years Experience</div></div>
+      <div class="col-6 col-md-3 stat-item"><div class="stat-num">24/7</div><div class="stat-label">Customer Support</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURED PRODUCTS -->
+<section id="products" class="py-5" style="background:#fafffe">
+  <div class="container">
+    <div class="text-center mb-4">
+      <p class="section-label" id="productsLabel">What We Offer</p>
+      <h2 class="section-title" id="productsTitle">Our Products</h2>
+      <div class="divider-green mx-auto"></div>
+      <p class="section-sub" id="productsSubtitle">Quality products for your home and office</p>
+      <div class="d-flex flex-wrap justify-content-center gap-2 mb-4" id="catFilters">
+        <span class="cat-pill" onclick="filterProducts('tv-mounts')"><i class="bi bi-tv me-1"></i>TV Wall Mounts</span>
+        <span class="cat-pill" onclick="filterProducts('guards')"><i class="bi bi-shield-check me-1"></i>Guards</span>
+        <span class="cat-pill" onclick="filterProducts('solar')"><i class="bi bi-sun me-1"></i>Solar Outdoor Lights</span>
+        <span class="cat-pill" onclick="filterProducts('cables')"><i class="bi bi-plug me-1"></i>Extension Cables</span>
+      </div>
+    </div>
+    <div class="row g-4 align-items-start">
+      <div class="col-12 col-lg-3 d-none" id="subCatPanel">
+        <div class="subcat-sidebar">
+          <h5 class="fw-bold mb-3" id="subCatTitle">Sub Products</h5>
+          <div id="subCatFilters"></div>
+        </div>
+      </div>
+      <div class="col-12" id="productsGridWrap">
+        <div class="row g-4" id="productsGrid"></div>
+        <div class="text-center mt-4">
+          <button class="btn btn-maze-outline" onclick="loadMoreProducts()" id="loadMoreBtn">Load More Products <i class="bi bi-arrow-down ms-1"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div class="modal fade" id="productModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius:14px;overflow:hidden">
+      <div class="modal-header border-0 pb-0">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item"><a href="#" class="text-success">Home</a></li>
+            <li class="breadcrumb-item"><a href="#" class="text-success">Products</a></li>
+            <li class="breadcrumb-item active" id="modalBreadCat">Category</li>
+          </ol>
+        </nav>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <div class="row g-4">
+          <div class="col-md-5">
+            <img id="modalMainImg" src="" alt="" class="modal-main-img mb-2">
+            <div class="d-flex gap-2 flex-wrap" id="modalThumbs"></div>
+          </div>
+          <div class="col-md-7">
+            <span class="badge mb-2" id="modalCatBadge" style="background:var(--maze-green-light);color:var(--maze-green);font-size:.8rem"></span>
+            <h4 class="fw-bold" id="modalTitle"></h4>
+            <p id="modalDesc" class="text-secondary"></p>
+            <h6 class="fw-bold mt-3 mb-2">Specifications</h6>
+            <table class="table table-sm spec-table" id="modalSpecs"><tbody></tbody></table>
+            <h6 class="fw-bold mt-3 mb-2">Key Features</h6>
+            <ul id="modalFeatures" class="small text-secondary ps-3"></ul>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <a href="#contactForm" class="btn btn-maze" onclick="return goToContactForm(event)"><i class="bi bi-tools me-2"></i>Request Installation</a>
+              <a href="#contactForm" class="btn btn-maze-outline" onclick="return goToContactForm(event)"><i class="bi bi-chat-dots me-2"></i>Enquire Now</a>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <h5 class="fw-bold mb-3">Related Products</h5>
+        <div class="row g-3" id="modalRelated"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALLATION SERVICES -->
+<section id="services" class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label" id="servicesLabel">Professional Services</p>
+      <h2 class="section-title" id="servicesTitle">Installation Services</h2>
+      <div class="divider-green mx-auto"></div>
+      <p class="section-sub" id="servicesSubtitle">Certified technicians at your doorstep across Nairobi</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4">
+        <div class="service-card h-100">
+          <div class="card-body text-center">
+            <div class="service-icon mx-auto"><i class="bi bi-tv"></i></div>
+            <h5 class="fw-bold">TV Mounting</h5>
+            <p class="text-secondary small">Professional wall mounting for all screen sizes. We drill, mount, and cable-manage for a clean finish.</p>
+            <p class="fw-bold text-success mb-3" id="serviceChargeTv">From KSh 1,500</p>
+            <a href="#contact" class="btn btn-maze w-100">Request Quote</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="service-card h-100">
+          <div class="card-body text-center">
+            <div class="service-icon mx-auto"><i class="bi bi-sun"></i></div>
+            <h5 class="fw-bold">Solar Installation</h5>
+            <p class="text-secondary small">Solar panel and outdoor solar light installation. Eco-friendly, grid-independent power solutions.</p>
+            <p class="fw-bold text-success mb-3" id="serviceChargeSolar">From KSh 5,000</p>
+            <a href="#contact" class="btn btn-maze w-100">Request Quote</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="service-card h-100">
+          <div class="card-body text-center">
+            <div class="service-icon mx-auto"><i class="bi bi-lightning-charge"></i></div>
+            <h5 class="fw-bold">Electrical Work</h5>
+            <p class="text-secondary small">Socket installation, cable routing, power extensions, and general electrical installations.</p>
+            <p class="fw-bold text-success mb-3" id="serviceChargeElectrical">From KSh 1,000</p>
+            <a href="#contact" class="btn btn-maze w-100">Request Quote</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="py-5" style="background:var(--gray-light)">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label">Why Maze</p>
+      <h2 class="section-title">Why Choose Us</h2>
+      <div class="divider-green mx-auto"></div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-3">
+        <div class="why-card h-100">
+          <div class="icon-box"><i class="bi bi-patch-check-fill"></i></div>
+          <h6 class="fw-bold">Certified Quality</h6>
+          <p class="text-secondary small mb-0">All products are tested and certified to meet international quality standards.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="why-card h-100">
+          <div class="icon-box"><i class="bi bi-tools"></i></div>
+          <h6 class="fw-bold">Expert Installation</h6>
+          <p class="text-secondary small mb-0">Our technicians are factory-trained and insured, ensuring safe, clean installations.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="why-card h-100">
+          <div class="icon-box"><i class="bi bi-headset"></i></div>
+          <h6 class="fw-bold">24/7 Support</h6>
+          <p class="text-secondary small mb-0">We're always available via phone, WhatsApp, or email for after-sales support.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="why-card h-100">
+          <div class="icon-box"><i class="bi bi-arrow-repeat"></i></div>
+          <h6 class="fw-bold">Warranty Guarantee</h6>
+          <p class="text-secondary small mb-0">All products come with manufacturer warranty and our 6-month installation guarantee.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="py-5 bg-white">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <p class="section-label" id="aboutLabel">Who We Are</p>
+        <h2 class="section-title" id="aboutTitle">About Maze</h2>
+        <div class="divider-green" style="margin:0 0 1.2rem 0"></div>
+        <p class="text-secondary" id="aboutParagraphOne">Maze is a Nairobi-based technology company specializing in home and commercial electronics installation products. Founded in 2016, we've grown to become one of Kenya's trusted suppliers of TV wall mounts, security guards, solar outdoor lighting, and extension cable solutions.</p>
+        <p class="text-secondary" id="aboutParagraphTwo">We pair our products with professional installation services, making smart home upgrades accessible to homes, schools, hotels, and businesses across Kenya.</p>
+        <div class="row g-3 mt-2">
+          <div class="col-6">
+            <div class="p-3 rounded-3" style="background:var(--maze-green-light)">
+              <i class="bi bi-eye-fill text-success fs-4 mb-2 d-block"></i>
+              <h6 class="fw-bold mb-1" id="visionTitle">Our Vision</h6>
+              <p class="small text-secondary mb-0" id="visionText">To be East Africa's leading smart home solutions provider.</p>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 rounded-3" style="background:var(--maze-green-light)">
+              <i class="bi bi-bullseye text-success fs-4 mb-2 d-block"></i>
+              <h6 class="fw-bold mb-1" id="missionTitle">Our Mission</h6>
+              <p class="small text-secondary mb-0" id="missionText">Delivering quality products and expert service that transform living spaces.</p>
+            </div>
+          </div>
+        </div>
+        <a href="#contact" class="btn btn-maze mt-4">Get in Touch</a>
+      </div>
+      <div class="col-lg-6">
+        <div class="row g-3">
+          <div class="col-6"><img src="https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&auto=format&fit=crop" class="img-fluid rounded-3 w-100" style="height:200px;object-fit:cover" alt="TV mounting service"></div>
+          <div class="col-6"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&auto=format&fit=crop" class="img-fluid rounded-3 w-100" style="height:200px;object-fit:cover" alt="Solar installation"></div>
+          <div class="col-12"><img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&auto=format&fit=crop" class="img-fluid rounded-3 w-100" style="height:180px;object-fit:cover" alt="Team working"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-5" style="background:var(--gray-light)">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label">Client Reviews</p>
+      <h2 class="section-title">What Our Clients Say</h2>
+      <div class="divider-green mx-auto"></div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p class="text-secondary small mb-3">"Excellent service! The team arrived on time, mounted my 65-inch TV cleanly, and hid all the cables. I'd definitely recommend Maze to anyone."</p>
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--maze-green);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">JM</div>
+            <div><div class="fw-bold small">James Mwangi</div><div class="text-secondary" style="font-size:.78rem">Homeowner, Westlands</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p class="text-secondary small mb-3">"We sourced all our CCTV cameras and solar lights from Maze Tech for our hotel. Professional, fast, and the products are top quality. Great value for money!"</p>
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--maze-green);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">SK</div>
+            <div><div class="fw-bold small">Sandra Kamau</div><div class="text-secondary" style="font-size:.78rem">Hotel Manager, Karen</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card">
+          <div class="stars">★★★★☆</div>
+          <p class="text-secondary small mb-3">"The extension cables are of great quality and well-priced. The delivery was fast and the packaging was excellent. Will definitely order again from Maze."</p>
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--maze-green);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.9rem">PO</div>
+            <div><div class="fw-bold small">Paul Otieno</div><div class="text-secondary" style="font-size:.78rem">Office Manager, CBD</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label">Insights & Updates</p>
+      <h2 class="section-title">Latest from Our Blog</h2>
+      <div class="divider-green mx-auto"></div>
+    </div>
+    <div class="row g-4" id="blogGrid"></div>
+  </div>
+</section>
+
+<div class="modal fade" id="blogModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius:14px;overflow:hidden">
+      <div class="modal-header border-0 pb-0">
+        <div>
+          <div class="blog-meta mb-2" id="blogModalMeta"></div>
+          <h4 class="fw-bold mb-0" id="blogModalTitle"></h4>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <img id="blogModalImage" src="" alt="" class="img-fluid rounded-3 mb-3 w-100" style="max-height:340px;object-fit:cover">
+        <div id="blogModalContent" class="text-secondary"></div>
+        <div class="mt-4 d-none" id="blogModalSourceWrap">
+          <a id="blogModalSourceLink" href="#" class="btn btn-maze-outline" target="_blank" rel="noopener">Open Source Link</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <div class="container">
+    <h2>Ready to Transform Your Space?</h2>
+    <p class="mb-4 opacity-75">Get a free consultation and quote from our certified installation team</p>
+    <div class="d-flex flex-wrap gap-3 justify-content-center">
+      <a href="#contact" class="btn btn-light fw-bold px-4"><i class="bi bi-chat-dots me-2"></i>Get a Free Quote</a>
+      <a href="https://wa.me/254700000000" class="btn fw-bold px-4" style="background:#25d366;color:#fff"><i class="bi bi-whatsapp me-2"></i>WhatsApp Us</a>
+    </div>
+  </div>
+</div>
+
+<!-- LOCATION -->
+<section id="location" class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label">Find Us</p>
+      <h2 class="section-title">Our Location</h2>
+      <div class="divider-green mx-auto"></div>
+    </div>
+    <div class="row g-4 align-items-stretch">
+      <div class="col-lg-4">
+        <div class="p-4 rounded-3 h-100" style="background:var(--maze-green-light)">
+          <h5 class="fw-bold mb-4">Visit Our Showroom</h5>
+          <div class="d-flex gap-3 mb-3">
+            <i class="bi bi-geo-alt-fill text-success fs-5 mt-1"></i>
+            <div><strong>Address</strong><br><span class="text-secondary small" id="locationAddressText">Moi Avenue, Shop 24, Nairobi CBD<br>Nairobi, Kenya</span></div>
+          </div>
+          <div class="d-flex gap-3 mb-3">
+            <i class="bi bi-clock-fill text-success fs-5 mt-1"></i>
+            <div><strong>Business Hours</strong><br><span class="text-secondary small">Mon – Sat: 8:00 AM – 6:00 PM<br>Sun: 10:00 AM – 4:00 PM</span></div>
+          </div>
+          <div class="d-flex gap-3 mb-3">
+            <i class="bi bi-telephone-fill text-success fs-5 mt-1"></i>
+            <div><strong>Phone</strong><br><a href="tel:+254700000000" id="locationPhoneLink" class="text-success small">+254 700 000 000</a></div>
+          </div>
+          <div class="d-flex gap-3">
+            <i class="bi bi-envelope-fill text-success fs-5 mt-1"></i>
+            <div><strong>Email</strong><br><a href="mailto:info@mazetechnologies.co.ke" id="locationEmailLink" class="text-success small">info@mazetechnologies.co.ke</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="ratio ratio-16x9 rounded-3 overflow-hidden" style="min-height:300px">
+          <iframe id="locationMapFrame" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8175952!2d36.8193!3d-1.2833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f10d22dc5ac9b%3A0x8e7a1e5aebc9ed82!2sNairobi%20CBD!5e0!3m2!1sen!2ske!4v1686000000000!5m2!1sen!2ske" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="py-5" style="background:var(--gray-light)">
+  <div class="container">
+    <div class="text-center mb-5">
+      <p class="section-label" id="contactLabel">Get in Touch</p>
+      <h2 class="section-title" id="contactTitle">Contact Us</h2>
+      <div class="divider-green mx-auto"></div>
+      <p class="section-sub" id="contactSubtitle">We respond within 2 hours during business hours</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-7">
+        <div class="contact-card">
+          <form id="contactForm" onsubmit="submitContact(event)">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-500 small">Full Name *</label>
+                <input type="text" class="form-control" id="contactName" placeholder="e.g. John Kamau" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-500 small">Phone Number *</label>
+                <input type="tel" class="form-control" id="contactPhone" placeholder="+254 7XX XXX XXX" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-500 small">Email Address</label>
+                <input type="email" class="form-control" id="contactEmail" placeholder="you@example.com">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-500 small">Subject *</label>
+                <select class="form-select" id="contactSubject" required>
+                  <option value="">Select a subject...</option>
+                  <option>Product Enquiry</option>
+                  <option>Installation Quote</option>
+                  <option>After-Sales Support</option>
+                  <option>Partnership / Bulk Order</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-500 small">Message *</label>
+                <textarea class="form-control" id="contactMessage" rows="4" placeholder="Tell us what you need..." required></textarea>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-maze w-100 py-2"><i class="bi bi-send me-2"></i>Send Message</button>
+              </div>
+            </div>
+          </form>
+          <div id="contactAlert" class="alert alert-success mt-3 d-none" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>Thanks! We've received your message and will respond shortly.
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="d-flex flex-column gap-3">
+          <a href="https://wa.me/254700000000" id="contactWhatsappCard" class="contact-card d-flex align-items-center gap-3 text-decoration-none" style="background:#25d366">
+            <i class="bi bi-whatsapp text-white fs-2"></i>
+            <div><div class="fw-bold text-white">WhatsApp Us</div><div class="text-white opacity-75 small" id="contactWhatsappText">+254 700 000 000</div></div>
+          </a>
+          <a href="tel:+254700000000" id="contactPhoneCard" class="contact-card d-flex align-items-center gap-3 text-decoration-none" style="background:var(--maze-green)">
+            <i class="bi bi-telephone-fill text-white fs-2"></i>
+            <div><div class="fw-bold text-white">Call Us</div><div class="text-white opacity-75 small" id="contactPhoneText">Mon–Sat, 8am–6pm</div></div>
+          </a>
+          <div class="contact-card">
+            <h6 class="fw-bold mb-3">Follow Us</h6>
+            <div class="d-flex gap-2 flex-wrap" id="contactSocialLinks"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="footer-brand mb-2">Maze<span>Tech</span></div>
+        <p class="small mb-3" style="color:#888">Nairobi's trusted supplier of smart home products and professional installation services. Quality products, expert hands.</p>
+        <div class="d-flex gap-2" id="footerSocialLinks"></div>
+      </div>
+      <div class="col-6 col-md-2">
+        <h5>Products</h5>
+        <a href="#products" onclick="filterProducts('tv-mounts')">TV Wall Mounts</a>
+        <a href="#products" onclick="filterProducts('guards')">Guards</a>
+        <a href="#products" onclick="filterProducts('solar')">Solar Lights</a>
+        <a href="#products" onclick="filterProducts('cables')">Extension Cables</a>
+      </div>
+      <div class="col-6 col-md-2">
+        <h5>Company</h5>
+        <a href="#about">About Maze</a>
+        <a href="#services">Our Services</a>
+        <a href="#blog">Blog</a>
+        <a href="#location">Location</a>
+        <a href="#contact">Contact</a>
+        <a href="dashboard.htm">Dashboard</a>
+      </div>
+      <div class="col-md-4">
+        <h5>Contact Info</h5>
+        <p class="small footer-contact-item"><i class="bi bi-geo-alt text-success"></i><span id="footerLocationText">Moi Avenue, Shop 24, Nairobi CBD</span></p>
+        <p class="small footer-contact-item"><i class="bi bi-telephone text-success"></i><a id="footerPhoneLink" href="tel:+254700000000">+254 700 000 000</a></p>
+        <p class="small footer-contact-item"><i class="bi bi-envelope text-success"></i><a id="footerEmailLink" href="mailto:info@mazetechnologies.co.ke">info@mazetechnologies.co.ke</a></p>
+        <p class="small footer-contact-item"><i class="bi bi-clock text-success"></i><span>Mon–Sat: 8am–6pm</span></p>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">
+      <span>© 2026 Maze. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- WHATSAPP FAB -->
+<a href="https://wa.me/254700000000" id="whatsappFab" class="whatsapp-fab" target="_blank" aria-label="Chat on WhatsApp">
+  <i class="bi bi-whatsapp"></i>
+</a>
+
+<!-- BACK TO TOP -->
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="bi bi-arrow-up"></i>
+</button>
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 start-0 p-3" style="z-index:1100">
+  <div id="mainToast" class="toast align-items-center text-bg-success border-0" role="alert">
+    <div class="d-flex"><div class="toast-body" id="toastMsg"></div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/site-data.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
