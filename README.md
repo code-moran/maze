@@ -19,12 +19,12 @@ In VS Code/Cursor, use the **Run Local Server** task.
 
 ## Deployment
 
-This project is deployed as a **static site**. Vercel serves the root HTML, CSS, and JS files directly — no Next.js build step.
+This project is deployed as a **static site**. Vercel serves the root HTML, CSS, JS, and image files directly.
 
 - `/` → `index.html`
 - `/dashboard` → `dashboard.html`
-- `/maze-technologies.html` → redirects to `index.html` (used by dashboard links)
+- `/maze-technologies.html` → redirects to `index.html`
 
-## Optional Next.js app
+## Dashboard
 
-The `app/` folder contains an experimental Next.js wrapper. It is not used for production deployment. Use the static files at the project root for the full site experience, including search, product filters, modals, and dashboard editing.
+Use the dashboard to edit page text, installation service descriptions and charges, products, blogs, inquiries, and SEO settings. Changes are saved to browser local storage.

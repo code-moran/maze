@@ -17,7 +17,7 @@ const DEFAULT_SITE_DATA = {
     },
     services: {
       title: "Installation Services | Maze",
-      description: "Request professional TV mounting, solar setup, and electrical services from Maze."
+      description: "Request professional TV mounting and solar setup services from Maze."
     },
     about: {
       title: "About Maze",
@@ -107,9 +107,18 @@ const DEFAULT_SITE_DATA = {
     ]
   },
   serviceCharges: {
-    tv: { label: "TV Mounting", amount: "From KSh 1,500", enabled: true },
-    solar: { label: "Solar Installation", amount: "From KSh 5,000", enabled: true },
-    electrical: { label: "Electrical Work", amount: "From KSh 1,000", enabled: true }
+    tv: {
+      label: "TV Mounting",
+      amount: "From KSh 1,500",
+      enabled: true,
+      description: "Professional wall mounting for all screen sizes. We drill, mount, and cable-manage for a clean finish."
+    },
+    solar: {
+      label: "Solar Installation",
+      amount: "From KSh 5,000",
+      enabled: true,
+      description: "Solar panel and outdoor solar light installation. Eco-friendly, grid-independent power solutions."
+    }
   },
   blogs: [
     {
@@ -158,7 +167,7 @@ const DEFAULT_SITE_DATA = {
       {
         badge: "Professional Services",
         title: "Expert Installation<br>at Your Doorstep",
-        description: "TV mounting, solar, and electrical installations by certified technicians across Nairobi."
+        description: "TV mounting and solar installations by certified technicians across Nairobi."
       }
     ],
     productsIntro: {
@@ -543,6 +552,22 @@ function normalizeSiteData(data) {
       }
     }
   });
+
+  if (data.serviceCharges && typeof data.serviceCharges === "object") {
+    delete data.serviceCharges.electrical;
+
+    const defaults = DEFAULT_SITE_DATA.serviceCharges;
+    ["tv", "solar"].forEach((key) => {
+      if (!data.serviceCharges[key] || typeof data.serviceCharges[key] !== "object") {
+        data.serviceCharges[key] = deepClone(defaults[key]);
+        return;
+      }
+
+      if (!data.serviceCharges[key].description) {
+        data.serviceCharges[key].description = defaults[key].description;
+      }
+    });
+  }
 
   return data;
 }

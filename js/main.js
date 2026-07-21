@@ -263,17 +263,24 @@ function applyGeneralSettings(data) {
 function applyServiceCharges(data) {
   const charges = data.serviceCharges || {};
   const mappings = [
-    { key: "tv", id: "serviceChargeTv" },
-    { key: "solar", id: "serviceChargeSolar" },
-    { key: "electrical", id: "serviceChargeElectrical" }
+    { key: "tv", chargeId: "serviceChargeTv", descId: "serviceDescTv" },
+    { key: "solar", chargeId: "serviceChargeSolar", descId: "serviceDescSolar" }
   ];
 
-  mappings.forEach(({ key, id }) => {
-    const element = document.getElementById(id);
+  mappings.forEach(({ key, chargeId, descId }) => {
+    const chargeElement = document.getElementById(chargeId);
+    const descElement = document.getElementById(descId);
     const charge = charges[key];
-    if (!element || !charge) return;
-    element.textContent = charge.amount || "";
-    element.classList.toggle("d-none", !charge.enabled || !charge.amount);
+    if (!charge) return;
+
+    if (chargeElement) {
+      chargeElement.textContent = charge.amount || "";
+      chargeElement.classList.toggle("d-none", !charge.enabled || !charge.amount);
+    }
+
+    if (descElement && charge.description) {
+      descElement.textContent = charge.description;
+    }
   });
 }
 

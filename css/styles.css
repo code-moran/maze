@@ -56,11 +56,24 @@ body  {
 }
 
 .navbar-brand  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-weight:800;
   font-size:1.5rem;
   color:var(--maze-green)!important;
-  letter-spacing:-0.5px
+  letter-spacing:-0.5px;
+  padding:0
+}
+
+.brand-logo  {
+  height:36px;
+  width:auto;
+  display:block
+}
+
+.brand-logo-icon  {
+  height:32px;
+  width:auto;
+  display:block
 }
 
 .navbar-brand span  {
@@ -267,7 +280,7 @@ body  {
 }
 
 .hero-caption h1  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:clamp(1.6rem, 4vw, 2.8rem);
   font-weight:800;
   color:#fff;
@@ -293,7 +306,7 @@ body  {
 }
 
 .section-title  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-weight:700;
   font-size:1.65rem;
   color:#111;
@@ -427,7 +440,7 @@ body  {
 }
 
 .subproduct-browser-title  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:1.5rem;
   font-weight:700;
   color:#222;
@@ -644,7 +657,7 @@ body  {
 }
 
 .stat-num  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:2.4rem;
   font-weight:800;
   line-height:1
@@ -665,7 +678,7 @@ body  {
 }
 
 .cta-banner h2  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:2rem;
   font-weight:700;
   margin-bottom:.7rem
@@ -697,8 +710,14 @@ footer a:hover  {
   color:var(--maze-green-mid)
 }
 
+.footer-brand-logo  {
+  height:40px;
+  width:auto;
+  display:block
+}
+
 .footer-brand  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-weight:800;
   font-size:1.6rem;
   color:var(--maze-green)
@@ -858,7 +877,7 @@ footer a:hover  {
 }
 
 .dashboard-hero h1  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:clamp(2rem, 5vw, 3.2rem);
   font-weight:800;
   margin-bottom:.8rem
@@ -873,7 +892,7 @@ footer a:hover  {
 }
 
 .dashboard-panel h3  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:1.1rem;
   font-weight:700;
   margin-bottom:1rem
@@ -888,7 +907,7 @@ footer a:hover  {
 }
 
 .dashboard-stat .value  {
-  font-family:'Poppins', sans-serif;
+  font-family:'Inter', sans-serif;
   font-size:2rem;
   font-weight:800;
   color:var(--maze-green);

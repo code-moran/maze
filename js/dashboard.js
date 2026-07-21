@@ -620,13 +620,22 @@ function ensureBlogs(data) {
 }
 
 function ensureServiceCharges(data) {
+  const defaults = window.MazeContent.DEFAULT_SITE_DATA.serviceCharges;
+
   if (!data.serviceCharges) {
-    data.serviceCharges = {
-      tv: { label: "TV Mounting", amount: "From KSh 1,500", enabled: true },
-      solar: { label: "Solar Installation", amount: "From KSh 5,000", enabled: true },
-      electrical: { label: "Electrical Work", amount: "From KSh 1,000", enabled: true }
-    };
+    data.serviceCharges = structuredClone(defaults);
+    return;
   }
+
+  delete data.serviceCharges.electrical;
+
+  ["tv", "solar"].forEach((key) => {
+    if (!data.serviceCharges[key]) {
+      data.serviceCharges[key] = structuredClone(defaults[key]);
+    } else if (!data.serviceCharges[key].description) {
+      data.serviceCharges[key].description = defaults[key].description;
+    }
+  });
 }
 
 function nextBlogId(blogs) {
@@ -731,10 +740,10 @@ function renderDashboard() {
   ensureServiceCharges(data);
   document.getElementById("chargeTvEnabled").checked = Boolean(data.serviceCharges.tv?.enabled);
   document.getElementById("chargeTvAmount").value = data.serviceCharges.tv?.amount || "";
+  document.getElementById("chargeTvDescription").value = data.serviceCharges.tv?.description || "";
   document.getElementById("chargeSolarEnabled").checked = Boolean(data.serviceCharges.solar?.enabled);
   document.getElementById("chargeSolarAmount").value = data.serviceCharges.solar?.amount || "";
-  document.getElementById("chargeElectricalEnabled").checked = Boolean(data.serviceCharges.electrical?.enabled);
-  document.getElementById("chargeElectricalAmount").value = data.serviceCharges.electrical?.amount || "";
+  document.getElementById("chargeSolarDescription").value = data.serviceCharges.solar?.description || "";
   fillPageContentForm(data);
   renderProductList(data);
   fillProductForm(data.products.find((product) => product.id === activeProductId) || data.products[0]);
@@ -1081,18 +1090,16 @@ document.getElementById("serviceChargesForm").addEventListener("submit", (event)
     data.serviceCharges.tv = {
       label: "TV Mounting",
       enabled: document.getElementById("chargeTvEnabled").checked,
-      amount: document.getElementById("chargeTvAmount").value.trim()
+      amount: document.getElementById("chargeTvAmount").value.trim(),
+      description: document.getElementById("chargeTvDescription").value.trim()
     };
     data.serviceCharges.solar = {
       label: "Solar Installation",
       enabled: document.getElementById("chargeSolarEnabled").checked,
-      amount: document.getElementById("chargeSolarAmount").value.trim()
+      amount: document.getElementById("chargeSolarAmount").value.trim(),
+      description: document.getElementById("chargeSolarDescription").value.trim()
     };
-    data.serviceCharges.electrical = {
-      label: "Electrical Work",
-      enabled: document.getElementById("chargeElectricalEnabled").checked,
-      amount: document.getElementById("chargeElectricalAmount").value.trim()
-    };
+    delete data.serviceCharges.electrical;
     return data;
   });
 
