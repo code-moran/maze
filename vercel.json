@@ -1,19 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "",
-  "installCommand": "",
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "maze-technologies.html", "use": "@vercel/static" },
-    { "src": "dashboard.html", "use": "@vercel/static" },
-    { "src": "dashboard.htm", "use": "@vercel/static" },
-    { "src": "css/**", "use": "@vercel/static" },
-    { "src": "js/**", "use": "@vercel/static" },
-    { "src": "images/**", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/dashboard", "dest": "/dashboard.html" },
-    { "src": "/dashboard/", "dest": "/dashboard.html" }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "npm install --prefix apps/web",
+  "buildCommand": "npm run build --prefix apps/web"
 }
