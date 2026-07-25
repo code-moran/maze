@@ -14,6 +14,10 @@ declare global {
           options?: Record<string, unknown>
         ) => { cycle: () => void };
       };
+      Offcanvas: {
+        getOrCreateInstance: (el: Element) => { show: () => void; hide: () => void };
+        getInstance: (el: Element) => { hide: () => void } | null;
+      };
       Modal: {
         getOrCreateInstance: (el: Element) => {
           show: () => void;

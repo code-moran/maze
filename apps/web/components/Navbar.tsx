@@ -8,6 +8,12 @@ import {
 } from "@/data/siteData";
 import type { SiteData } from "@/data/types";
 
+function closeMobileMenu() {
+  const el = document.getElementById("mobileMenu");
+  if (!el || !window.bootstrap?.Offcanvas) return;
+  window.bootstrap.Offcanvas.getOrCreateInstance(el).hide();
+}
+
 export default function Navbar({ data }: { data: SiteData }) {
   const pathname = usePathname();
   const categories = getProductCategories(data);
@@ -32,6 +38,7 @@ export default function Navbar({ data }: { data: SiteData }) {
             type="button"
             data-bs-toggle="offcanvas"
             data-bs-target="#mobileMenu"
+            aria-controls="mobileMenu"
             aria-label="Toggle navigation"
           >
             <i
@@ -128,7 +135,12 @@ export default function Navbar({ data }: { data: SiteData }) {
         </div>
       </nav>
 
-      <div className="offcanvas offcanvas-start" id="mobileMenu" tabIndex={-1}>
+      <div
+        className="offcanvas offcanvas-start"
+        id="mobileMenu"
+        tabIndex={-1}
+        aria-labelledby="mobileMenuLabel"
+      >
         <div
           className="offcanvas-header"
           style={{ background: "var(--maze-green)" }}
@@ -137,14 +149,23 @@ export default function Navbar({ data }: { data: SiteData }) {
             src="/images/logo-icon.png"
             alt="Maze"
             className="brand-logo-icon"
+            id="mobileMenuLabel"
           />
           <button
             type="button"
             className="btn-close btn-close-white"
             data-bs-dismiss="offcanvas"
+            aria-label="Close"
           ></button>
         </div>
         <div className="offcanvas-body p-0">
+          <Link
+            href="/"
+            className="d-block px-4 py-3 text-decoration-none text-dark fw-500 border-bottom"
+            onClick={closeMobileMenu}
+          >
+            Home
+          </Link>
           <div className="accordion accordion-flush" id="mobileAccordion">
             <div className="accordion-item border-0">
               <h2 className="accordion-header">
@@ -153,6 +174,8 @@ export default function Navbar({ data }: { data: SiteData }) {
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#mc1"
+                  aria-expanded="false"
+                  aria-controls="mc1"
                 >
                   About Us
                 </button>
@@ -166,21 +189,21 @@ export default function Navbar({ data }: { data: SiteData }) {
                   <Link
                     className="d-block py-2 ps-3 text-decoration-none text-dark border-bottom"
                     href="/about"
-                    data-bs-dismiss="offcanvas"
+                    onClick={closeMobileMenu}
                   >
                     About Maze
                   </Link>
                   <Link
                     className="d-block py-2 ps-3 text-decoration-none text-dark border-bottom"
                     href="/blog"
-                    data-bs-dismiss="offcanvas"
+                    onClick={closeMobileMenu}
                   >
                     Blog
                   </Link>
                   <Link
                     className="d-block py-2 ps-3 text-decoration-none text-dark"
                     href="/location"
-                    data-bs-dismiss="offcanvas"
+                    onClick={closeMobileMenu}
                   >
                     Location
                   </Link>
@@ -194,6 +217,8 @@ export default function Navbar({ data }: { data: SiteData }) {
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target="#mc2"
+                  aria-expanded="false"
+                  aria-controls="mc2"
                 >
                   Products
                 </button>
@@ -204,6 +229,13 @@ export default function Navbar({ data }: { data: SiteData }) {
                 data-bs-parent="#mobileAccordion"
               >
                 <div className="accordion-body py-0">
+                  <Link
+                    className="d-block py-2 ps-3 text-decoration-none text-dark border-bottom"
+                    href="/products"
+                    onClick={closeMobileMenu}
+                  >
+                    All Products
+                  </Link>
                   {categories.map((cat, index) => (
                     <Link
                       key={cat.id}
@@ -211,7 +243,7 @@ export default function Navbar({ data }: { data: SiteData }) {
                         index < categories.length - 1 ? " border-bottom" : ""
                       }`}
                       href={`/products?cat=${cat.id}`}
-                      data-bs-dismiss="offcanvas"
+                      onClick={closeMobileMenu}
                     >
                       {cat.label}
                     </Link>
@@ -223,18 +255,18 @@ export default function Navbar({ data }: { data: SiteData }) {
           <Link
             href="/services"
             className="d-block px-4 py-3 border-top text-decoration-none text-dark fw-500"
-            data-bs-dismiss="offcanvas"
+            onClick={closeMobileMenu}
           >
             Installation Services
           </Link>
           <Link
             href="/contact"
             className="d-block px-4 py-3 border-top text-decoration-none text-dark fw-500"
-            data-bs-dismiss="offcanvas"
+            onClick={closeMobileMenu}
           >
             Contact Us
           </Link>
-          <div className="px-4 pt-3">
+          <div className="px-4 pt-3 pb-4">
             <a href={telHref(phone)} className="btn btn-maze w-100">
               <i className="bi bi-telephone-fill me-2"></i>
               {phone}

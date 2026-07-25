@@ -46,7 +46,7 @@ export default function HeroCarousel({
   }, []);
 
   return (
-    <section id="home">
+    <section id="home" className="hero-section">
       <div
         id="heroCarousel"
         className="carousel slide hero-carousel"
@@ -73,20 +73,14 @@ export default function HeroCarousel({
               className={`carousel-item${index === 0 ? " active" : ""}`}
               style={{ background: GRADIENTS[index] || GRADIENTS[0] }}
             >
-              {index === 0 ? (
-                <div className="hero-overlay" style={{ background: "transparent" }}></div>
-              ) : null}
               <div
+                className="hero-bg"
                 style={{
-                  position: "absolute",
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  width: "45%",
-                  background: `url('${backgrounds[index] || backgrounds[0]}') center/cover`,
-                  opacity: 0.4,
+                  backgroundImage: `url('${backgrounds[index] || backgrounds[0]}')`,
                 }}
+                aria-hidden="true"
               ></div>
+              <div className="hero-overlay"></div>
               <div className="hero-caption">
                 <div className={index === 0 ? "fade-up" : undefined}>
                   <span
@@ -103,7 +97,7 @@ export default function HeroCarousel({
                   </span>
                   <h1 dangerouslySetInnerHTML={{ __html: slide.title }} />
                   <p>{slide.description}</p>
-                  <div className="d-flex flex-wrap gap-2">
+                  <div className="d-flex flex-wrap gap-2 hero-actions">
                     {(CTAS[index] || CTAS[0]).map((cta) => (
                       <Link
                         key={cta.label}

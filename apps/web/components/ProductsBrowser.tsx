@@ -245,60 +245,82 @@ export default function ProductsBrowser({ data, preview = false }: Props) {
                   );
                   const previewImage = categoryProductsList[0]?.imgs?.[0] || "";
 
+                  const href = `/products?cat=${cat.id}`;
+                  const goToCategory = () => {
+                    if (preview) router.push(href);
+                    else filterProducts(cat.id);
+                  };
+
                   return (
                     <div key={cat.id} className="col-md-6 col-xl-3">
-                      <div
-                        className="product-category-card"
-                        onClick={() => {
-                          if (preview) {
-                            router.push(`/products?cat=${cat.id}`);
-                          } else {
-                            filterProducts(cat.id);
-                          }
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key !== "Enter") return;
-                          if (preview) router.push(`/products?cat=${cat.id}`);
-                          else filterProducts(cat.id);
-                        }}
-                      >
-                        <div className="product-category-image">
-                          {previewImage ? (
-                            <img
-                              src={previewImage}
-                              alt={cat.label}
-                              loading="lazy"
-                            />
-                          ) : null}
+                      {preview ? (
+                        <Link href={href} className="product-category-card text-decoration-none text-dark d-block">
+                          <div className="product-category-image">
+                            {previewImage ? (
+                              <img
+                                src={previewImage}
+                                alt={cat.label}
+                                loading="lazy"
+                              />
+                            ) : null}
+                          </div>
+                          <div className="card-body">
+                            <span className="badge-cat mb-2 d-inline-block">
+                              <i className={`bi ${cat.icon} me-1`}></i>
+                              {cat.label}
+                            </span>
+                            <div className="card-title">{cat.label}</div>
+                            <p className="card-text text-secondary small">
+                              {cat.description}
+                            </p>
+                            <span className="btn btn-maze w-100 btn-sm">
+                              View Products{" "}
+                              <i className="bi bi-arrow-right ms-1"></i>
+                            </span>
+                          </div>
+                        </Link>
+                      ) : (
+                        <div
+                          className="product-category-card"
+                          onClick={goToCategory}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") goToCategory();
+                          }}
+                        >
+                          <div className="product-category-image">
+                            {previewImage ? (
+                              <img
+                                src={previewImage}
+                                alt={cat.label}
+                                loading="lazy"
+                              />
+                            ) : null}
+                          </div>
+                          <div className="card-body">
+                            <span className="badge-cat mb-2 d-inline-block">
+                              <i className={`bi ${cat.icon} me-1`}></i>
+                              {cat.label}
+                            </span>
+                            <div className="card-title">{cat.label}</div>
+                            <p className="card-text text-secondary small">
+                              {cat.description}
+                            </p>
+                            <button
+                              className="btn btn-maze w-100 btn-sm"
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                goToCategory();
+                              }}
+                            >
+                              View Products{" "}
+                              <i className="bi bi-arrow-right ms-1"></i>
+                            </button>
+                          </div>
                         </div>
-                        <div className="card-body">
-                          <span className="badge-cat mb-2 d-inline-block">
-                            <i className={`bi ${cat.icon} me-1`}></i>
-                            {cat.label}
-                          </span>
-                          <div className="card-title">{cat.label}</div>
-                          <p className="card-text text-secondary small">
-                            {cat.description}
-                          </p>
-                          <button
-                            className="btn btn-maze w-100 btn-sm"
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (preview) {
-                                router.push(`/products?cat=${cat.id}`);
-                              } else {
-                                filterProducts(cat.id);
-                              }
-                            }}
-                          >
-                            View Products{" "}
-                            <i className="bi bi-arrow-right ms-1"></i>
-                          </button>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   );
                 })

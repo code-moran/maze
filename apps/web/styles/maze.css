@@ -289,21 +289,42 @@ body  {
   border-radius:6px
 }
 
-/* HERO */
+/* HERO — full width */
+.hero-section  {
+  padding:0
+}
+
 .hero-carousel  {
-  overflow:hidden
+  overflow:hidden;
+  width:100%;
+  max-width:none;
+  margin:0;
+  border-radius:0;
+  box-shadow:none
 }
 
 .hero-carousel .carousel-item  {
   height:520px;
   background:var(--gray-light);
-  overflow:hidden
+  overflow:hidden;
+  position:relative
+}
+
+.hero-bg  {
+  position:absolute;
+  inset:0;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+  opacity:.38;
+  pointer-events:none
 }
 
 .hero-overlay  {
   position:absolute;
   inset:0;
-  background:linear-gradient(90deg, rgba(0, 70, 0, .72) 0%, rgba(0, 70, 0, .18) 100%)
+  background:linear-gradient(180deg, rgba(0, 70, 0, .55) 0%, rgba(0, 70, 0, .72) 55%, rgba(0, 55, 0, .82) 100%);
+  pointer-events:none
 }
 
 .hero-carousel .carousel-item img  {
@@ -315,11 +336,23 @@ body  {
 .hero-caption  {
   position:absolute;
   top:50%;
-  left:0;
-  transform:translateY(-50%);
-  width:min(100%, 680px);
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:min(100%, 720px);
   max-width:100%;
-  padding:0 clamp(1rem, 4vw, 5%)
+  padding:0 clamp(1rem, 4vw, 3rem);
+  z-index:2;
+  text-align:center
+}
+
+.hero-actions  {
+  position:relative;
+  z-index:3;
+  justify-content:center
+}
+
+.hero-actions .btn  {
+  pointer-events:auto
 }
 
 .hero-caption h1  {
@@ -335,7 +368,9 @@ body  {
   color:#d4f0d4;
   font-size:1.05rem;
   margin-bottom:1.5rem;
-  max-width:460px
+  max-width:520px;
+  margin-left:auto;
+  margin-right:auto
 }
 
 /* SECTION */
