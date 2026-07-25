@@ -108,38 +108,54 @@ body  {
   display:block
 }
 
-/* MOBILE MENU DRAWER (React-controlled, no Bootstrap Offcanvas dependency) */
+/* MOBILE MENU DRAWER (portaled to body; left-based slide — no transform paint bugs) */
+.mobile-menu-toggler  {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  height:48px;
+  padding:0;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;
+  z-index:1100
+}
+
 .mobile-menu-backdrop  {
   position:fixed;
   inset:0;
-  z-index:1040;
+  z-index:1090;
   border:0;
   padding:0;
   margin:0;
   background:rgba(0, 0, 0, .45);
-  cursor:pointer
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent
 }
 
 .mobile-menu-drawer  {
   position:fixed;
   top:0;
-  left:0;
-  z-index:1045;
+  bottom:0;
+  left:-100%;
+  z-index:1100;
   display:flex;
   flex-direction:column;
-  width:min(100%, 320px);
+  width:min(100vw, 320px);
+  max-width:100%;
   height:100%;
   max-height:100dvh;
   background:#fff;
   box-shadow:8px 0 28px rgba(0, 0, 0, .18);
-  transform:translateX(-105%);
-  transition:transform .28s ease;
+  transition:left .28s ease;
   visibility:hidden;
-  pointer-events:none
+  pointer-events:none;
+  overscroll-behavior:contain
 }
 
 .mobile-menu-drawer.is-open  {
-  transform:translateX(0);
+  left:0;
   visibility:visible;
   pointer-events:auto
 }
@@ -158,13 +174,15 @@ body  {
   border:0;
   background:transparent;
   color:#fff;
-  width:40px;
-  height:40px;
+  width:44px;
+  height:44px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   font-size:1.2rem;
-  border-radius:8px
+  border-radius:8px;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent
 }
 
 .mobile-menu-body  {
@@ -191,7 +209,9 @@ body  {
   font-size:.98rem;
   font-weight:500;
   text-align:left;
-  cursor:pointer
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent
 }
 
 .mobile-menu-toggle  {
@@ -231,8 +251,10 @@ body  {
   padding:1rem 1.25rem 0
 }
 
+html.mobile-menu-open,
 body.mobile-menu-open  {
-  overflow:hidden
+  overflow:hidden!important;
+  overscroll-behavior:none
 }
 
 .dropdown-item:hover  {

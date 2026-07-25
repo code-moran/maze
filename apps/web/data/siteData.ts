@@ -79,7 +79,8 @@ export function extractMapEmbedSrc(value?: string): string {
 export function formatBlogDate(date: string): string {
   const dateObj = date ? new Date(date) : null;
   if (!dateObj || Number.isNaN(dateObj.valueOf())) return "";
-  return dateObj.toLocaleDateString(undefined, {
+  // Fixed locale avoids server/client hydration mismatches from toLocaleDateString()
+  return dateObj.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",

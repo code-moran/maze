@@ -26,6 +26,7 @@ export default function SiteChrome({
   }, []);
 
   useEffect(() => {
+    document.documentElement.classList.remove("mobile-menu-open");
     document.body.classList.remove("mobile-menu-open", "offcanvas-open", "modal-open");
     document
       .querySelectorAll(".offcanvas-backdrop, .modal-backdrop")

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import {
   getProductCategories,
@@ -17,6 +18,7 @@ export default function Navbar({ data }: { data: SiteData }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -28,12 +30,17 @@ export default function Navbar({ data }: { data: SiteData }) {
   };
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     closeMenu();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- close drawer after route changes
   }, [pathname]);
 
   useEffect(() => {
     if (!menuOpen) {
+      document.documentElement.classList.remove("mobile-menu-open");
       document.body.classList.remove("mobile-menu-open");
       return;
     }
@@ -42,135 +49,26 @@ export default function Navbar({ data }: { data: SiteData }) {
       if (event.key === "Escape") closeMenu();
     };
 
+    document.documentElement.classList.add("mobile-menu-open");
     document.body.classList.add("mobile-menu-open");
     document.addEventListener("keydown", onKey);
 
     return () => {
+      document.documentElement.classList.remove("mobile-menu-open");
       document.body.classList.remove("mobile-menu-open");
       document.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
 
-  return (
+  const drawer = (
     <>
-      <nav className="navbar navbar-expand-lg sticky-top" id="mainNav">
-        <div className="container">
-          <Link className="navbar-brand d-flex align-items-center" href="/">
-            <img
-              src="/images/logo-wordmark.png"
-              alt="Maze"
-              className="brand-logo"
-            />
-          </Link>
-          <button
-            className="navbar-toggler border-0 d-lg-none"
-            type="button"
-            aria-controls="mobileMenu"
-            aria-expanded={menuOpen}
-            aria-label="Toggle navigation"
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <i
-              className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"} fs-4`}
-              style={{ color: "var(--maze-green)" }}
-            ></i>
-          </button>
-          <div className="collapse navbar-collapse">
-            <ul className="navbar-nav ms-auto align-items-center gap-1">
-              <li className="nav-item">
-                <Link
-                  className={`nav-link${isActive("/") && pathname === "/" ? " active" : ""}`}
-                  href="/"
-                >
-                  Home
-                </Link>
-              </li>
-              <li className="nav-item dropdown">
-                <a
-                  className={`nav-link dropdown-toggle${
-                    ["/about", "/blog", "/location"].some((p) =>
-                      pathname.startsWith(p)
-                    )
-                      ? " active"
-                      : ""
-                  }`}
-                  href="#"
-                  data-bs-toggle="dropdown"
-                >
-                  About Us
-                </a>
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" href="/about">
-                      <i className="bi bi-building me-2 text-success"></i>
-                      About Maze
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" href="/blog">
-                      <i className="bi bi-newspaper me-2 text-success"></i>
-                      Blog
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="dropdown-item" href="/location">
-                      <i className="bi bi-geo-alt me-2 text-success"></i>
-                      Location
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-              <li className="nav-item dropdown">
-                <a
-                  className={`nav-link dropdown-toggle${
-                    isActive("/products") ? " active" : ""
-                  }`}
-                  href="#"
-                  data-bs-toggle="dropdown"
-                >
-                  Products
-                </a>
-                <div className="dropdown-menu mega-menu p-0 overflow-hidden">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.id}
-                      href={`/products?cat=${cat.id}`}
-                      className="dropdown-item products-menu-item"
-                    >
-                      <i className={`bi ${cat.icon} text-success`}></i>
-                      <span>{cat.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className={`nav-link${isActive("/services") ? " active" : ""}`}
-                  href="/services"
-                >
-                  Installation Services
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className={`nav-link${isActive("/contact") ? " active" : ""}`}
-                  href="/contact"
-                >
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-
       {menuOpen ? (
         <button
           type="button"
           className="mobile-menu-backdrop"
           aria-label="Close menu"
           onClick={closeMenu}
-        ></button>
+        />
       ) : null}
 
       <aside
@@ -271,6 +169,128 @@ export default function Navbar({ data }: { data: SiteData }) {
           </div>
         </nav>
       </aside>
+    </>
+  );
+
+  return (
+    <>
+      <nav className="navbar navbar-expand-lg sticky-top" id="mainNav">
+        <div className="container">
+          <Link className="navbar-brand d-flex align-items-center" href="/">
+            <img
+              src="/images/logo-wordmark.png"
+              alt="Maze"
+              className="brand-logo"
+            />
+          </Link>
+          <button
+            className="navbar-toggler border-0 d-lg-none mobile-menu-toggler"
+            type="button"
+            aria-controls="mobileMenu"
+            aria-expanded={menuOpen}
+            aria-label="Toggle navigation"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setMenuOpen((open) => !open);
+            }}
+          >
+            <i
+              className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"} fs-4`}
+              style={{ color: "var(--maze-green)" }}
+              aria-hidden
+            />
+          </button>
+          <div className="collapse navbar-collapse">
+            <ul className="navbar-nav ms-auto align-items-center gap-1">
+              <li className="nav-item">
+                <Link
+                  className={`nav-link${isActive("/") && pathname === "/" ? " active" : ""}`}
+                  href="/"
+                >
+                  Home
+                </Link>
+              </li>
+              <li className="nav-item dropdown">
+                <a
+                  className={`nav-link dropdown-toggle${
+                    ["/about", "/blog", "/location"].some((p) =>
+                      pathname.startsWith(p)
+                    )
+                      ? " active"
+                      : ""
+                  }`}
+                  href="#"
+                  data-bs-toggle="dropdown"
+                >
+                  About Us
+                </a>
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link className="dropdown-item" href="/about">
+                      <i className="bi bi-building me-2 text-success"></i>
+                      About Maze
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" href="/blog">
+                      <i className="bi bi-newspaper me-2 text-success"></i>
+                      Blog
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" href="/location">
+                      <i className="bi bi-geo-alt me-2 text-success"></i>
+                      Location
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+              <li className="nav-item dropdown">
+                <a
+                  className={`nav-link dropdown-toggle${
+                    isActive("/products") ? " active" : ""
+                  }`}
+                  href="#"
+                  data-bs-toggle="dropdown"
+                >
+                  Products
+                </a>
+                <div className="dropdown-menu mega-menu p-0 overflow-hidden">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.id}
+                      href={`/products?cat=${cat.id}`}
+                      className="dropdown-item products-menu-item"
+                    >
+                      <i className={`bi ${cat.icon} text-success`}></i>
+                      <span>{cat.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link${isActive("/services") ? " active" : ""}`}
+                  href="/services"
+                >
+                  Installation Services
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link
+                  className={`nav-link${isActive("/contact") ? " active" : ""}`}
+                  href="/contact"
+                >
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      {mounted ? createPortal(drawer, document.body) : null}
     </>
   );
 }
