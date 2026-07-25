@@ -31,6 +31,11 @@ export default function SiteChrome({
     document
       .querySelectorAll(".offcanvas-backdrop, .modal-backdrop")
       .forEach((node) => node.remove());
+    document
+      .querySelectorAll<HTMLInputElement>(".mobile-nav-check, .mobile-submenu-check")
+      .forEach((input) => {
+        input.checked = false;
+      });
   }, [pathname]);
 
   return (

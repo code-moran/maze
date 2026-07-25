@@ -50,7 +50,6 @@ export default function HeroCarousel({
       <div
         id="heroCarousel"
         className="carousel slide hero-carousel"
-        data-bs-ride="carousel"
         data-bs-interval="5000"
       >
         <div className="carousel-indicators">

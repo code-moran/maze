@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useId, useRef } from "react";
 import { usePathname } from "next/navigation";
 import {
   getProductCategories,
@@ -10,167 +9,37 @@ import {
 } from "@/data/siteData";
 import type { SiteData } from "@/data/types";
 
+/**
+ * Mobile nav uses a native checkbox + labels so it opens even if React
+ * hydration is delayed/broken on a phone. React only enhances close-on-route.
+ */
 export default function Navbar({ data }: { data: SiteData }) {
   const pathname = usePathname();
   const categories = getProductCategories(data);
   const phone = data.generalSettings.phone;
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const reactId = useId().replace(/:/g, "");
+  const menuId = `maze-mobile-nav-${reactId}`;
+  const aboutId = `maze-mobile-about-${reactId}`;
+  const productsId = `maze-mobile-products-${reactId}`;
+  const checkRef = useRef<HTMLInputElement>(null);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   const closeMenu = () => {
-    setMenuOpen(false);
-    setAboutOpen(false);
-    setProductsOpen(false);
+    if (checkRef.current) checkRef.current.checked = false;
+    const about = document.getElementById(aboutId) as HTMLInputElement | null;
+    const products = document.getElementById(
+      productsId
+    ) as HTMLInputElement | null;
+    if (about) about.checked = false;
+    if (products) products.checked = false;
   };
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
     closeMenu();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- close drawer after route changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
-
-  useEffect(() => {
-    if (!menuOpen) {
-      document.documentElement.classList.remove("mobile-menu-open");
-      document.body.classList.remove("mobile-menu-open");
-      return;
-    }
-
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeMenu();
-    };
-
-    document.documentElement.classList.add("mobile-menu-open");
-    document.body.classList.add("mobile-menu-open");
-    document.addEventListener("keydown", onKey);
-
-    return () => {
-      document.documentElement.classList.remove("mobile-menu-open");
-      document.body.classList.remove("mobile-menu-open");
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [menuOpen]);
-
-  const drawer = (
-    <>
-      {menuOpen ? (
-        <button
-          type="button"
-          className="mobile-menu-backdrop"
-          aria-label="Close menu"
-          onClick={closeMenu}
-        />
-      ) : null}
-
-      <aside
-        id="mobileMenu"
-        className={`mobile-menu-drawer${menuOpen ? " is-open" : ""}`}
-        aria-hidden={!menuOpen}
-        aria-labelledby="mobileMenuLabel"
-      >
-        <div className="mobile-menu-header">
-          <img
-            src="/images/logo-icon.png"
-            alt="Maze"
-            className="brand-logo-icon"
-            id="mobileMenuLabel"
-          />
-          <button
-            type="button"
-            className="mobile-menu-close"
-            aria-label="Close"
-            onClick={closeMenu}
-          >
-            <i className="bi bi-x-lg"></i>
-          </button>
-        </div>
-
-        <nav className="mobile-menu-body" aria-label="Mobile">
-          <a href="/" className="mobile-menu-link" onClick={closeMenu}>
-            Home
-          </a>
-
-          <button
-            type="button"
-            className={`mobile-menu-toggle${aboutOpen ? " is-open" : ""}`}
-            aria-expanded={aboutOpen}
-            onClick={() => {
-              setAboutOpen((open) => !open);
-              setProductsOpen(false);
-            }}
-          >
-            About Us
-            <i className="bi bi-chevron-down"></i>
-          </button>
-          {aboutOpen ? (
-            <div className="mobile-menu-sub">
-              <a href="/about" onClick={closeMenu}>
-                About Maze
-              </a>
-              <a href="/blog" onClick={closeMenu}>
-                Blog
-              </a>
-              <a href="/location" onClick={closeMenu}>
-                Location
-              </a>
-            </div>
-          ) : null}
-
-          <button
-            type="button"
-            className={`mobile-menu-toggle${productsOpen ? " is-open" : ""}`}
-            aria-expanded={productsOpen}
-            onClick={() => {
-              setProductsOpen((open) => !open);
-              setAboutOpen(false);
-            }}
-          >
-            Products
-            <i className="bi bi-chevron-down"></i>
-          </button>
-          {productsOpen ? (
-            <div className="mobile-menu-sub">
-              <a href="/products" onClick={closeMenu}>
-                All Products
-              </a>
-              {categories.map((cat) => (
-                <a
-                  key={cat.id}
-                  href={`/products?cat=${cat.id}`}
-                  onClick={closeMenu}
-                >
-                  {cat.label}
-                </a>
-              ))}
-            </div>
-          ) : null}
-
-          <a href="/services" className="mobile-menu-link" onClick={closeMenu}>
-            Installation Services
-          </a>
-          <a href="/contact" className="mobile-menu-link" onClick={closeMenu}>
-            Contact Us
-          </a>
-
-          <div className="mobile-menu-cta">
-            <a href={telHref(phone)} className="btn btn-maze w-100">
-              <i className="bi bi-telephone-fill me-2"></i>
-              {phone}
-            </a>
-          </div>
-        </nav>
-      </aside>
-    </>
-  );
 
   return (
     <>
@@ -183,24 +52,16 @@ export default function Navbar({ data }: { data: SiteData }) {
               className="brand-logo"
             />
           </Link>
-          <button
-            className="navbar-toggler border-0 d-lg-none mobile-menu-toggler"
-            type="button"
-            aria-controls="mobileMenu"
-            aria-expanded={menuOpen}
+
+          <label
+            htmlFor={menuId}
+            className="mobile-menu-toggler d-lg-none"
             aria-label="Toggle navigation"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              setMenuOpen((open) => !open);
-            }}
           >
-            <i
-              className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"} fs-4`}
-              style={{ color: "var(--maze-green)" }}
-              aria-hidden
-            />
-          </button>
+            <i className="bi bi-list mobile-menu-icon-open fs-4" aria-hidden />
+            <i className="bi bi-x-lg mobile-menu-icon-close fs-4" aria-hidden />
+          </label>
+
           <div className="collapse navbar-collapse">
             <ul className="navbar-nav ms-auto align-items-center gap-1">
               <li className="nav-item">
@@ -290,7 +151,100 @@ export default function Navbar({ data }: { data: SiteData }) {
         </div>
       </nav>
 
-      {mounted ? createPortal(drawer, document.body) : null}
+      {/* Checkbox siblings drive open/close with pure CSS (no React required). */}
+      <input
+        ref={checkRef}
+        id={menuId}
+        type="checkbox"
+        className="mobile-nav-check"
+        aria-controls="mobileMenu"
+      />
+      <label
+        htmlFor={menuId}
+        className="mobile-menu-backdrop"
+        aria-label="Close menu"
+      />
+      <aside id="mobileMenu" className="mobile-menu-drawer" aria-label="Mobile">
+        <div className="mobile-menu-header">
+          <img
+            src="/images/logo-icon.png"
+            alt="Maze"
+            className="brand-logo-icon"
+          />
+          <label
+            htmlFor={menuId}
+            className="mobile-menu-close"
+            aria-label="Close"
+          >
+            <i className="bi bi-x-lg"></i>
+          </label>
+        </div>
+
+        <nav className="mobile-menu-body">
+          <a href="/" className="mobile-menu-link" onClick={closeMenu}>
+            Home
+          </a>
+
+          <input
+            id={aboutId}
+            type="checkbox"
+            className="mobile-submenu-check"
+          />
+          <label htmlFor={aboutId} className="mobile-menu-toggle">
+            About Us
+            <i className="bi bi-chevron-down"></i>
+          </label>
+          <div className="mobile-menu-sub">
+            <a href="/about" onClick={closeMenu}>
+              About Maze
+            </a>
+            <a href="/blog" onClick={closeMenu}>
+              Blog
+            </a>
+            <a href="/location" onClick={closeMenu}>
+              Location
+            </a>
+          </div>
+
+          <input
+            id={productsId}
+            type="checkbox"
+            className="mobile-submenu-check"
+          />
+          <label htmlFor={productsId} className="mobile-menu-toggle">
+            Products
+            <i className="bi bi-chevron-down"></i>
+          </label>
+          <div className="mobile-menu-sub">
+            <a href="/products" onClick={closeMenu}>
+              All Products
+            </a>
+            {categories.map((cat) => (
+              <a
+                key={cat.id}
+                href={`/products?cat=${cat.id}`}
+                onClick={closeMenu}
+              >
+                {cat.label}
+              </a>
+            ))}
+          </div>
+
+          <a href="/services" className="mobile-menu-link" onClick={closeMenu}>
+            Installation Services
+          </a>
+          <a href="/contact" className="mobile-menu-link" onClick={closeMenu}>
+            Contact Us
+          </a>
+
+          <div className="mobile-menu-cta">
+            <a href={telHref(phone)} className="btn btn-maze w-100">
+              <i className="bi bi-telephone-fill me-2"></i>
+              {phone}
+            </a>
+          </div>
+        </nav>
+      </aside>
     </>
   );
 }
