@@ -12,22 +12,6 @@ import Topbar from "@/components/Topbar";
 import WhatsAppFab from "@/components/WhatsAppFab";
 import type { SiteData } from "@/data/types";
 
-function cleanupBootstrapOverlays() {
-  document
-    .querySelectorAll(".offcanvas-backdrop, .modal-backdrop")
-    .forEach((node) => node.remove());
-  document.body.classList.remove("offcanvas-open", "modal-open");
-  document.body.style.removeProperty("overflow");
-  document.body.style.removeProperty("padding-right");
-
-  const menu = document.getElementById("mobileMenu");
-  if (menu) {
-    menu.classList.remove("show");
-    menu.style.visibility = "";
-    window.bootstrap?.Offcanvas.getInstance(menu)?.hide();
-  }
-}
-
 export default function SiteChrome({
   children,
   data,
@@ -42,7 +26,10 @@ export default function SiteChrome({
   }, []);
 
   useEffect(() => {
-    cleanupBootstrapOverlays();
+    document.body.classList.remove("mobile-menu-open", "offcanvas-open", "modal-open");
+    document
+      .querySelectorAll(".offcanvas-backdrop, .modal-backdrop")
+      .forEach((node) => node.remove());
   }, [pathname]);
 
   return (

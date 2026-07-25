@@ -82,7 +82,7 @@ export default function HeroCarousel({
               ></div>
               <div className="hero-overlay"></div>
               <div className="hero-caption">
-                <div className={index === 0 ? "fade-up" : undefined}>
+                <div className={`container px-0${index === 0 ? " fade-up" : ""}`}>
                   <span
                     className="badge mb-3"
                     style={{

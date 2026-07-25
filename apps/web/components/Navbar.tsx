@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   getProductCategories,
@@ -8,19 +9,47 @@ import {
 } from "@/data/siteData";
 import type { SiteData } from "@/data/types";
 
-function closeMobileMenu() {
-  const el = document.getElementById("mobileMenu");
-  if (!el || !window.bootstrap?.Offcanvas) return;
-  window.bootstrap.Offcanvas.getOrCreateInstance(el).hide();
-}
-
 export default function Navbar({ data }: { data: SiteData }) {
   const pathname = usePathname();
   const categories = getProductCategories(data);
   const phone = data.generalSettings.phone;
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setAboutOpen(false);
+    setProductsOpen(false);
+  };
+
+  useEffect(() => {
+    closeMenu();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- close drawer after route changes
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      document.body.classList.remove("mobile-menu-open");
+      return;
+    }
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu();
+    };
+
+    document.body.classList.add("mobile-menu-open");
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.classList.remove("mobile-menu-open");
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   return (
     <>
@@ -34,15 +63,15 @@ export default function Navbar({ data }: { data: SiteData }) {
             />
           </Link>
           <button
-            className="navbar-toggler border-0"
+            className="navbar-toggler border-0 d-lg-none"
             type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#mobileMenu"
             aria-controls="mobileMenu"
+            aria-expanded={menuOpen}
             aria-label="Toggle navigation"
+            onClick={() => setMenuOpen((open) => !open)}
           >
             <i
-              className="bi bi-list fs-4"
+              className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"} fs-4`}
               style={{ color: "var(--maze-green)" }}
             ></i>
           </button>
@@ -135,16 +164,22 @@ export default function Navbar({ data }: { data: SiteData }) {
         </div>
       </nav>
 
-      <div
-        className="offcanvas offcanvas-start"
+      {menuOpen ? (
+        <button
+          type="button"
+          className="mobile-menu-backdrop"
+          aria-label="Close menu"
+          onClick={closeMenu}
+        ></button>
+      ) : null}
+
+      <aside
         id="mobileMenu"
-        tabIndex={-1}
+        className={`mobile-menu-drawer${menuOpen ? " is-open" : ""}`}
+        aria-hidden={!menuOpen}
         aria-labelledby="mobileMenuLabel"
       >
-        <div
-          className="offcanvas-header"
-          style={{ background: "var(--maze-green)" }}
-        >
+        <div className="mobile-menu-header">
           <img
             src="/images/logo-icon.png"
             alt="Maze"
@@ -153,127 +188,89 @@ export default function Navbar({ data }: { data: SiteData }) {
           />
           <button
             type="button"
-            className="btn-close btn-close-white"
-            data-bs-dismiss="offcanvas"
+            className="mobile-menu-close"
             aria-label="Close"
-          ></button>
+            onClick={closeMenu}
+          >
+            <i className="bi bi-x-lg"></i>
+          </button>
         </div>
-        <div className="offcanvas-body p-0">
-          <Link
-            href="/"
-            className="d-block px-4 py-3 text-decoration-none text-dark fw-500 border-bottom"
-            onClick={closeMobileMenu}
-          >
+
+        <nav className="mobile-menu-body" aria-label="Mobile">
+          <a href="/" className="mobile-menu-link" onClick={closeMenu}>
             Home
-          </Link>
-          <div className="accordion accordion-flush" id="mobileAccordion">
-            <div className="accordion-item border-0">
-              <h2 className="accordion-header">
-                <button
-                  className="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#mc1"
-                  aria-expanded="false"
-                  aria-controls="mc1"
-                >
-                  About Us
-                </button>
-              </h2>
-              <div
-                id="mc1"
-                className="accordion-collapse collapse"
-                data-bs-parent="#mobileAccordion"
-              >
-                <div className="accordion-body py-0">
-                  <Link
-                    className="d-block py-2 ps-3 text-decoration-none text-dark border-bottom"
-                    href="/about"
-                    onClick={closeMobileMenu}
-                  >
-                    About Maze
-                  </Link>
-                  <Link
-                    className="d-block py-2 ps-3 text-decoration-none text-dark border-bottom"
-                    href="/blog"
-                    onClick={closeMobileMenu}
-                  >
-                    Blog
-                  </Link>
-                  <Link
-                    className="d-block py-2 ps-3 text-decoration-none text-dark"
-                    href="/location"
-                    onClick={closeMobileMenu}
-                  >
-                    Location
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="accordion-item border-0">
-              <h2 className="accordion-header">
-                <button
-                  className="accordion-button collapsed"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#mc2"
-                  aria-expanded="false"
-                  aria-controls="mc2"
-                >
-                  Products
-                </button>
-              </h2>
-              <div
-                id="mc2"
-                className="accordion-collapse collapse"
-                data-bs-parent="#mobileAccordion"
-              >
-                <div className="accordion-body py-0">
-                  <Link
-                    className="d-block py-2 ps-3 text-decoration-none text-dark border-bottom"
-                    href="/products"
-                    onClick={closeMobileMenu}
-                  >
-                    All Products
-                  </Link>
-                  {categories.map((cat, index) => (
-                    <Link
-                      key={cat.id}
-                      className={`d-block py-2 ps-3 text-decoration-none text-dark${
-                        index < categories.length - 1 ? " border-bottom" : ""
-                      }`}
-                      href={`/products?cat=${cat.id}`}
-                      onClick={closeMobileMenu}
-                    >
-                      {cat.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-          <Link
-            href="/services"
-            className="d-block px-4 py-3 border-top text-decoration-none text-dark fw-500"
-            onClick={closeMobileMenu}
+          </a>
+
+          <button
+            type="button"
+            className={`mobile-menu-toggle${aboutOpen ? " is-open" : ""}`}
+            aria-expanded={aboutOpen}
+            onClick={() => {
+              setAboutOpen((open) => !open);
+              setProductsOpen(false);
+            }}
           >
+            About Us
+            <i className="bi bi-chevron-down"></i>
+          </button>
+          {aboutOpen ? (
+            <div className="mobile-menu-sub">
+              <a href="/about" onClick={closeMenu}>
+                About Maze
+              </a>
+              <a href="/blog" onClick={closeMenu}>
+                Blog
+              </a>
+              <a href="/location" onClick={closeMenu}>
+                Location
+              </a>
+            </div>
+          ) : null}
+
+          <button
+            type="button"
+            className={`mobile-menu-toggle${productsOpen ? " is-open" : ""}`}
+            aria-expanded={productsOpen}
+            onClick={() => {
+              setProductsOpen((open) => !open);
+              setAboutOpen(false);
+            }}
+          >
+            Products
+            <i className="bi bi-chevron-down"></i>
+          </button>
+          {productsOpen ? (
+            <div className="mobile-menu-sub">
+              <a href="/products" onClick={closeMenu}>
+                All Products
+              </a>
+              {categories.map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`/products?cat=${cat.id}`}
+                  onClick={closeMenu}
+                >
+                  {cat.label}
+                </a>
+              ))}
+            </div>
+          ) : null}
+
+          <a href="/services" className="mobile-menu-link" onClick={closeMenu}>
             Installation Services
-          </Link>
-          <Link
-            href="/contact"
-            className="d-block px-4 py-3 border-top text-decoration-none text-dark fw-500"
-            onClick={closeMobileMenu}
-          >
+          </a>
+          <a href="/contact" className="mobile-menu-link" onClick={closeMenu}>
             Contact Us
-          </Link>
-          <div className="px-4 pt-3 pb-4">
+          </a>
+
+          <div className="mobile-menu-cta">
             <a href={telHref(phone)} className="btn btn-maze w-100">
               <i className="bi bi-telephone-fill me-2"></i>
               {phone}
             </a>
           </div>
-        </div>
-      </div>
+        </nav>
+      </aside>
     </>
   );
 }

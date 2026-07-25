@@ -64,7 +64,7 @@ export default function SearchBar({ products }: { products: Product[] }) {
                 type="text"
                 className="form-control"
                 id="searchInput"
-                placeholder="Search products, categories..."
+                placeholder="Search products..."
                 autoComplete="off"
                 value={query}
                 onChange={(e) => {
