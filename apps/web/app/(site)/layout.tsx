@@ -1,9 +1,8 @@
 import SiteChrome from "@/components/SiteChrome";
 import { loadSiteContent } from "@/lib/sanity/loadSiteContent";
-import { SANITY_REVALIDATE_SECONDS } from "@/lib/sanity/client";
 
 /** Re-fetch Sanity content periodically so Studio publishes show without redeploy. */
-export const revalidate = SANITY_REVALIDATE_SECONDS;
+export const revalidate = 60;
 
 export default async function SiteLayout({
   children,
