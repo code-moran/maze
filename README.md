@@ -57,6 +57,13 @@ Redirects: `/dashboard` → `/studio`, `maze-technologies.html` → `/`.
 
 Until Sanity is configured, the site serves the migrated static JSON (same content as the old site).
 
+Published Studio edits appear on the site within about **60 seconds** (ISR). For instant updates, add a Sanity webhook:
+
+1. Set `SANITY_REVALIDATE_SECRET` in Vercel env
+2. Sanity → API → Webhooks → URL `https://<your-domain>/api/revalidate-sanity`
+3. Header `Authorization: Bearer <same secret>` (or `?secret=` query)
+4. Trigger on create/update/delete for your dataset
+
 ## Enquiries
 
 1. Add **Vercel Postgres** (or Neon) → `POSTGRES_URL`
