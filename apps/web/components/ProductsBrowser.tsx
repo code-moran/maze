@@ -11,9 +11,14 @@ const PER_PAGE = 8;
 type Props = {
   data: SiteData;
   preview?: boolean;
+  hideIntro?: boolean;
 };
 
-export default function ProductsBrowser({ data, preview = false }: Props) {
+export default function ProductsBrowser({
+  data,
+  preview = false,
+  hideIntro = false,
+}: Props) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialCat = searchParams.get("cat") || "all";
@@ -148,45 +153,50 @@ export default function ProductsBrowser({ data, preview = false }: Props) {
   return (
     <section id="products" className="py-5" style={{ background: "#fafffe" }}>
       <div className="container">
-        <div className="text-center mb-4">
-          <p className="section-label">{intro.label}</p>
-          <h2 className="section-title">{preview ? intro.title : titleText}</h2>
-          <div className="divider-green mx-auto"></div>
-          <p className="section-sub">
-            {preview
-              ? intro.subtitle
-              : subtitleText}
-          </p>
-          <div className="d-flex flex-wrap justify-content-center gap-2 mb-4" id="catFilters">
-            {categories.map((cat) => (
-              <span
-                key={cat.id}
-                className={`cat-pill${
-                  !preview && currentFilter === cat.id ? " active" : ""
-                }`}
-                onClick={() => {
-                  if (preview) {
-                    router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
-                  } else {
-                    filterProducts(cat.id);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key !== "Enter") return;
-                  if (preview) {
-                    router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
-                  } else {
-                    filterProducts(cat.id);
-                  }
-                }}
-              >
-                <i className={`bi ${cat.icon} me-1`}></i>
-                {cat.label}
-              </span>
-            ))}
+        {hideIntro && !preview ? null : (
+          <div className="text-center mb-4">
+            <p className="section-label">{intro.label}</p>
+            <h2 className="section-title">
+              {preview ? intro.title : titleText}
+            </h2>
+            <div className="divider-green mx-auto"></div>
+            <p className="section-sub">
+              {preview ? intro.subtitle : subtitleText}
+            </p>
           </div>
+        )}
+        <div
+          className="d-flex flex-wrap justify-content-center gap-2 mb-4"
+          id="catFilters"
+        >
+          {categories.map((cat) => (
+            <span
+              key={cat.id}
+              className={`cat-pill${
+                !preview && currentFilter === cat.id ? " active" : ""
+              }`}
+              onClick={() => {
+                if (preview) {
+                  router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
+                } else {
+                  filterProducts(cat.id);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                if (preview) {
+                  router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
+                } else {
+                  filterProducts(cat.id);
+                }
+              }}
+            >
+              <i className={`bi ${cat.icon} me-1`}></i>
+              {cat.label}
+            </span>
+          ))}
         </div>
 
         <div className="row g-4 align-items-start">
