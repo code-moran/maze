@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SiteSettings {
+  id                   String @id @default("default")
+  phone                String @default("")
+  email                String @default("")
+  whatsapp             String @default("")
+  location             String @default("")
+  mapEmbed             String @default("") @db.Text
+  socialLinks          Json   @default("[]")
+  footerBlurb          String @default("") @db.Text
+  hours                String @default("")
+  businessHoursDetail  String @default("") @db.Text
+  copyright            String @default("")
+  logoIconUrl          String @default("")
+  logoWordmarkUrl      String @default("")
+  updatedAt            DateTime @updatedAt
+}
+
+model SiteMeta {
+  id            String @id @default("default")
+  title         String @default("")
+  description   String @default("") @db.Text
+  keywords      String @default("")
+  ogTitle       String @default("")
+  ogDescription String @default("") @db.Text
+  updatedAt     DateTime @updatedAt
+}
+
+model HomeContent {
+  id              String @id @default("default")
+  heroSlides      Json   @default("[]")
+  stats           Json   @default("[]")
+  cta             Json   @default("{}")
+  heroBackgrounds Json   @default("[]")
+  aboutImages     Json   @default("[]")
+  updatedAt       DateTime @updatedAt
+}
+
+model AboutContent {
+  id            String @id @default("default")
+  label         String @default("")
+  title         String @default("")
+  paragraphOne  String @default("") @db.Text
+  paragraphTwo  String @default("") @db.Text
+  visionTitle   String @default("")
+  visionText    String @default("") @db.Text
+  missionTitle  String @default("")
+  missionText   String @default("") @db.Text
+  updatedAt     DateTime @updatedAt
+}
+
+model ServicesContent {
+  id        String @id @default("default")
+  label     String @default("")
+  title     String @default("")
+  subtitle  String @default("") @db.Text
+  tv        Json   @default("{}")
+  solar     Json   @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model ContactContent {
+  id        String @id @default("default")
+  label     String @default("")
+  title     String @default("")
+  subtitle  String @default("") @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model ProductsPageContent {
+  id        String @id @default("default")
+  label     String @default("")
+  title     String @default("")
+  subtitle  String @default("") @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id              String       @id @default(cuid())
+  key             String       @unique
+  title           String
+  description     String       @default("") @db.Text
+  metaTitle       String       @default("")
+  metaDescription String       @default("") @db.Text
+  icon            String       @default("bi-box")
+  sortOrder       Int          @default(0)
+  products        Product[]
+  subProducts     SubProduct[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model SubProduct {
+  id         String   @id @default(cuid())
+  subId      String
+  label      String
+  sortOrder  Int      @default(0)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([categoryId, subId])
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  legacyId       Int      @unique
+  name           String
+  catLabel       String   @default("")
+  subCat         String   @default("")
+  shortDesc      String   @default("") @db.Text
+  description    String   @default("") @db.Text
+  seoTitle       String   @default("")
+  seoDescription String   @default("") @db.Text
+  specs          Json     @default("[]")
+  features       Json     @default("[]")
+  imageUrls      Json     @default("[]")
+  categoryId     String
+  category       Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  legacyId  Int      @unique
+  title     String
+  slug      String   @unique
+  date      String   @default("")
+  author    String   @default("Admin")
+  excerpt   String   @default("") @db.Text
+  content   String   @default("") @db.Text
+  imageUrl  String   @default("")
+  link      String   @default("#")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  stars     String   @default("★★★★★")
+  quote     String   @db.Text
+  initials  String   @default("")
+  name      String
+  role      String   @default("")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WhyChooseItem {
+  id        String   @id @default(cuid())
+  icon      String   @default("bi-check-circle")
+  title     String
+  text      String   @db.Text
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SectionSeo {
+  id          String   @id @default(cuid())
+  section     String   @unique
+  title       String   @default("")
+  description String   @default("") @db.Text
+  updatedAt   DateTime @updatedAt
+}
+
+model Enquiry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String
+  email     String?
+  subject   String
+  message   String   @db.Text
+  status    String   @default("New")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("enquiries")
+}

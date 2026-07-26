@@ -9,15 +9,16 @@ Fully Vercel-hosted stack:
 | Layer | Tech |
 |-------|------|
 | Frontend | Next.js App Router (`apps/web`) |
-| CMS | Sanity Studio at `/studio` |
-| Enquiries | Vercel Postgres + Resend |
-| Static fallback | `apps/web/data/defaultSiteData.json` when Sanity env is unset |
+| Admin CMS | Custom `/admin` (Prisma + Postgres) |
+| Optional CMS | Sanity Studio at `/studio` |
+| Enquiries | Prisma `Enquiry` model + Resend |
+| Static fallback | `apps/web/data/defaultSiteData.json` when `DATABASE_URL` is unset or empty |
 
 ## Local development
 
 ```bash
 cd apps/web
-cp .env.example .env.local   # optional — works without Sanity/Postgres
+cp .env.example .env.local
 npm install
 npm run dev
 ```
@@ -25,8 +26,21 @@ npm run dev
 Open:
 
 - Site: http://localhost:3000
-- Studio: http://localhost:3000/studio (needs Sanity project env)
-- Enquiries inbox: http://localhost:3000/admin/enquiries
+- Admin: http://localhost:3000/admin (needs `ADMIN_DASHBOARD_SECRET`)
+- Sanity Studio: http://localhost:3000/studio (needs Sanity project env vars)
+
+### Database + seed
+
+1. Set `DATABASE_URL` (or `POSTGRES_URL`) to a Neon/Vercel Postgres connection string
+2. Set `ADMIN_DASHBOARD_SECRET` to a long random string
+3. Push schema and seed defaults:
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+Without a database, the public site still serves `defaultSiteData.json`. Admin saves require Postgres.
 
 ## Routes
 
@@ -39,38 +53,27 @@ Open:
 | `/blog`, `/blog/[slug]` | Blog |
 | `/location` | Showroom + map |
 | `/contact` | Contact form |
-| `/studio` | Sanity CMS |
-| `/admin/enquiries` | Enquiry inbox (secret) |
+| `/admin` | Maze content admin (settings, pages, products, blogs, SEO, inquiries) |
+| `/studio` | Sanity Studio (optional; separate from the thin CMS) |
 
-Redirects: `/dashboard` → `/studio`, `maze-technologies.html` → `/`.
+Redirects: `/dashboard` → `/admin`; `maze-technologies.html` → `/`.
 
-## Sanity setup
+## Admin
 
-1. Create a project at https://www.sanity.io/manage
-2. Set in `.env.local`:
-   - `NEXT_PUBLIC_SANITY_PROJECT_ID`
-   - `NEXT_PUBLIC_SANITY_DATASET=production`
-   - `SANITY_API_WRITE_TOKEN` (Editor) for seeding
-   - `SANITY_API_READ_TOKEN` (Viewer) optional for private drafts
-3. Open `/studio` and sign in
-4. Seed defaults: `npm run seed:sanity`
+Sign in at `/admin/login` with `ADMIN_DASHBOARD_SECRET` (falls back to `ADMIN_ENQUIRIES_SECRET`). Session is an httpOnly cookie used for `/admin` and `/api/admin/*`.
 
-Until Sanity is configured, the site serves the migrated static JSON (same content as the old site).
+Nav sections: Overview · Settings · Charges · Pages · Products · Sub-products · Blogs · SEO · Inquiries.
 
-Published Studio edits appear on the site within about **60 seconds** (ISR). For instant updates, add a Sanity webhook:
+The public site loads content from **Postgres** (thin CMS) when `DATABASE_URL` is set, otherwise from `defaultSiteData.json`. Sanity Studio edits live in Sanity and are separate unless you point the site loader at Sanity.
 
-1. Set `SANITY_REVALIDATE_SECRET` in Vercel env
-2. Sanity → API → Webhooks → URL `https://<your-domain>/api/revalidate-sanity`
-3. Header `Authorization: Bearer <same secret>` (or `?secret=` query)
-4. Trigger on create/update/delete for your dataset
-
+Admin saves appear on the site within about **60 seconds** (ISR).
 ## Enquiries
 
-1. Add **Vercel Postgres** (or Neon) → `POSTGRES_URL`
+1. Add **Postgres** → `DATABASE_URL` / `POSTGRES_URL`
 2. Add **Resend** → `RESEND_API_KEY`, `ADMIN_EMAIL`, optional `RESEND_FROM`
-3. Set `ADMIN_ENQUIRIES_SECRET` for `/admin/enquiries`
+3. Run `npm run db:push` so the `enquiries` table exists
 
-Contact form posts to `POST /api/enquiries` with honeypot + rate limiting.
+Contact form posts to `POST /api/enquiries` with honeypot + rate limiting. Inbox lives under Admin → Inquiries.
 
 ## Deploy on Vercel
 
@@ -78,14 +81,13 @@ Contact form posts to `POST /api/enquiries` with honeypot + rate limiting.
 
 1. Vercel → Project → **Settings → General → Root Directory** → `apps/web`
 2. Framework Preset: **Next.js** (auto)
-3. Build Command: `npm run build` (default)
-4. Install Command: `npm install` (default)
-5. Output Directory: leave **empty** (Next.js manages this)
+3. Build Command: `npm run build` (runs `prisma generate && next build`)
+4. Install Command: `npm install` (default; `postinstall` generates Prisma client)
+5. Output Directory: leave **empty**
 6. Add environment variables from [`apps/web/.env.example`](apps/web/.env.example)
+7. After first deploy with `DATABASE_URL`, run `npm run db:push` and `npm run db:seed` locally (or via a one-off job) against production
 
-If Root Directory stays at the repo root, the root [`vercel.json`](vercel.json) already points install/build at `apps/web`. Prefer the Root Directory setting so Studio and env stay scoped to the Next app.
-
-After changing Root Directory, trigger a redeploy.
+If Root Directory stays at the repo root, the root [`vercel.json`](vercel.json) already points install/build at `apps/web`.
 
 ## Design source of truth
 

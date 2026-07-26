@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import BreadcrumbBar from "@/components/BreadcrumbBar";
 import LocationSection from "@/components/LocationSection";
-import { loadSiteContent } from "@/lib/sanity/loadSiteContent";
+import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await loadSiteContent();

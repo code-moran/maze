@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { sql } from "@vercel/postgres";
 import { Resend } from "resend";
+import { prisma, isDatabaseConfigured } from "@/lib/prisma";
+import { isAdminRequestAuthorized } from "@/lib/admin/auth";
 
 const rateMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 5;
@@ -24,22 +25,6 @@ function checkRateLimit(ip: string): boolean {
   if (entry.count >= RATE_LIMIT) return false;
   entry.count += 1;
   return true;
-}
-
-async function ensureTable() {
-  if (!process.env.POSTGRES_URL) return;
-  await sql`
-    CREATE TABLE IF NOT EXISTS enquiries (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      phone TEXT NOT NULL,
-      email TEXT,
-      subject TEXT NOT NULL,
-      message TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'New',
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
 }
 
 export async function POST(request: Request) {
@@ -71,14 +56,19 @@ export async function POST(request: Request) {
       );
     }
 
-    if (process.env.POSTGRES_URL) {
-      await ensureTable();
-      await sql`
-        INSERT INTO enquiries (name, phone, email, subject, message, status)
-        VALUES (${name}, ${phone}, ${email || null}, ${subject}, ${message}, 'New')
-      `;
+    if (isDatabaseConfigured() && prisma) {
+      await prisma.enquiry.create({
+        data: {
+          name,
+          phone,
+          email: email || null,
+          subject,
+          message,
+          status: "New",
+        },
+      });
     } else {
-      console.info("[enquiries] No POSTGRES_URL — logged only:", {
+      console.info("[enquiries] No database — logged only:", {
         name,
         phone,
         email,
@@ -114,22 +104,29 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const auth = request.headers.get("authorization");
-  const expected = process.env.ADMIN_ENQUIRIES_SECRET;
-  if (!expected || auth !== `Bearer ${expected}`) {
+  if (!isAdminRequestAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.POSTGRES_URL) {
+  if (!isDatabaseConfigured() || !prisma) {
     return NextResponse.json({ enquiries: [] });
   }
 
-  await ensureTable();
-  const { rows } = await sql`
-    SELECT id, name, phone, email, subject, message, status, created_at
-    FROM enquiries
-    ORDER BY created_at DESC
-    LIMIT 200
-  `;
-  return NextResponse.json({ enquiries: rows });
+  const enquiries = await prisma.enquiry.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 200,
+  });
+
+  return NextResponse.json({
+    enquiries: enquiries.map((row) => ({
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      email: row.email,
+      subject: row.subject,
+      message: row.message,
+      status: row.status,
+      created_at: row.createdAt,
+    })),
+  });
 }

@@ -1,9 +1,5 @@
-import EnquiriesAdminClient from "./EnquiriesAdminClient";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Enquiries | Maze Admin",
-};
-
-export default function EnquiriesAdminPage() {
-  return <EnquiriesAdminClient />;
+export default function LegacyEnquiriesRedirect() {
+  redirect("/admin");
 }

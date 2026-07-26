@@ -14,6 +14,20 @@ type Props = {
   hideIntro?: boolean;
 };
 
+function setDocumentMeta(title?: string, description?: string) {
+  if (typeof document === "undefined") return;
+  if (title) document.title = title;
+  if (description) {
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "description");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", description);
+  }
+}
+
 export default function ProductsBrowser({
   data,
   preview = false,
@@ -36,13 +50,36 @@ export default function ProductsBrowser({
   const categories = getProductCategories(data);
   const intro = data.sections.productsIntro;
 
+  const applyListingMeta = useCallback(
+    (cat: string) => {
+      if (preview) return;
+      if (cat === "all") {
+        const seo = data.sectionSeo.products;
+        setDocumentMeta(
+          seo?.title || data.siteMeta.title,
+          seo?.description || data.siteMeta.description
+        );
+        return;
+      }
+      const category = data.categorySeo[cat];
+      setDocumentMeta(
+        category?.metaTitle || category?.title || data.siteMeta.title,
+        category?.metaDescription ||
+          category?.description ||
+          data.siteMeta.description
+      );
+    },
+    [data.categorySeo, data.sectionSeo.products, data.siteMeta, preview]
+  );
+
   useEffect(() => {
     if (preview) return;
     const cat = searchParams.get("cat") || "all";
     setCurrentFilter(cat);
     setCurrentSubFilter("all");
     setDisplayedCount(PER_PAGE);
-  }, [searchParams, preview]);
+    if (!searchParams.get("product")) applyListingMeta(cat);
+  }, [searchParams, preview, applyListingMeta]);
 
   const openProduct = useCallback(
     (id: number) => {
@@ -50,6 +87,12 @@ export default function ProductsBrowser({
       if (!product) return;
       setSelectedProduct(product);
       setMainImg(product.imgs[0] || "");
+      if (product.seoTitle || product.seoDescription) {
+        setDocumentMeta(
+          product.seoTitle || product.name,
+          product.seoDescription || product.shortDesc
+        );
+      }
       requestAnimationFrame(() => {
         const el = document.getElementById("productModal");
         if (el && window.bootstrap?.Modal) {
@@ -65,6 +108,17 @@ export default function ProductsBrowser({
     const id = Number(productParam);
     if (!Number.isNaN(id)) openProduct(id);
   }, [productParam, preview, openProduct]);
+
+  useEffect(() => {
+    const modalEl = document.getElementById("productModal");
+    if (!modalEl) return;
+    const handleHidden = () => {
+      setSelectedProduct(null);
+      applyListingMeta(currentFilter);
+    };
+    modalEl.addEventListener("hidden.bs.modal", handleHidden);
+    return () => modalEl.removeEventListener("hidden.bs.modal", handleHidden);
+  }, [applyListingMeta, currentFilter]);
 
   const filtered = useMemo(() => {
     if (currentFilter === "all") return products;
@@ -96,6 +150,7 @@ export default function ProductsBrowser({
     setCurrentFilter(cat);
     setCurrentSubFilter("all");
     setDisplayedCount(PER_PAGE);
+    applyListingMeta(cat);
     if (!preview) {
       const url =
         cat === "all" ? "/products" : `/products?cat=${encodeURIComponent(cat)}`;

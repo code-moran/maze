@@ -8,7 +8,7 @@ import {
   getBlogBySlug,
   getBlogSlug,
 } from "@/data/siteData";
-import { loadSiteContent } from "@/lib/sanity/loadSiteContent";
+import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 type Props = { params: Promise<{ slug: string }> };
 

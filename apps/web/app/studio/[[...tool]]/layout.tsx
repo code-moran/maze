@@ -1,5 +1,6 @@
 export const metadata = {
   title: "Maze Studio",
+  robots: { index: false, follow: false },
 };
 
 export default function StudioLayout({

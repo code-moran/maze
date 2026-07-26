@@ -8,7 +8,7 @@ import ServicesSection from "@/components/ServicesSection";
 import StatsBar from "@/components/StatsBar";
 import Testimonials from "@/components/Testimonials";
 import WhyChoose from "@/components/WhyChoose";
-import { loadSiteContent } from "@/lib/sanity/loadSiteContent";
+import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 export default async function HomePage() {
   const data = await loadSiteContent();

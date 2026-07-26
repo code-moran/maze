@@ -55,7 +55,7 @@ export default function Footer({ data }: { data: SiteData }) {
             <Link href="/blog">Blog</Link>
             <Link href="/location">Location</Link>
             <Link href="/contact">Contact</Link>
-            <Link href="/studio">Dashboard</Link>
+            <Link href="/admin">Dashboard</Link>
           </div>
           <div className="col-md-4">
             <h5>Contact Info</h5>

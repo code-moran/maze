@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import ProductsBrowser from "@/components/ProductsBrowser";
-import { loadSiteContent } from "@/lib/sanity/loadSiteContent";
+import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await loadSiteContent();

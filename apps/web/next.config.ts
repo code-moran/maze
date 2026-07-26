@@ -22,18 +22,23 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/dashboard.htm",
-        destination: "/studio",
+        destination: "/admin",
         permanent: true,
       },
       {
         source: "/dashboard.html",
-        destination: "/studio",
+        destination: "/admin",
         permanent: true,
       },
       {
         source: "/dashboard",
-        destination: "/studio",
+        destination: "/admin",
         permanent: true,
+      },
+      {
+        source: "/admin/enquiries",
+        destination: "/admin",
+        permanent: false,
       },
     ];
   },
