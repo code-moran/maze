@@ -7,6 +7,7 @@ import type { SiteData } from "@/data/types";
 type SectionId =
   | "overview"
   | "hero-manager"
+  | "products-hero"
   | "general-settings"
   | "installation-charges"
   | "page-content"
@@ -18,7 +19,8 @@ type SectionId =
 
 const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "overview", label: "Overview", icon: "bi-speedometer2" },
-  { id: "hero-manager", label: "Hero", icon: "bi-images" },
+  { id: "hero-manager", label: "Home Hero", icon: "bi-images" },
+  { id: "products-hero", label: "Products Hero", icon: "bi-card-image" },
   { id: "general-settings", label: "Settings", icon: "bi-sliders2-vertical" },
   { id: "installation-charges", label: "Charges", icon: "bi-cash-coin" },
   { id: "page-content", label: "Page Text", icon: "bi-layout-text-window-reverse" },
@@ -31,7 +33,8 @@ const NAV: { id: SectionId; label: string; icon: string }[] = [
 
 const SECTION_LABELS: Record<SectionId, string> = {
   overview: "Overview",
-  "hero-manager": "Hero",
+  "hero-manager": "Home Hero",
+  "products-hero": "Products Hero",
   "general-settings": "Settings",
   "installation-charges": "Charges",
   "page-content": "Page Text",
@@ -386,6 +389,19 @@ export default function AdminDashboard({
                   onSave={(payload) =>
                     api("/api/admin/pages", "PUT", {
                       section: "home",
+                      ...payload,
+                    })
+                  }
+                />
+              ) : null}
+
+              {section === "products-hero" ? (
+                <ProductsHeroPanel
+                  data={data}
+                  saving={saving}
+                  onSave={(payload) =>
+                    api("/api/admin/pages", "PUT", {
+                      section: "products",
                       ...payload,
                     })
                   }
@@ -903,6 +919,116 @@ function ChargesPanel({
   );
 }
 
+function ProductsHeroPanel({
+  data,
+  saving,
+  onSave,
+}: {
+  data: SiteData;
+  saving: boolean;
+  onSave: (payload: Record<string, unknown>) => Promise<boolean>;
+}) {
+  const [form, setForm] = useState(data.sections.productsIntro);
+
+  useEffect(() => {
+    setForm(data.sections.productsIntro);
+  }, [data.sections.productsIntro]);
+
+  return (
+    <section className="dashboard-panel mb-4">
+      <h3>Products Hero</h3>
+      <p className="small text-secondary mb-3">
+        Controls the banner at the top of the Products page — label, title,
+        subtitle, and background image.
+      </p>
+      <form
+        className="dashboard-form"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await onSave({
+            label: form.label.trim(),
+            title: form.title.trim(),
+            subtitle: form.subtitle.trim(),
+            heroBackground: form.heroBackground.trim(),
+          });
+        }}
+      >
+        <div className="row g-3">
+          <div className="col-md-4">
+            <label className="form-label small fw-semibold">Label</label>
+            <input
+              className="form-control"
+              value={form.label}
+              onChange={(e) => setForm({ ...form, label: e.target.value })}
+            />
+          </div>
+          <div className="col-md-8">
+            <label className="form-label small fw-semibold">Title</label>
+            <input
+              className="form-control"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+          </div>
+          <div className="col-12">
+            <label className="form-label small fw-semibold">Subtitle</label>
+            <textarea
+              className="form-control"
+              rows={2}
+              value={form.subtitle}
+              onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+            />
+          </div>
+          <div className="col-md-8">
+            <label className="form-label small fw-semibold">
+              Background image URL
+            </label>
+            <input
+              className="form-control"
+              type="url"
+              value={form.heroBackground || ""}
+              onChange={(e) =>
+                setForm({ ...form, heroBackground: e.target.value })
+              }
+              placeholder="https://…"
+            />
+          </div>
+          <div className="col-md-4 d-flex align-items-end">
+            {form.heroBackground ? (
+              <img
+                src={form.heroBackground}
+                alt="Products hero preview"
+                className="rounded w-100"
+                style={{
+                  height: 72,
+                  objectFit: "cover",
+                  border: "1px solid #dce8dc",
+                }}
+              />
+            ) : (
+              <div
+                className="rounded w-100 d-flex align-items-center justify-content-center small text-secondary"
+                style={{
+                  height: 72,
+                  background: "#f3f7f3",
+                  border: "1px dashed #c5d6c5",
+                }}
+              >
+                No image
+              </div>
+            )}
+          </div>
+          <div className="col-12">
+            <button className="btn btn-maze" type="submit" disabled={saving}>
+              <i className="bi bi-save me-2"></i>Save Products Hero
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  );
+}
+
 function PagesPanel({
   data,
   saving,
@@ -913,13 +1039,11 @@ function PagesPanel({
   onSave: (payload: Record<string, unknown>) => Promise<boolean>;
 }) {
   const s = data.sections;
-  const [products, setProducts] = useState(s.productsIntro);
   const [services, setServices] = useState(s.servicesIntro);
   const [about, setAbout] = useState(s.aboutIntro);
   const [contact, setContact] = useState(s.contactIntro);
 
   useEffect(() => {
-    setProducts(s.productsIntro);
     setServices(s.servicesIntro);
     setAbout(s.aboutIntro);
     setContact(s.contactIntro);
@@ -929,93 +1053,19 @@ function PagesPanel({
     <section className="dashboard-panel mb-4">
       <h3>Page Text</h3>
       <p className="small text-secondary mb-3">
-        Homepage carousel copy and images are managed under{" "}
-        <strong>Hero</strong>.
+        Homepage and products banners are under <strong>Home Hero</strong> and{" "}
+        <strong>Products Hero</strong> in the sidebar.
       </p>
       <form
         className="dashboard-form"
         onSubmit={async (e) => {
           e.preventDefault();
-          await onSave({ section: "products", ...products });
           await onSave({ section: "services", ...services });
           await onSave({ section: "about", ...about });
           await onSave({ section: "contact", ...contact });
         }}
       >
         <div className="row g-3">
-          <div className="col-12">
-            <h5 className="h6 fw-bold mt-2">Products intro</h5>
-            <div className="row g-2">
-              {(["label", "title", "subtitle"] as const).map((key) => (
-                <div
-                  className={key === "subtitle" ? "col-12" : "col-md-6"}
-                  key={key}
-                >
-                  <label className="form-label small fw-semibold">{key}</label>
-                  {key === "subtitle" ? (
-                    <textarea
-                      className="form-control"
-                      value={products[key]}
-                      onChange={(e) =>
-                        setProducts({ ...products, [key]: e.target.value })
-                      }
-                    />
-                  ) : (
-                    <input
-                      className="form-control"
-                      value={products[key]}
-                      onChange={(e) =>
-                        setProducts({ ...products, [key]: e.target.value })
-                      }
-                    />
-                  )}
-                </div>
-              ))}
-              <div className="col-md-8">
-                <label className="form-label small fw-semibold">
-                  Products hero background URL
-                </label>
-                <input
-                  className="form-control"
-                  type="url"
-                  value={products.heroBackground || ""}
-                  onChange={(e) =>
-                    setProducts({
-                      ...products,
-                      heroBackground: e.target.value,
-                    })
-                  }
-                  placeholder="https://…"
-                />
-              </div>
-              <div className="col-md-4 d-flex align-items-end">
-                {products.heroBackground ? (
-                  <img
-                    src={products.heroBackground}
-                    alt="Products hero preview"
-                    className="rounded w-100"
-                    style={{
-                      height: 72,
-                      objectFit: "cover",
-                      border: "1px solid #dce8dc",
-                    }}
-                  />
-                ) : (
-                  <div
-                    className="rounded w-100 d-flex align-items-center justify-content-center small text-secondary"
-                    style={{
-                      height: 72,
-                      background: "#f3f7f3",
-                      border: "1px dashed #c5d6c5",
-                    }}
-                  >
-                    No image
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
           {(
             [
               ["services", services, setServices],

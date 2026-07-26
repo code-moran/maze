@@ -1340,10 +1340,14 @@ footer a:hover  {
 
 .dashboard-nav  {
   position:sticky;
-  top:88px
+  top:88px;
+  max-height:calc(100vh - 110px);
+  overflow:auto;
+  padding-right:.15rem
 }
 
 .dashboard-nav .nav-link  {
+  display:block;
   border-radius:10px;
   margin-bottom:.5rem;
   background:#fff;
@@ -1351,7 +1355,13 @@ footer a:hover  {
   color:#333!important
 }
 
-.dashboard-nav .nav-link.active  {
+.dashboard-nav .nav-link:hover  {
+  color:var(--maze-green)!important;
+  border-color:#cfe3cf
+}
+
+.dashboard-nav .nav-link.active,
+.dashboard-nav .nav-link.active:hover  {
   background:var(--maze-green);
   color:#fff!important;
   border-color:var(--maze-green)
@@ -1655,7 +1665,20 @@ footer a:hover  {
   }
 
   .dashboard-nav  {
-    position:static
+    position:static;
+    max-height:none;
+    display:flex;
+    flex-wrap:nowrap;
+    gap:.5rem;
+    overflow-x:auto;
+    padding-bottom:.35rem;
+    margin-bottom:.25rem
+  }
+
+  .dashboard-nav .nav-link  {
+    flex:0 0 auto;
+    margin-bottom:0;
+    white-space:nowrap
   }
 
 }
