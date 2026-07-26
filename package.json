@@ -1,0 +1,10 @@
+{
+  "name": "maze",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix apps/web",
+    "build": "npm run build --prefix apps/web",
+    "start": "npm run start --prefix apps/web",
+    "seed:sanity": "npm run seed:sanity --prefix apps/web"
+  }
+}
