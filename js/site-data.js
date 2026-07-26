@@ -173,7 +173,8 @@ const DEFAULT_SITE_DATA = {
     productsIntro: {
       label: "What We Offer",
       title: "Our Products",
-      subtitle: "Quality products for your home and office"
+      subtitle: "Quality products for your home and office",
+      heroBackground: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=900&auto=format&fit=crop"
     },
     servicesIntro: {
       label: "Professional Services",

@@ -17,6 +17,7 @@ export default async function ProductsPage() {
   const data = await loadSiteContent();
   const intro = data.sections.productsIntro;
   const background =
+    intro.heroBackground ||
     data.heroBackgrounds?.[0] ||
     data.products.find((p) => p.imgs?.[0])?.imgs?.[0] ||
     "";

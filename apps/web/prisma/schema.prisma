@@ -76,11 +76,12 @@ model ContactContent {
 }
 
 model ProductsPageContent {
-  id        String @id @default("default")
-  label     String @default("")
-  title     String @default("")
-  subtitle  String @default("") @db.Text
-  updatedAt DateTime @updatedAt
+  id             String @id @default("default")
+  label          String @default("")
+  title          String @default("")
+  subtitle       String @default("") @db.Text
+  heroBackground String @default("")
+  updatedAt      DateTime @updatedAt
 }
 
 model Category {

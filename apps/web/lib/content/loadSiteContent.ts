@@ -161,6 +161,11 @@ export async function loadSiteContent(): Promise<SiteData> {
         label: productsPage.label,
         title: productsPage.title,
         subtitle: productsPage.subtitle,
+        heroBackground:
+          productsPage.heroBackground ||
+          merged.sections.productsIntro.heroBackground ||
+          merged.heroBackgrounds[0] ||
+          "",
       };
     }
 

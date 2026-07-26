@@ -58,6 +58,7 @@ export type ProductsIntro = {
   label: string;
   title: string;
   subtitle: string;
+  heroBackground: string;
 };
 
 export type ServicesIntro = {

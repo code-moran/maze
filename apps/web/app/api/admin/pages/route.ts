@@ -110,11 +110,13 @@ export async function PUT(request: Request) {
           label: String(body.label ?? ""),
           title: String(body.title ?? ""),
           subtitle: String(body.subtitle ?? ""),
+          heroBackground: String(body.heroBackground ?? ""),
         },
         update: {
           label: String(body.label ?? ""),
           title: String(body.title ?? ""),
           subtitle: String(body.subtitle ?? ""),
+          heroBackground: String(body.heroBackground ?? ""),
         },
       });
       return jsonOk({ productsPage });

@@ -6,6 +6,7 @@ import type { SiteData } from "@/data/types";
 
 type SectionId =
   | "overview"
+  | "hero-manager"
   | "general-settings"
   | "installation-charges"
   | "page-content"
@@ -17,6 +18,7 @@ type SectionId =
 
 const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "overview", label: "Overview", icon: "bi-speedometer2" },
+  { id: "hero-manager", label: "Hero", icon: "bi-images" },
   { id: "general-settings", label: "Settings", icon: "bi-sliders2-vertical" },
   { id: "installation-charges", label: "Charges", icon: "bi-cash-coin" },
   { id: "page-content", label: "Page Text", icon: "bi-layout-text-window-reverse" },
@@ -29,6 +31,7 @@ const NAV: { id: SectionId; label: string; icon: string }[] = [
 
 const SECTION_LABELS: Record<SectionId, string> = {
   overview: "Overview",
+  "hero-manager": "Hero",
   "general-settings": "Settings",
   "installation-charges": "Charges",
   "page-content": "Page Text",
@@ -38,6 +41,28 @@ const SECTION_LABELS: Record<SectionId, string> = {
   "blogs-manager": "Blogs",
   "seo-manager": "SEO",
 };
+
+function htmlToText(value: string) {
+  return (value || "").replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "");
+}
+
+function textToHtml(value: string) {
+  return (value || "").trim().replace(/\n/g, "<br>");
+}
+
+function ensureHeroSlides(
+  slides: SiteData["sections"]["heroSlides"]
+): SiteData["sections"]["heroSlides"] {
+  return [0, 1, 2].map((i) => ({
+    badge: slides[i]?.badge || "",
+    title: slides[i]?.title || "",
+    description: slides[i]?.description || "",
+  }));
+}
+
+function ensureHeroBackgrounds(backgrounds: string[]): string[] {
+  return [0, 1, 2].map((i) => backgrounds[i] || "");
+}
 
 type Enquiry = {
   id: number;
@@ -354,6 +379,19 @@ export default function AdminDashboard({
                 </section>
               ) : null}
 
+              {section === "hero-manager" ? (
+                <HeroPanel
+                  data={data}
+                  saving={saving}
+                  onSave={(payload) =>
+                    api("/api/admin/pages", "PUT", {
+                      section: "home",
+                      ...payload,
+                    })
+                  }
+                />
+              ) : null}
+
               {section === "general-settings" ? (
                 <SettingsPanel
                   data={data}
@@ -473,6 +511,167 @@ export default function AdminDashboard({
         </div>
       </main>
     </>
+  );
+}
+
+function HeroPanel({
+  data,
+  saving,
+  onSave,
+}: {
+  data: SiteData;
+  saving: boolean;
+  onSave: (payload: Record<string, unknown>) => Promise<boolean>;
+}) {
+  const [slides, setSlides] = useState(() =>
+    ensureHeroSlides(data.sections.heroSlides).map((slide) => ({
+      ...slide,
+      title: htmlToText(slide.title),
+    }))
+  );
+  const [backgrounds, setBackgrounds] = useState(() =>
+    ensureHeroBackgrounds(data.heroBackgrounds)
+  );
+
+  useEffect(() => {
+    setSlides(
+      ensureHeroSlides(data.sections.heroSlides).map((slide) => ({
+        ...slide,
+        title: htmlToText(slide.title),
+      }))
+    );
+    setBackgrounds(ensureHeroBackgrounds(data.heroBackgrounds));
+  }, [data.sections.heroSlides, data.heroBackgrounds]);
+
+  const updateSlide = (
+    index: number,
+    key: "badge" | "title" | "description",
+    value: string
+  ) => {
+    const next = [...slides];
+    next[index] = { ...next[index], [key]: value };
+    setSlides(next);
+  };
+
+  const updateBackground = (index: number, value: string) => {
+    const next = [...backgrounds];
+    next[index] = value;
+    setBackgrounds(next);
+  };
+
+  return (
+    <section className="dashboard-panel mb-4">
+      <h3>Home Hero</h3>
+      <p className="small text-secondary mb-3">
+        Edit the three homepage carousel slides. Use a line break in the title
+        for a two-line headline. Backgrounds accept image URLs.
+      </p>
+      <form
+        className="dashboard-form"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await onSave({
+            heroSlides: slides.map((slide) => ({
+              badge: slide.badge.trim(),
+              title: textToHtml(slide.title),
+              description: slide.description.trim(),
+            })),
+            stats: data.stats,
+            cta: data.cta,
+            heroBackgrounds: backgrounds.map(
+              (url, i) => url.trim() || data.heroBackgrounds[i] || ""
+            ),
+            aboutImages: data.aboutImages,
+          });
+        }}
+      >
+        <div className="row g-4">
+          {slides.map((slide, i) => (
+            <div className="col-12" key={i}>
+              <div className="dashboard-panel p-3 mb-0">
+                <h5 className="h6 fw-bold mb-3">Slide {i + 1}</h5>
+                <div className="row g-3">
+                  <div className="col-md-4">
+                    <label className="form-label small fw-semibold">Badge</label>
+                    <input
+                      className="form-control"
+                      value={slide.badge}
+                      onChange={(e) => updateSlide(i, "badge", e.target.value)}
+                      placeholder="e.g. Premium TV Mounts"
+                    />
+                  </div>
+                  <div className="col-md-8">
+                    <label className="form-label small fw-semibold">Title</label>
+                    <textarea
+                      className="form-control"
+                      rows={2}
+                      value={slide.title}
+                      onChange={(e) => updateSlide(i, "title", e.target.value)}
+                      placeholder={"Mount Your TV\nLike a Pro"}
+                    />
+                  </div>
+                  <div className="col-12">
+                    <label className="form-label small fw-semibold">
+                      Description
+                    </label>
+                    <textarea
+                      className="form-control"
+                      rows={2}
+                      value={slide.description}
+                      onChange={(e) =>
+                        updateSlide(i, "description", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="col-md-8">
+                    <label className="form-label small fw-semibold">
+                      Background image URL
+                    </label>
+                    <input
+                      className="form-control"
+                      type="url"
+                      value={backgrounds[i] || ""}
+                      onChange={(e) => updateBackground(i, e.target.value)}
+                      placeholder="https://…"
+                    />
+                  </div>
+                  <div className="col-md-4 d-flex align-items-end">
+                    {backgrounds[i] ? (
+                      <img
+                        src={backgrounds[i]}
+                        alt={`Slide ${i + 1} preview`}
+                        className="rounded w-100"
+                        style={{
+                          height: 72,
+                          objectFit: "cover",
+                          border: "1px solid #dce8dc",
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className="rounded w-100 d-flex align-items-center justify-content-center small text-secondary"
+                        style={{
+                          height: 72,
+                          background: "#f3f7f3",
+                          border: "1px dashed #c5d6c5",
+                        }}
+                      >
+                        No image
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+          <div className="col-12">
+            <button className="btn btn-maze" type="submit" disabled={saving}>
+              <i className="bi bi-save me-2"></i>Save Hero
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
   );
 }
 
@@ -714,46 +913,29 @@ function PagesPanel({
   onSave: (payload: Record<string, unknown>) => Promise<boolean>;
 }) {
   const s = data.sections;
-  const slides = s.heroSlides;
-  const [hero, setHero] = useState(slides);
   const [products, setProducts] = useState(s.productsIntro);
   const [services, setServices] = useState(s.servicesIntro);
   const [about, setAbout] = useState(s.aboutIntro);
   const [contact, setContact] = useState(s.contactIntro);
 
   useEffect(() => {
-    setHero(s.heroSlides);
     setProducts(s.productsIntro);
     setServices(s.servicesIntro);
     setAbout(s.aboutIntro);
     setContact(s.contactIntro);
   }, [s]);
 
-  const updateSlide = (
-    index: number,
-    key: "badge" | "title" | "description",
-    value: string
-  ) => {
-    const next = [...hero];
-    next[index] = { ...next[index], [key]: value };
-    setHero(next);
-  };
-
   return (
     <section className="dashboard-panel mb-4">
       <h3>Page Text</h3>
+      <p className="small text-secondary mb-3">
+        Homepage carousel copy and images are managed under{" "}
+        <strong>Hero</strong>.
+      </p>
       <form
         className="dashboard-form"
         onSubmit={async (e) => {
           e.preventDefault();
-          await onSave({
-            section: "home",
-            heroSlides: hero,
-            stats: data.stats,
-            cta: data.cta,
-            heroBackgrounds: data.heroBackgrounds,
-            aboutImages: data.aboutImages,
-          });
           await onSave({ section: "products", ...products });
           await onSave({ section: "services", ...services });
           await onSave({ section: "about", ...about });
@@ -761,45 +943,81 @@ function PagesPanel({
         }}
       >
         <div className="row g-3">
-          {[0, 1, 2].map((i) => (
-            <div className="col-12" key={i}>
-              <h5 className="h6 fw-bold mt-2">Hero slide {i + 1}</h5>
-              <div className="row g-2">
-                <div className="col-md-4">
-                  <label className="form-label small fw-semibold">Badge</label>
-                  <input
-                    className="form-control"
-                    value={hero[i]?.badge || ""}
-                    onChange={(e) => updateSlide(i, "badge", e.target.value)}
-                  />
+          <div className="col-12">
+            <h5 className="h6 fw-bold mt-2">Products intro</h5>
+            <div className="row g-2">
+              {(["label", "title", "subtitle"] as const).map((key) => (
+                <div
+                  className={key === "subtitle" ? "col-12" : "col-md-6"}
+                  key={key}
+                >
+                  <label className="form-label small fw-semibold">{key}</label>
+                  {key === "subtitle" ? (
+                    <textarea
+                      className="form-control"
+                      value={products[key]}
+                      onChange={(e) =>
+                        setProducts({ ...products, [key]: e.target.value })
+                      }
+                    />
+                  ) : (
+                    <input
+                      className="form-control"
+                      value={products[key]}
+                      onChange={(e) =>
+                        setProducts({ ...products, [key]: e.target.value })
+                      }
+                    />
+                  )}
                 </div>
-                <div className="col-md-8">
-                  <label className="form-label small fw-semibold">Title</label>
-                  <textarea
-                    className="form-control"
-                    value={hero[i]?.title || ""}
-                    onChange={(e) => updateSlide(i, "title", e.target.value)}
+              ))}
+              <div className="col-md-8">
+                <label className="form-label small fw-semibold">
+                  Products hero background URL
+                </label>
+                <input
+                  className="form-control"
+                  type="url"
+                  value={products.heroBackground || ""}
+                  onChange={(e) =>
+                    setProducts({
+                      ...products,
+                      heroBackground: e.target.value,
+                    })
+                  }
+                  placeholder="https://…"
+                />
+              </div>
+              <div className="col-md-4 d-flex align-items-end">
+                {products.heroBackground ? (
+                  <img
+                    src={products.heroBackground}
+                    alt="Products hero preview"
+                    className="rounded w-100"
+                    style={{
+                      height: 72,
+                      objectFit: "cover",
+                      border: "1px solid #dce8dc",
+                    }}
                   />
-                </div>
-                <div className="col-12">
-                  <label className="form-label small fw-semibold">
-                    Description
-                  </label>
-                  <textarea
-                    className="form-control"
-                    value={hero[i]?.description || ""}
-                    onChange={(e) =>
-                      updateSlide(i, "description", e.target.value)
-                    }
-                  />
-                </div>
+                ) : (
+                  <div
+                    className="rounded w-100 d-flex align-items-center justify-content-center small text-secondary"
+                    style={{
+                      height: 72,
+                      background: "#f3f7f3",
+                      border: "1px dashed #c5d6c5",
+                    }}
+                  >
+                    No image
+                  </div>
+                )}
               </div>
             </div>
-          ))}
+          </div>
 
           {(
             [
-              ["products", products, setProducts],
               ["services", services, setServices],
               ["contact", contact, setContact],
             ] as const

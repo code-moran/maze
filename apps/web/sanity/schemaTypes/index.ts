@@ -167,6 +167,11 @@ export const productsPage = defineType({
     defineField({ name: "label", type: "string" }),
     defineField({ name: "title", type: "string" }),
     defineField({ name: "subtitle", type: "text" }),
+    defineField({
+      name: "heroBackground",
+      type: "string",
+      title: "Hero background image URL",
+    }),
   ],
 });
 
