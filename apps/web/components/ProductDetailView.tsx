@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { getProductSlug } from "@/data/siteData";
 import type { Product } from "@/data/types";
-import ProductInlineRequestForm from "@/components/ProductInlineRequestForm";
+import ProductRequestModal from "@/components/ProductRequestModal";
 
 type Props = {
   product: Product;
@@ -13,6 +13,13 @@ type Props = {
 
 export default function ProductDetailView({ product, relatedProducts }: Props) {
   const [mainImg, setMainImg] = useState(product.imgs[0] || "");
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: "QUOTE" | "INSTALLATION";
+  }>({
+    isOpen: false,
+    type: "QUOTE",
+  });
 
   return (
     <section className="py-5" style={{ background: "#fafffe" }}>
@@ -126,11 +133,36 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
                 </div>
               ) : null}
 
-              {/* Inline Request Form */}
-              <ProductInlineRequestForm
+              {/* Request Quote / Installation Modal Action Buttons */}
+              <div className="p-4 rounded-3 border bg-light mt-4">
+                <h6 className="fw-bold mb-2 text-dark">Ready to Order or Need Professional Setup?</h6>
+                <p className="small text-secondary mb-3">
+                  Click below to get an instant quote or book professional installation for <strong>{product.name}</strong>.
+                </p>
+                <div className="d-flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-maze btn-lg px-4"
+                    onClick={() => setModalState({ isOpen: true, type: "QUOTE" })}
+                  >
+                    <i className="bi bi-calculator me-2"></i>Request Quote
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-maze-outline btn-lg px-4"
+                    onClick={() => setModalState({ isOpen: true, type: "INSTALLATION" })}
+                  >
+                    <i className="bi bi-tools me-2"></i>Request Installation
+                  </button>
+                </div>
+              </div>
+
+              <ProductRequestModal
+                isOpen={modalState.isOpen}
+                onClose={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
                 productName={product.name}
                 catLabel={product.catLabel}
-                defaultType="QUOTE"
+                defaultType={modalState.type}
               />
             </div>
           </div>

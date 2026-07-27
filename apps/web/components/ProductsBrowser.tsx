@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getProductCategories, getProductSlug } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
-import ProductInlineRequestForm from "@/components/ProductInlineRequestForm";
+import ProductRequestModal from "@/components/ProductRequestModal";
 
 const PER_PAGE = 8;
 
@@ -41,6 +41,13 @@ export default function ProductsBrowser({
   const [displayedCount, setDisplayedCount] = useState(PER_PAGE);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [mainImg, setMainImg] = useState("");
+  const [requestModalState, setRequestModalState] = useState<{
+    isOpen: boolean;
+    type: "QUOTE" | "INSTALLATION";
+  }>({
+    isOpen: false,
+    type: "QUOTE",
+  });
 
   const products = data.products;
   const categories = getProductCategories(data);
@@ -558,12 +565,25 @@ export default function ProductsBrowser({
                         <li key={feature}>{feature}</li>
                       ))}
                     </ul>
-                    {/* Inline Request Form */}
-                    <ProductInlineRequestForm
-                      productName={selectedProduct.name}
-                      catLabel={selectedProduct.catLabel}
-                      defaultType="QUOTE"
-                    />
+                    {/* Request Quote / Installation Action Buttons */}
+                    <div className="p-3 bg-light rounded border mt-3">
+                      <div className="d-flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-maze btn-sm px-3"
+                          onClick={() => setRequestModalState({ isOpen: true, type: "QUOTE" })}
+                        >
+                          <i className="bi bi-calculator me-1"></i>Request Quote
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-maze-outline btn-sm px-3"
+                          onClick={() => setRequestModalState({ isOpen: true, type: "INSTALLATION" })}
+                        >
+                          <i className="bi bi-tools me-1"></i>Request Installation
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <hr />
@@ -607,6 +627,14 @@ export default function ProductsBrowser({
           </div>
         </div>
       </div>
+
+      <ProductRequestModal
+        isOpen={requestModalState.isOpen}
+        onClose={() => setRequestModalState((prev) => ({ ...prev, isOpen: false }))}
+        productName={selectedProduct?.name}
+        catLabel={selectedProduct?.catLabel}
+        defaultType={requestModalState.type}
+      />
     </section>
   );
 }

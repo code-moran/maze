@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import ProductRequestModal from "@/components/ProductRequestModal";
 
 type Crumb = { label: string; href?: string };
 
@@ -27,6 +31,14 @@ export default function PageHero({
   ctas,
   compact = true,
 }: Props) {
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    type: "QUOTE" | "INSTALLATION";
+  }>({
+    isOpen: false,
+    type: "QUOTE",
+  });
+
   return (
     <section
       className={`page-hero${compact ? " page-hero-compact" : ""}`}
@@ -75,23 +87,57 @@ export default function PageHero({
         {subtitle ? <p className="page-hero-subtitle">{subtitle}</p> : null}
         {ctas?.length ? (
           <div className="d-flex flex-wrap gap-2 page-hero-actions">
-            {ctas.map((cta) => (
-              <Link
-                key={cta.label}
-                href={cta.href}
-                className={cta.outline ? "btn btn-maze-outline" : "btn btn-maze"}
-                style={
-                  cta.outline
-                    ? { borderColor: "#c8f5c8", color: "#c8f5c8" }
-                    : undefined
-                }
-              >
-                {cta.label}
-              </Link>
-            ))}
+            {ctas.map((cta) => {
+              const isQuote = cta.label.toLowerCase().includes("quote");
+              const isInstall = cta.label.toLowerCase().includes("install");
+
+              if (isQuote || isInstall) {
+                return (
+                  <button
+                    key={cta.label}
+                    type="button"
+                    className={cta.outline ? "btn btn-maze-outline" : "btn btn-maze"}
+                    style={
+                      cta.outline
+                        ? { borderColor: "#c8f5c8", color: "#c8f5c8" }
+                        : undefined
+                    }
+                    onClick={() =>
+                      setModalState({
+                        isOpen: true,
+                        type: isInstall ? "INSTALLATION" : "QUOTE",
+                      })
+                    }
+                  >
+                    {cta.label}
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={cta.label}
+                  href={cta.href}
+                  className={cta.outline ? "btn btn-maze-outline" : "btn btn-maze"}
+                  style={
+                    cta.outline
+                      ? { borderColor: "#c8f5c8", color: "#c8f5c8" }
+                      : undefined
+                  }
+                >
+                  {cta.label}
+                </Link>
+              );
+            })}
           </div>
         ) : null}
       </div>
+
+      <ProductRequestModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
+        defaultType={modalState.type}
+      />
     </section>
   );
 }
