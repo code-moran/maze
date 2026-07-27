@@ -20,9 +20,7 @@ export default async function HomePage() {
         backgrounds={data.heroBackgrounds}
       />
       <StatsBar stats={data.stats} />
-      <Suspense fallback={null}>
-        <ProductsBrowser data={data} preview />
-      </Suspense>
+      <ProductsBrowser data={data} preview />
       <ServicesSection
         intro={data.sections.servicesIntro}
         charges={data.serviceCharges}

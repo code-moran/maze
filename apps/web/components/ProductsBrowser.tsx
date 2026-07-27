@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getProductCategories } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
@@ -33,14 +33,9 @@ export default function ProductsBrowser({
   preview = false,
   hideIntro = false,
 }: Props) {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const initialCat = searchParams.get("cat") || "all";
-  const productParam = searchParams.get("product");
 
-  const [currentFilter, setCurrentFilter] = useState(
-    preview ? "all" : initialCat
-  );
+  const [currentFilter, setCurrentFilter] = useState("all");
   const [currentSubFilter, setCurrentSubFilter] = useState("all");
   const [displayedCount, setDisplayedCount] = useState(PER_PAGE);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -72,15 +67,6 @@ export default function ProductsBrowser({
     [data.categorySeo, data.sectionSeo.products, data.siteMeta, preview]
   );
 
-  useEffect(() => {
-    if (preview) return;
-    const cat = searchParams.get("cat") || "all";
-    setCurrentFilter(cat);
-    setCurrentSubFilter("all");
-    setDisplayedCount(PER_PAGE);
-    if (!searchParams.get("product")) applyListingMeta(cat);
-  }, [searchParams, preview, applyListingMeta]);
-
   const openProduct = useCallback(
     (id: number) => {
       const product = products.find((item) => item.id === id);
@@ -104,10 +90,22 @@ export default function ProductsBrowser({
   );
 
   useEffect(() => {
-    if (preview || !productParam) return;
-    const id = Number(productParam);
-    if (!Number.isNaN(id)) openProduct(id);
-  }, [productParam, preview, openProduct]);
+    if (preview || typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("cat") || "all";
+    const productParam = params.get("product");
+
+    setCurrentFilter(cat);
+    setCurrentSubFilter("all");
+    setDisplayedCount(PER_PAGE);
+
+    if (productParam) {
+      const id = Number(productParam);
+      if (!Number.isNaN(id)) openProduct(id);
+    } else {
+      applyListingMeta(cat);
+    }
+  }, [preview, openProduct, applyListingMeta]);
 
   useEffect(() => {
     const modalEl = document.getElementById("productModal");
