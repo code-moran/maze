@@ -295,17 +295,19 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
   padding:1rem 1.25rem 0
 }
 
-html:has(.mobile-nav-check:checked),
-body:has(.mobile-nav-check:checked)  {
-  overflow:hidden!important;
-  overscroll-behavior:none
+@media(max-width:991.98px) {
+  html:has(.mobile-nav-check:checked),
+  body:has(.mobile-nav-check:checked) {
+    overflow:hidden!important;
+    overscroll-behavior:none
+  }
 }
 
-@media(min-width:992px)  {
+@media(min-width:992px) {
   .mobile-menu-toggler,
   .mobile-nav-check,
   .mobile-menu-backdrop,
-  .mobile-menu-drawer  {
+  .mobile-menu-drawer {
     display:none!important
   }
 }
@@ -1660,8 +1662,30 @@ footer a:hover  {
     right:18px
   }
 
-  .subcat-sidebar  {
-    margin-bottom:1rem
+  .subcat-sidebar {
+    margin-bottom:1rem;
+    padding:.85rem 1rem
+  }
+
+  .subcat-sidebar h5 {
+    font-size:.95rem;
+    margin-bottom:.65rem!important
+  }
+
+  #subCatFilters {
+    flex-direction:row;
+    flex-wrap:wrap;
+    gap:.45rem
+  }
+
+  .subcat-pill {
+    width:auto;
+    padding:.45rem .85rem;
+    font-size:.82rem
+  }
+
+  .subcat-pill::after {
+    display:none
   }
 
   .dashboard-nav  {

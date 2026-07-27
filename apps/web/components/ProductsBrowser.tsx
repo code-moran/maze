@@ -180,10 +180,7 @@ export default function ProductsBrowser({
     }
   };
 
-  const showSidebar =
-    !preview &&
-    currentFilter !== "all" &&
-    currentSubFilter !== "all";
+  const showSidebar = !preview && currentFilter !== "all";
 
   const subItems =
     currentFilter !== "all"
@@ -389,34 +386,13 @@ export default function ProductsBrowser({
                     </div>
                   );
                 })
-              ) : currentSubFilter === "all" ? (
-                <div className="col-12">
-                  <div className="subproduct-browser">
-                    <div className="subproduct-browser-title">
-                      {data.categorySeo[currentFilter]?.title || "Sub Products"}
-                    </div>
-                    <div className="subproduct-browser-list">
-                      {subItems.map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className="subproduct-browser-link"
-                          onClick={() => filterSubCategory(item.id)}
-                        >
-                          <i className="bi bi-caret-right-fill"></i>
-                          <span>{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
               ) : visibleProducts.length === 0 ? (
                 <div className="col-12">
                   <div className="empty-state">No products found.</div>
                 </div>
               ) : (
                 visibleProducts.map((product) => (
-                  <div key={product.id} className="col-sm-6 col-lg-3">
+                  <div key={product.id} className="col-6 col-md-6 col-lg-4">
                     <div
                       className="product-card h-100"
                       onClick={() => openProduct(product.id)}
@@ -457,7 +433,6 @@ export default function ProductsBrowser({
 
             {!preview &&
             currentFilter !== "all" &&
-            currentSubFilter !== "all" &&
             displayedCount < filtered.length ? (
               <div className="text-center mt-4">
                 <button
