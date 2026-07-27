@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { getProductSlug } from "@/data/siteData";
 import type { Product } from "@/data/types";
+import ProductInlineRequestForm from "@/components/ProductInlineRequestForm";
 
 type Props = {
   product: Product;
@@ -125,15 +126,12 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
                 </div>
               ) : null}
 
-              {/* Action Buttons */}
-              <div className="d-flex flex-wrap gap-3 pt-2 border-top">
-                <Link href="/contact" className="btn btn-maze px-4 py-2">
-                  <i className="bi bi-tools me-2"></i>Request Installation
-                </Link>
-                <Link href="/contact" className="btn btn-maze-outline px-4 py-2">
-                  <i className="bi bi-chat-dots me-2"></i>Enquire Now
-                </Link>
-              </div>
+              {/* Inline Request Form */}
+              <ProductInlineRequestForm
+                productName={product.name}
+                catLabel={product.catLabel}
+                defaultType="QUOTE"
+              />
             </div>
           </div>
         </div>

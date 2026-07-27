@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getProductCategories, getProductSlug } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
+import ProductInlineRequestForm from "@/components/ProductInlineRequestForm";
 
 const PER_PAGE = 8;
 
@@ -152,6 +153,13 @@ export default function ProductsBrowser({
     );
   }, [currentFilter, currentSubFilter, data.categorySeo, intro.subtitle]);
 
+  const scrollToGrid = () => {
+    if (typeof window !== "undefined") {
+      const grid = document.getElementById("productsGridWrap") || document.getElementById("products");
+      grid?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const filterProducts = (cat: string) => {
     setCurrentFilter(cat);
     setCurrentSubFilter("all");
@@ -162,6 +170,7 @@ export default function ProductsBrowser({
         cat === "all" ? "/products" : `/products?cat=${encodeURIComponent(cat)}`;
       window.history.pushState(null, "", url);
     }
+    scrollToGrid();
   };
 
   const filterSubCategory = (subCatId: string) => {
@@ -175,6 +184,7 @@ export default function ProductsBrowser({
           : `/products?cat=${encodeURIComponent(currentFilter)}&subcat=${encodeURIComponent(nextSub)}`;
       window.history.pushState(null, "", url);
     }
+    scrollToGrid();
   };
 
   const goToContact = () => {
@@ -548,22 +558,12 @@ export default function ProductsBrowser({
                         <li key={feature}>{feature}</li>
                       ))}
                     </ul>
-                    <div className="d-flex flex-wrap gap-2 mt-3">
-                      <button
-                        type="button"
-                        className="btn btn-maze"
-                        onClick={goToContact}
-                      >
-                        <i className="bi bi-tools me-2"></i>Request Installation
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-maze-outline"
-                        onClick={goToContact}
-                      >
-                        <i className="bi bi-chat-dots me-2"></i>Enquire Now
-                      </button>
-                    </div>
+                    {/* Inline Request Form */}
+                    <ProductInlineRequestForm
+                      productName={selectedProduct.name}
+                      catLabel={selectedProduct.catLabel}
+                      defaultType="QUOTE"
+                    />
                   </div>
                 </div>
                 <hr />

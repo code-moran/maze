@@ -177,14 +177,19 @@ model SectionSeo {
 }
 
 model Enquiry {
-  id        Int      @id @default(autoincrement())
-  name      String
-  phone     String
-  email     String?
-  subject   String
-  message   String   @db.Text
-  status    String   @default("New")
-  createdAt DateTime @default(now()) @map("created_at")
+  id            Int      @id @default(autoincrement())
+  name          String
+  phone         String
+  email         String?
+  subject       String
+  message       String   @db.Text
+  type          String   @default("GENERAL")
+  productName   String?
+  serviceType   String?
+  preferredDate String?
+  location      String?
+  status        String   @default("New")
+  createdAt     DateTime @default(now()) @map("created_at")
 
   @@map("enquiries")
 }

@@ -82,6 +82,11 @@ type Enquiry = {
   email: string | null;
   subject: string;
   message: string;
+  type?: string;
+  productName?: string | null;
+  serviceType?: string | null;
+  preferredDate?: string | null;
+  location?: string | null;
   status: string;
   created_at: string;
 };
@@ -2190,90 +2195,170 @@ function InquiriesPanel({
   onDelete: (id: number) => Promise<void>;
 }) {
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+  const [activeTab, setActiveTab] = useState<"ALL" | "QUOTE" | "INSTALLATION" | "GENERAL">("ALL");
+
+  const filteredEnquiries = enquiries.filter((item) => {
+    if (activeTab === "ALL") return true;
+    const itemType = item.type || "GENERAL";
+    return itemType === activeTab;
+  });
+
+  const quoteCount = enquiries.filter((item) => item.type === "QUOTE").length;
+  const installCount = enquiries.filter((item) => item.type === "INSTALLATION").length;
+  const generalCount = enquiries.filter((item) => !item.type || item.type === "GENERAL").length;
 
   return (
     <section className="dashboard-panel mb-4">
-      <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
-        <h3 className="mb-0">Inquiry Manager</h3>
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+          <h3 className="mb-1">Requests & Inquiries Manager</h3>
+          <p className="small text-secondary mb-0">
+            View product quote requests, installation bookings, and general customer inquiries.
+          </p>
+        </div>
         <button
           type="button"
           className="btn btn-maze-outline btn-sm"
           onClick={onRefresh}
         >
-          <i className="bi bi-arrow-clockwise me-1"></i>Refresh
+          <i className="bi bi-arrow-clockwise me-1"></i>Refresh List
         </button>
       </div>
+
+      {/* Filter Tabs */}
+      <div className="d-flex flex-wrap gap-2 mb-4">
+        <button
+          type="button"
+          className={`btn btn-sm ${
+            activeTab === "ALL" ? "btn-maze" : "btn-outline-secondary"
+          }`}
+          onClick={() => setActiveTab("ALL")}
+        >
+          All Requests ({enquiries.length})
+        </button>
+        <button
+          type="button"
+          className={`btn btn-sm ${
+            activeTab === "QUOTE" ? "btn-warning text-dark fw-bold" : "btn-outline-warning text-dark"
+          }`}
+          onClick={() => setActiveTab("QUOTE")}
+        >
+          <i className="bi bi-calculator me-1"></i>Quote Requests ({quoteCount})
+        </button>
+        <button
+          type="button"
+          className={`btn btn-sm ${
+            activeTab === "INSTALLATION" ? "btn-info text-dark fw-bold" : "btn-outline-info text-dark"
+          }`}
+          onClick={() => setActiveTab("INSTALLATION")}
+        >
+          <i className="bi bi-tools me-1"></i>Installation Requests ({installCount})
+        </button>
+        <button
+          type="button"
+          className={`btn btn-sm ${
+            activeTab === "GENERAL" ? "btn-secondary" : "btn-outline-secondary"
+          }`}
+          onClick={() => setActiveTab("GENERAL")}
+        >
+          <i className="bi bi-chat-text me-1"></i>General Inquiries ({generalCount})
+        </button>
+      </div>
+
       <div className="dashboard-table-wrap">
-        <table className="table dashboard-table">
+        <table className="table dashboard-table align-middle">
           <thead>
             <tr>
-              <th>When</th>
-              <th>Name</th>
-              <th>Contact</th>
-              <th>Subject</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Target / Subject</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {enquiries.length === 0 ? (
+            {filteredEnquiries.length === 0 ? (
               <tr>
-                <td colSpan={6}>No inquiries yet.</td>
+                <td colSpan={6} className="text-center py-4 text-secondary">
+                  No requests found for this category.
+                </td>
               </tr>
             ) : (
-              enquiries.map((row) => (
-                <tr key={row.id}>
-                  <td>{new Date(row.created_at).toLocaleString()}</td>
-                  <td>{row.name}</td>
-                  <td>
-                    {row.phone}
-                    <br />
-                    {row.email || "—"}
-                  </td>
-                  <td>
-                    <strong>{row.subject}</strong>
-                    <div
-                      className="small text-secondary mt-1 text-truncate"
-                      style={{ maxWidth: 220 }}
-                    >
-                      {row.message}
-                    </div>
-                  </td>
-                  <td>
-                    <select
-                      className="form-select form-select-sm"
-                      value={row.status}
-                      onChange={(e) => onStatus(row.id, e.target.value)}
-                    >
-                      {["New", "In progress", "Done", "Spam"].map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td>
-                    <div className="d-flex gap-1">
-                      <button
-                        type="button"
-                        className="btn btn-maze btn-sm"
-                        onClick={() => setSelectedEnquiry(row)}
-                        title="View detailed enquiry"
+              filteredEnquiries.map((row) => {
+                const rowType = row.type || "GENERAL";
+                return (
+                  <tr key={row.id}>
+                    <td>
+                      {rowType === "QUOTE" ? (
+                        <span className="badge bg-warning text-dark">
+                          <i className="bi bi-calculator me-1"></i>Quote
+                        </span>
+                      ) : rowType === "INSTALLATION" ? (
+                        <span className="badge bg-info text-dark">
+                          <i className="bi bi-tools me-1"></i>Installation
+                        </span>
+                      ) : (
+                        <span className="badge bg-secondary">
+                          <i className="bi bi-chat-text me-1"></i>General
+                        </span>
+                      )}
+                    </td>
+                    <td className="small">{new Date(row.created_at).toLocaleDateString()}</td>
+                    <td>
+                      <div className="fw-bold small">{row.name}</div>
+                      <div className="small text-secondary">{row.phone}</div>
+                    </td>
+                    <td>
+                      <div className="fw-bold small text-dark">
+                        {row.productName ? row.productName : row.subject}
+                      </div>
+                      {row.serviceType && row.productName ? (
+                        <div className="small text-secondary">Category: {row.serviceType}</div>
+                      ) : null}
+                      <div
+                        className="small text-secondary text-truncate"
+                        style={{ maxWidth: 220 }}
                       >
-                        <i className="bi bi-eye me-1"></i>View
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-maze-outline btn-sm text-danger"
-                        onClick={() => onDelete(row.id)}
-                        title="Delete enquiry"
+                        {row.message}
+                      </div>
+                    </td>
+                    <td>
+                      <select
+                        className="form-select form-select-sm"
+                        value={row.status}
+                        onChange={(e) => onStatus(row.id, e.target.value)}
                       >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        {["New", "In progress", "Done", "Spam"].map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <div className="d-flex gap-1">
+                        <button
+                          type="button"
+                          className="btn btn-maze btn-sm"
+                          onClick={() => setSelectedEnquiry(row)}
+                          title="View detailed request"
+                        >
+                          <i className="bi bi-eye me-1"></i>View
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-maze-outline btn-sm text-danger"
+                          onClick={() => onDelete(row.id)}
+                          title="Delete enquiry"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -2298,10 +2383,19 @@ function InquiriesPanel({
                 className="modal-header border-bottom pb-3"
                 style={{ background: "#f8fbf8" }}
               >
-                <h5 className="modal-title fw-bold">
-                  <i className="bi bi-envelope-open me-2 text-success"></i>
-                  Enquiry Details #{selectedEnquiry.id}
-                </h5>
+                <div className="d-flex align-items-center gap-2">
+                  <h5 className="modal-title fw-bold mb-0">
+                    <i className="bi bi-envelope-open me-2 text-success"></i>
+                    Request Details #{selectedEnquiry.id}
+                  </h5>
+                  {selectedEnquiry.type === "QUOTE" ? (
+                    <span className="badge bg-warning text-dark">Quote Request</span>
+                  ) : selectedEnquiry.type === "INSTALLATION" ? (
+                    <span className="badge bg-info text-dark">Installation Booking</span>
+                  ) : (
+                    <span className="badge bg-secondary">General Inquiry</span>
+                  )}
+                </div>
                 <button
                   type="button"
                   className="btn-close"
@@ -2321,7 +2415,7 @@ function InquiriesPanel({
                   <div className="col-md-6">
                     <div className="p-3 bg-light rounded-3">
                       <small className="text-muted d-block mb-1 fw-semibold">
-                        Received Date & Time
+                        Date Received
                       </small>
                       <span>
                         {new Date(selectedEnquiry.created_at).toLocaleString()}
@@ -2331,7 +2425,7 @@ function InquiriesPanel({
                   <div className="col-md-6">
                     <div className="p-3 bg-light rounded-3">
                       <small className="text-muted d-block mb-1 fw-semibold">
-                        Phone Number
+                        Phone / WhatsApp
                       </small>
                       <a
                         href={`tel:${selectedEnquiry.phone}`}
@@ -2360,6 +2454,50 @@ function InquiriesPanel({
                       )}
                     </div>
                   </div>
+
+                  {selectedEnquiry.productName ? (
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded-3">
+                        <small className="text-muted d-block mb-1 fw-semibold">
+                          Target Product
+                        </small>
+                        <strong className="text-success">{selectedEnquiry.productName}</strong>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {selectedEnquiry.serviceType ? (
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded-3">
+                        <small className="text-muted d-block mb-1 fw-semibold">
+                          Service Category
+                        </small>
+                        <strong>{selectedEnquiry.serviceType}</strong>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {selectedEnquiry.location ? (
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded-3">
+                        <small className="text-muted d-block mb-1 fw-semibold">
+                          Installation Location
+                        </small>
+                        <span>{selectedEnquiry.location}</span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {selectedEnquiry.preferredDate ? (
+                    <div className="col-md-6">
+                      <div className="p-3 bg-light rounded-3">
+                        <small className="text-muted d-block mb-1 fw-semibold">
+                          Preferred Date
+                        </small>
+                        <span>{selectedEnquiry.preferredDate}</span>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="mb-3">
@@ -2373,17 +2511,17 @@ function InquiriesPanel({
 
                 <div className="mb-3">
                   <label className="form-label small fw-semibold text-muted">
-                    Message / Details
+                    Customer Message & Notes
                   </label>
                   <div
                     className="p-3 border rounded bg-white"
                     style={{
                       whiteSpace: "pre-wrap",
-                      minHeight: 120,
+                      minHeight: 100,
                       background: "#fafafa",
                     }}
                   >
-                    {selectedEnquiry.message}
+                    {selectedEnquiry.message || "No message attached."}
                   </div>
                 </div>
 
@@ -2413,12 +2551,20 @@ function InquiriesPanel({
 
                   <div className="d-flex gap-2">
                     <a
-                      href={`https://wa.me/${selectedEnquiry.phone.replace(/[^0-9]/g, "")}`}
+                      href={`https://wa.me/${selectedEnquiry.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
+                        `Hello ${selectedEnquiry.name}, regarding your ${
+                          selectedEnquiry.type === "QUOTE"
+                            ? `quote request for ${selectedEnquiry.productName || selectedEnquiry.subject}`
+                            : selectedEnquiry.type === "INSTALLATION"
+                            ? `installation request for ${selectedEnquiry.serviceType || selectedEnquiry.productName || selectedEnquiry.subject}`
+                            : `enquiry`
+                        }:`
+                      )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-outline-success btn-sm"
                     >
-                      <i className="bi bi-whatsapp me-1"></i>WhatsApp
+                      <i className="bi bi-whatsapp me-1"></i>Respond on WhatsApp
                     </a>
                     <button
                       type="button"
