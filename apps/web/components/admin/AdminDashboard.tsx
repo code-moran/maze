@@ -73,15 +73,22 @@ function slugify(text: string): string {
 function ensureHeroSlides(
   slides: SiteData["sections"]["heroSlides"]
 ): SiteData["sections"]["heroSlides"] {
-  return [0, 1, 2].map((i) => ({
-    badge: slides[i]?.badge || "",
-    title: slides[i]?.title || "",
-    description: slides[i]?.description || "",
-  }));
+  if (Array.isArray(slides) && slides.length > 0) {
+    return slides;
+  }
+  return [
+    { badge: "Premium Mounts", title: "Mount Your TV\nLike a Pro", description: "Expert TV mounting and wall installation services." },
+    { badge: "Solar Solutions", title: "Brighten Your Nights\nwith Solar", description: "Eco-friendly solar outdoor lighting." },
+    { badge: "Complete Security", title: "Secure Your Property\n24/7", description: "High-definition CCTV and guards." },
+  ];
 }
 
-function ensureHeroBackgrounds(backgrounds: string[]): string[] {
-  return [0, 1, 2].map((i) => backgrounds[i] || "");
+function ensureHeroBackgrounds(backgrounds: string[], slidesCount: number): string[] {
+  const result: string[] = [];
+  for (let i = 0; i < slidesCount; i++) {
+    result.push(backgrounds?.[i] || "");
+  }
+  return result;
 }
 
 type Enquiry = {
@@ -793,17 +800,18 @@ function HeroPanel({
     }))
   );
   const [backgrounds, setBackgrounds] = useState(() =>
-    ensureHeroBackgrounds(data.heroBackgrounds)
+    ensureHeroBackgrounds(data.heroBackgrounds, data.sections.heroSlides?.length || 3)
   );
 
   useEffect(() => {
+    const rawSlides = ensureHeroSlides(data.sections.heroSlides);
     setSlides(
-      ensureHeroSlides(data.sections.heroSlides).map((slide) => ({
+      rawSlides.map((slide) => ({
         ...slide,
         title: htmlToText(slide.title),
       }))
     );
-    setBackgrounds(ensureHeroBackgrounds(data.heroBackgrounds));
+    setBackgrounds(ensureHeroBackgrounds(data.heroBackgrounds, rawSlides.length));
   }, [data.sections.heroSlides, data.heroBackgrounds]);
 
   const updateSlide = (
@@ -822,13 +830,61 @@ function HeroPanel({
     setBackgrounds(next);
   };
 
+  const addSlide = () => {
+    setSlides((prev) => [
+      ...prev,
+      {
+        badge: "Special Offer",
+        title: "New Headline\nTitle",
+        description: "Custom slide description.",
+      },
+    ]);
+    setBackgrounds((prev) => [...prev, ""]);
+  };
+
+  const deleteSlide = (index: number) => {
+    if (slides.length <= 1) return;
+    setSlides((prev) => prev.filter((_, i) => i !== index));
+    setBackgrounds((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const moveSlide = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= slides.length) return;
+
+    const newSlides = [...slides];
+    const newBg = [...backgrounds];
+
+    const tempSlide = newSlides[index];
+    newSlides[index] = newSlides[targetIndex];
+    newSlides[targetIndex] = tempSlide;
+
+    const tempBg = newBg[index];
+    newBg[index] = newBg[targetIndex];
+    newBg[targetIndex] = tempBg;
+
+    setSlides(newSlides);
+    setBackgrounds(newBg);
+  };
+
   return (
     <section className="dashboard-panel mb-4">
-      <h3>Home Hero</h3>
-      <p className="small text-secondary mb-3">
-        Edit the three homepage carousel slides. Use a line break in the title
-        for a two-line headline. Backgrounds accept image URLs.
-      </p>
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <div>
+          <h3 className="mb-1">Homepage Hero Slider</h3>
+          <p className="small text-secondary mb-0">
+            Add, edit, reorder, or remove slides from the homepage carousel.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-maze"
+          onClick={addSlide}
+        >
+          <i className="bi bi-plus-lg me-1"></i>Add New Slide
+        </button>
+      </div>
+
       <form
         className="dashboard-form"
         onSubmit={async (e) => {
@@ -851,8 +907,40 @@ function HeroPanel({
         <div className="row g-4">
           {slides.map((slide, i) => (
             <div className="col-12" key={i}>
-              <div className="dashboard-panel p-3 mb-0">
-                <h5 className="h6 fw-bold mb-3">Slide {i + 1}</h5>
+              <div className="dashboard-panel p-3 mb-0 border shadow-sm">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="h6 fw-bold mb-0">Slide {i + 1}</h5>
+                  <div className="d-flex gap-1">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm p-1 px-2"
+                      onClick={() => moveSlide(i, "up")}
+                      disabled={i === 0}
+                      title="Move Up"
+                    >
+                      <i className="bi bi-arrow-up"></i>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm p-1 px-2"
+                      onClick={() => moveSlide(i, "down")}
+                      disabled={i === slides.length - 1}
+                      title="Move Down"
+                    >
+                      <i className="bi bi-arrow-down"></i>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm p-1 px-2 ms-2"
+                      onClick={() => deleteSlide(i)}
+                      disabled={slides.length <= 1}
+                      title="Delete Slide"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="row g-3">
                   <div className="col-md-4">
                     <label className="form-label small fw-semibold">Badge</label>
@@ -898,9 +986,18 @@ function HeroPanel({
               </div>
             </div>
           ))}
-          <div className="col-12">
+
+          <div className="col-12 d-flex justify-content-between align-items-center mt-3">
+            <button
+              type="button"
+              className="btn btn-maze-outline"
+              onClick={addSlide}
+            >
+              <i className="bi bi-plus-lg me-1"></i>Add Another Slide
+            </button>
+
             <button className="btn btn-maze" type="submit" disabled={saving}>
-              <i className="bi bi-save me-2"></i>Save Hero
+              <i className="bi bi-save me-2"></i>Save Hero Slides
             </button>
           </div>
         </div>
