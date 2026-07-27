@@ -228,7 +228,17 @@ export default function AdminDashboard({
 
   async function logout(e?: React.MouseEvent) {
     if (e) e.preventDefault();
-    await signOut({ callbackUrl: "/admin/login", redirect: true });
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } catch {}
+    if (typeof document !== "undefined") {
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+      });
+    }
+    await signOut({ callbackUrl: "/admin/login", redirect: false });
     window.location.href = "/admin/login";
   }
 
