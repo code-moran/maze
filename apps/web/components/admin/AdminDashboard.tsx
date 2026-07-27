@@ -1874,6 +1874,8 @@ function InquiriesPanel({
   onStatus: (id: number, status: string) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }) {
+  const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
+
   return (
     <section className="dashboard-panel mb-4">
       <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
@@ -1883,7 +1885,7 @@ function InquiriesPanel({
           className="btn btn-maze-outline btn-sm"
           onClick={onRefresh}
         >
-          Refresh
+          <i className="bi bi-arrow-clockwise me-1"></i>Refresh
         </button>
       </div>
       <div className="dashboard-table-wrap">
@@ -1895,7 +1897,7 @@ function InquiriesPanel({
               <th>Contact</th>
               <th>Subject</th>
               <th>Status</th>
-              <th />
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -1915,7 +1917,10 @@ function InquiriesPanel({
                   </td>
                   <td>
                     <strong>{row.subject}</strong>
-                    <div className="small text-secondary mt-1">
+                    <div
+                      className="small text-secondary mt-1 text-truncate"
+                      style={{ maxWidth: 220 }}
+                    >
                       {row.message}
                     </div>
                   </td>
@@ -1933,13 +1938,24 @@ function InquiriesPanel({
                     </select>
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="btn btn-maze-outline btn-sm"
-                      onClick={() => onDelete(row.id)}
-                    >
-                      Delete
-                    </button>
+                    <div className="d-flex gap-1">
+                      <button
+                        type="button"
+                        className="btn btn-maze btn-sm"
+                        onClick={() => setSelectedEnquiry(row)}
+                        title="View detailed enquiry"
+                      >
+                        <i className="bi bi-eye me-1"></i>View
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-maze-outline btn-sm text-danger"
+                        onClick={() => onDelete(row.id)}
+                        title="Delete enquiry"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -1947,6 +1963,172 @@ function InquiriesPanel({
           </tbody>
         </table>
       </div>
+
+      {selectedEnquiry ? (
+        <div
+          className="modal fade show d-block"
+          style={{ background: "rgba(0, 0, 0, 0.5)", zIndex: 1060 }}
+          tabIndex={-1}
+          onClick={() => setSelectedEnquiry(null)}
+        >
+          <div
+            className="modal-dialog modal-dialog-centered modal-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className="modal-content border-0 shadow-lg"
+              style={{ borderRadius: 14 }}
+            >
+              <div
+                className="modal-header border-bottom pb-3"
+                style={{ background: "#f8fbf8" }}
+              >
+                <h5 className="modal-title fw-bold">
+                  <i className="bi bi-envelope-open me-2 text-success"></i>
+                  Enquiry Details #{selectedEnquiry.id}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSelectedEnquiry(null)}
+                ></button>
+              </div>
+              <div className="modal-body p-4">
+                <div className="row g-3 mb-3">
+                  <div className="col-md-6">
+                    <div className="p-3 bg-light rounded-3">
+                      <small className="text-muted d-block mb-1 fw-semibold">
+                        Customer Name
+                      </small>
+                      <strong className="fs-6">{selectedEnquiry.name}</strong>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="p-3 bg-light rounded-3">
+                      <small className="text-muted d-block mb-1 fw-semibold">
+                        Received Date & Time
+                      </small>
+                      <span>
+                        {new Date(selectedEnquiry.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="p-3 bg-light rounded-3">
+                      <small className="text-muted d-block mb-1 fw-semibold">
+                        Phone Number
+                      </small>
+                      <a
+                        href={`tel:${selectedEnquiry.phone}`}
+                        className="text-success fw-bold text-decoration-none"
+                      >
+                        <i className="bi bi-telephone-fill me-1"></i>
+                        {selectedEnquiry.phone}
+                      </a>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="p-3 bg-light rounded-3">
+                      <small className="text-muted d-block mb-1 fw-semibold">
+                        Email Address
+                      </small>
+                      {selectedEnquiry.email ? (
+                        <a
+                          href={`mailto:${selectedEnquiry.email}`}
+                          className="text-success fw-bold text-decoration-none"
+                        >
+                          <i className="bi bi-envelope-fill me-1"></i>
+                          {selectedEnquiry.email}
+                        </a>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold text-muted">
+                    Subject
+                  </label>
+                  <div className="p-2 border rounded bg-white fw-bold">
+                    {selectedEnquiry.subject}
+                  </div>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold text-muted">
+                    Message / Details
+                  </label>
+                  <div
+                    className="p-3 border rounded bg-white"
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      minHeight: 120,
+                      background: "#fafafa",
+                    }}
+                  >
+                    {selectedEnquiry.message}
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="small text-muted fw-semibold">Status:</span>
+                    <select
+                      className="form-select form-select-sm"
+                      value={selectedEnquiry.status}
+                      onChange={async (e) => {
+                        const newStatus = e.target.value;
+                        await onStatus(selectedEnquiry.id, newStatus);
+                        setSelectedEnquiry({
+                          ...selectedEnquiry,
+                          status: newStatus,
+                        });
+                      }}
+                      style={{ width: "auto" }}
+                    >
+                      {["New", "In progress", "Done", "Spam"].map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="d-flex gap-2">
+                    <a
+                      href={`https://wa.me/${selectedEnquiry.phone.replace(/[^0-9]/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline-success btn-sm"
+                    >
+                      <i className="bi bi-whatsapp me-1"></i>WhatsApp
+                    </a>
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={async () => {
+                        await onDelete(selectedEnquiry.id);
+                        setSelectedEnquiry(null);
+                      }}
+                    >
+                      <i className="bi bi-trash me-1"></i>Delete
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setSelectedEnquiry(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
