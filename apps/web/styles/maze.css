@@ -727,7 +727,12 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
   font-size:.88rem;
   font-weight:600;
   cursor:pointer;
-  transition:.2s
+  transition:.2s;
+  background:#fff;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  -webkit-user-select:none
 }
 
 .cat-pill:hover, .cat-pill.active  {
@@ -762,7 +767,11 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
   font-weight:600;
   cursor:pointer;
   transition:.2s;
-  background:#fff
+  background:#fff;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  -webkit-user-select:none
 }
 
 .subcat-pill::after  {

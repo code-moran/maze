@@ -113,7 +113,7 @@ export default function ProductsBrowser({
     syncFromUrl();
     window.addEventListener("popstate", syncFromUrl);
     return () => window.removeEventListener("popstate", syncFromUrl);
-  }, [preview, openProduct, applyListingMeta]);
+  }, [preview]);
 
   useEffect(() => {
     const modalEl = document.getElementById("productModal");
@@ -157,10 +157,10 @@ export default function ProductsBrowser({
     setCurrentSubFilter("all");
     setDisplayedCount(PER_PAGE);
     applyListingMeta(cat);
-    if (!preview) {
+    if (!preview && typeof window !== "undefined") {
       const url =
         cat === "all" ? "/products" : `/products?cat=${encodeURIComponent(cat)}`;
-      router.replace(url, { scroll: false });
+      window.history.pushState(null, "", url);
     }
   };
 
@@ -168,12 +168,12 @@ export default function ProductsBrowser({
     const nextSub = subCatId || "all";
     setCurrentSubFilter(nextSub);
     setDisplayedCount(PER_PAGE);
-    if (!preview) {
+    if (!preview && typeof window !== "undefined") {
       const url =
         nextSub === "all"
           ? `/products?cat=${encodeURIComponent(currentFilter)}`
           : `/products?cat=${encodeURIComponent(currentFilter)}&subcat=${encodeURIComponent(nextSub)}`;
-      router.replace(url, { scroll: false });
+      window.history.pushState(null, "", url);
     }
   };
 
@@ -235,7 +235,8 @@ export default function ProductsBrowser({
           className="d-flex flex-wrap justify-content-center gap-2 mb-4"
           id="catFilters"
         >
-          <span
+          <button
+            type="button"
             className={`cat-pill${
               !preview && currentFilter === "all" ? " active" : ""
             }`}
@@ -246,22 +247,13 @@ export default function ProductsBrowser({
                 filterProducts("all");
               }
             }}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key !== "Enter") return;
-              if (preview) {
-                router.push("/products");
-              } else {
-                filterProducts("all");
-              }
-            }}
           >
             <i className="bi bi-grid-fill me-1"></i>
             All Products
-          </span>
+          </button>
           {categories.map((cat) => (
-            <span
+            <button
+              type="button"
               key={cat.id}
               className={`cat-pill${
                 !preview && currentFilter === cat.id ? " active" : ""
@@ -273,20 +265,10 @@ export default function ProductsBrowser({
                   filterProducts(cat.id);
                 }
               }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key !== "Enter") return;
-                if (preview) {
-                  router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
-                } else {
-                  filterProducts(cat.id);
-                }
-              }}
             >
               <i className={`bi ${cat.icon} me-1`}></i>
               {cat.label}
-            </span>
+            </button>
           ))}
         </div>
 
@@ -300,34 +282,32 @@ export default function ProductsBrowser({
                 {data.categorySeo[currentFilter]?.title || "Sub Products"}
               </h5>
               <div id="subCatFilters">
-                <span
+                <button
+                  type="button"
                   className={`subcat-pill${
                     currentSubFilter === "all" ? " active" : ""
                   }`}
                   onClick={() => filterSubCategory("all")}
-                  role="button"
-                  tabIndex={0}
                 >
                   <span>All Sub Products</span>
                   <span className="subcat-count">{categoryProducts.length}</span>
-                </span>
+                </button>
                 {subItems.map((item) => {
                   const count = categoryProducts.filter(
                     (p) => p.subCat === item.id
                   ).length;
                   return (
-                    <span
+                    <button
+                      type="button"
                       key={item.id}
                       className={`subcat-pill${
                         currentSubFilter === item.id ? " active" : ""
                       }`}
                       onClick={() => filterSubCategory(item.id)}
-                      role="button"
-                      tabIndex={0}
                     >
                       <span>{item.label}</span>
                       <span className="subcat-count">{count}</span>
-                    </span>
+                    </button>
                   );
                 })}
               </div>
