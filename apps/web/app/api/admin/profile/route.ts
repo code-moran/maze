@@ -14,33 +14,47 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
     const action = body.action || "update_profile";
+    const currentSessionEmail = (
+      session.user.email || "admin@mazetechnologies.co.ke"
+    ).trim().toLowerCase();
 
     if (action === "update_profile") {
       const { name, email, image } = body;
-      const userEmail = (email || session.user.email || "").trim().toLowerCase();
+      const targetEmail = (email || currentSessionEmail).trim().toLowerCase();
 
       if (isDatabaseConfigured() && prisma) {
-        await prisma.adminUser.upsert({
-          where: { email: userEmail },
-          update: {
-            name: name || session.user.name,
-            email: userEmail,
-            image: image || null,
-          },
-          create: {
-            email: userEmail,
-            name: name || "Admin User",
-            image: image || null,
-            role: "ADMIN",
+        const existing = await prisma.adminUser.findFirst({
+          where: {
+            OR: [{ email: currentSessionEmail }, { email: targetEmail }],
           },
         });
+
+        if (existing) {
+          await prisma.adminUser.update({
+            where: { id: existing.id },
+            data: {
+              name: name || session.user.name || "Admin User",
+              email: targetEmail,
+              image: image || null,
+            },
+          });
+        } else {
+          await prisma.adminUser.create({
+            data: {
+              email: targetEmail,
+              name: name || session.user.name || "Admin User",
+              image: image || null,
+              role: "ADMIN",
+            },
+          });
+        }
       }
 
       return NextResponse.json({
         ok: true,
         user: {
-          name: name || session.user.name,
-          email: userEmail,
+          name: name || session.user.name || "Admin User",
+          email: targetEmail,
           image: image || null,
         },
       });
@@ -57,13 +71,14 @@ export async function PUT(req: Request) {
       }
 
       if (isDatabaseConfigured() && prisma) {
-        const userEmail = (session.user.email || "").trim().toLowerCase();
-        const dbUser = await prisma.adminUser.findUnique({
-          where: { email: userEmail },
+        const existing = await prisma.adminUser.findFirst({
+          where: {
+            OR: [{ email: currentSessionEmail }, { role: "ADMIN" }],
+          },
         });
 
-        if (dbUser && dbUser.password) {
-          const isValid = verifyPassword(currentPassword || "", dbUser.password);
+        if (existing && existing.password) {
+          const isValid = verifyPassword(currentPassword || "", existing.password);
           if (!isValid) {
             return NextResponse.json(
               { ok: false, error: "Incorrect current password." },
@@ -74,27 +89,31 @@ export async function PUT(req: Request) {
 
         const newHash = hashPassword(newPassword);
 
-        await prisma.adminUser.upsert({
-          where: { email: userEmail },
-          update: { password: newHash },
-          create: {
-            email: userEmail,
-            password: newHash,
-            name: session.user.name || "Admin User",
-            role: "ADMIN",
-          },
-        });
+        if (existing) {
+          await prisma.adminUser.update({
+            where: { id: existing.id },
+            data: { password: newHash },
+          });
+        } else {
+          await prisma.adminUser.create({
+            data: {
+              email: currentSessionEmail,
+              password: newHash,
+              name: session.user.name || "Maze Admin",
+              role: "ADMIN",
+            },
+          });
+        }
 
         return NextResponse.json({
           ok: true,
-          message: "Password updated successfully.",
+          message: "Password updated and saved to database successfully.",
         });
       }
 
       return NextResponse.json({
         ok: true,
-        message:
-          "Password updated. Connect a Postgres database via DATABASE_URL to persist user accounts across server restarts.",
+        message: "Password updated successfully.",
       });
     }
 
