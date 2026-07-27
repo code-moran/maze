@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getProductCategories } from "@/data/siteData";
+import { getProductCategories, getProductSlug } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
 
 const PER_PAGE = 8;
@@ -430,43 +430,38 @@ export default function ProductsBrowser({
                   <div className="empty-state">No products found.</div>
                 </div>
               ) : (
-                visibleProducts.map((product) => (
-                  <div key={product.id} className="col-6 col-md-6 col-lg-4">
-                    <div
-                      className="product-card h-100"
-                      onClick={() => openProduct(product.id)}
-                      style={{ cursor: "pointer" }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div className="card-img-wrap">
-                        <img
-                          src={product.imgs[0]}
-                          alt={product.name}
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="card-body">
-                        <span className="badge-cat mb-2 d-inline-block">
-                          {product.catLabel}
-                        </span>
-                        <div className="card-title">{product.name}</div>
-                        <p className="card-text">{product.shortDesc}</p>
-                        <button
-                          className="btn btn-maze w-100 btn-sm"
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openProduct(product.id);
-                          }}
-                        >
-                          View Details{" "}
-                          <i className="bi bi-arrow-right ms-1"></i>
-                        </button>
-                      </div>
+                visibleProducts.map((product) => {
+                  const slug = getProductSlug(product);
+                  return (
+                    <div key={product.id} className="col-6 col-md-6 col-lg-4">
+                      <Link
+                        href={`/products/${slug}`}
+                        className="text-decoration-none text-dark d-block h-100"
+                      >
+                        <div className="product-card h-100">
+                          <div className="card-img-wrap">
+                            <img
+                              src={product.imgs[0]}
+                              alt={product.name}
+                              loading="lazy"
+                            />
+                          </div>
+                          <div className="card-body">
+                            <span className="badge-cat mb-2 d-inline-block">
+                              {product.catLabel}
+                            </span>
+                            <div className="card-title">{product.name}</div>
+                            <p className="card-text">{product.shortDesc}</p>
+                            <span className="btn btn-maze w-100 btn-sm">
+                              View Details{" "}
+                              <i className="bi bi-arrow-right ms-1"></i>
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 

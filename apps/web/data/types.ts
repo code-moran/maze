@@ -86,6 +86,7 @@ export type ContactIntro = {
 
 export type Product = {
   id: number;
+  slug?: string;
   name: string;
   cat: string;
   catLabel: string;

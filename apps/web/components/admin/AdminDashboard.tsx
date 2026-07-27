@@ -1181,6 +1181,7 @@ function ProductsPanel({
 }) {
   const empty = {
     id: 0,
+    slug: "",
     name: "",
     cat: "tv-mounts",
     catLabel: "TV Wall Mounts",
@@ -1251,6 +1252,17 @@ function ProductsPanel({
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold">
+                  Custom Slug (optional)
+                </label>
+                <input
+                  className="form-control"
+                  placeholder="e.g. full-motion-tv-wall-mount"
+                  value={form.slug || ""}
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
                 />
               </div>
               <div className="col-md-6">
