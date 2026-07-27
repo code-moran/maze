@@ -40,14 +40,20 @@ export const authOptions: NextAuthOptions = {
         const inputEmail = (credentials.email || "").trim();
         const inputPassword = credentials.password || "";
 
+        // Derive user email: use typed input email if valid email address, otherwise default
+        const derivedEmail =
+          inputEmail && inputEmail.includes("@")
+            ? inputEmail.toLowerCase()
+            : "admin@mazetechnologies.co.ke";
+
         // 1. Try matching Prisma database user if configured
         if (prisma) {
           try {
             const dbUser = await prisma.adminUser.findFirst({
               where: {
                 OR: [
+                  { email: derivedEmail },
                   { email: inputEmail.toLowerCase() },
-                  { email: inputPassword.toLowerCase() },
                 ],
               },
             });
@@ -77,9 +83,9 @@ export const authOptions: NextAuthOptions = {
         if (validSecret) {
           if (inputPassword === validSecret || inputEmail === validSecret) {
             return {
-              id: "env-admin",
-              email: "admin@mazetechnologies.co.ke",
-              name: "Maze Administrator",
+              id: `env-${derivedEmail}`,
+              email: derivedEmail,
+              name: derivedEmail.split("@")[0] || "Maze Administrator",
               image: null,
               role: "ADMIN",
             };
@@ -87,11 +93,14 @@ export const authOptions: NextAuthOptions = {
         }
 
         // 3. Fallback default admin credentials if no secret is set
-        if (!validSecret && inputPassword === "admin123") {
+        if (
+          !validSecret &&
+          (inputPassword === "admin123" || inputEmail === "admin123")
+        ) {
           return {
-            id: "default-admin",
-            email: "admin@mazetechnologies.co.ke",
-            name: "Maze Admin",
+            id: `default-${derivedEmail}`,
+            email: derivedEmail,
+            name: derivedEmail.split("@")[0] || "Maze Admin",
             image: null,
             role: "ADMIN",
           };
@@ -114,6 +123,7 @@ export const authOptions: NextAuthOptions = {
         if (session.name) token.name = session.name;
         if (session.email) token.email = session.email;
         if (session.image) token.picture = session.image;
+        if (session.role) token.role = session.role;
       }
       return token;
     },
