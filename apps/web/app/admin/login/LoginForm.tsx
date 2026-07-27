@@ -29,7 +29,7 @@ export default function AdminLoginForm() {
       });
 
       if (!res || res.error || !res.ok) {
-        setError(res?.error || "Invalid credentials or admin secret.");
+        setError(res?.error || "Invalid email or password.");
         return;
       }
 
@@ -51,22 +51,22 @@ export default function AdminLoginForm() {
       <form onSubmit={onSubmit}>
         <div className="mb-3">
           <label className="form-label small fw-semibold" htmlFor="admin-email">
-            Email or Username
+            Email Address
           </label>
           <input
             id="admin-email"
             className="form-control"
-            type="text"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@mazetechnologies.co.ke"
+            placeholder="name@example.com"
             autoComplete="username"
             required
           />
         </div>
         <div className="mb-3">
           <label className="form-label small fw-semibold" htmlFor="admin-password">
-            Password or Admin Secret
+            Password
           </label>
           <input
             id="admin-password"
@@ -74,7 +74,7 @@ export default function AdminLoginForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="•••••••• or ADMIN_DASHBOARD_SECRET"
+            placeholder="••••••••"
             autoComplete="current-password"
             required
           />

@@ -1,10 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  isAdminAuthenticated,
-  getAdminSecretConfigured,
-} from "@/lib/admin/auth";
+import { isAdminAuthenticated } from "@/lib/admin/auth";
 import AdminLoginForm from "./LoginForm";
 
 export default async function AdminLoginPage() {
@@ -38,7 +35,7 @@ export default async function AdminLoginPage() {
           </p>
           <h1>Dashboard Login</h1>
           <p className="mb-0 text-white-50">
-            Sign in with your admin credentials, secret key, or Google account.
+            Sign in to access your website management panel.
           </p>
         </div>
       </section>

@@ -230,10 +230,7 @@ export default function AdminDashboard({
               <i className="bi bi-shield-lock-fill me-1"></i>Content Dashboard
             </span>
             <span>
-              <i className="bi bi-database-fill me-1"></i>
-              {databaseConfigured
-                ? "Postgres-backed thin CMS"
-                : "JSON fallback — set DATABASE_URL to persist"}
+              <i className="bi bi-shield-check me-1"></i>Secure Management Panel
             </span>
           </div>
           <div className="d-flex gap-2 align-items-center">
@@ -261,9 +258,6 @@ export default function AdminDashboard({
             />
           </Link>
           <div className="ms-auto d-flex align-items-center gap-2">
-            <Link href="/studio" className="btn btn-maze-outline btn-sm">
-              <i className="bi bi-database me-1"></i>Sanity Studio
-            </Link>
             <Link href="/" className="btn btn-maze-outline btn-sm">
               <i className="bi bi-globe me-1"></i>View Site
             </Link>
@@ -309,9 +303,7 @@ export default function AdminDashboard({
             </div>
             <div className="col-lg-4">
               <div className="dashboard-note">
-                {databaseConfigured
-                  ? "Changes save to Postgres and update the public site after refresh (or within ~60s ISR)."
-                  : "DATABASE_URL is unset. The site still serves default JSON until Postgres is configured."}
+                Changes save immediately and update your main website in real time.
               </div>
             </div>
           </div>
