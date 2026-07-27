@@ -61,6 +61,15 @@ function textToHtml(value: string) {
   return (value || "").trim().replace(/\n/g, "<br>");
 }
 
+function slugify(text: string): string {
+  return (text || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function ensureHeroSlides(
   slides: SiteData["sections"]["heroSlides"]
 ): SiteData["sections"]["heroSlides"] {
@@ -1510,10 +1519,14 @@ function ProductsPanel({
     imgs: [] as string[],
   };
   const [form, setForm] = useState(activeProduct || empty);
+  const [isSlugCustomized, setIsSlugCustomized] = useState(
+    Boolean(activeProduct?.slug)
+  );
   const isNew = !activeProduct;
 
   useEffect(() => {
     setForm(activeProduct || empty);
+    setIsSlugCustomized(Boolean(activeProduct?.slug));
   }, [activeProduct]);
 
   const subs = data.subProducts[form.cat] || [];
@@ -1561,23 +1574,46 @@ function ProductsPanel({
           >
             <div className="row g-3">
               <div className="col-md-6">
-                <label className="form-label small fw-semibold">Name</label>
+                <label className="form-label small fw-semibold">Product Name</label>
                 <input
                   className="form-control"
                   required
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  onChange={(e) => {
+                    const newName = e.target.value;
+                    const autoSlug = slugify(newName);
+                    setForm((prev) => ({
+                      ...prev,
+                      name: newName,
+                      slug: isSlugCustomized ? prev.slug : autoSlug,
+                    }));
+                  }}
                 />
               </div>
               <div className="col-md-6">
-                <label className="form-label small fw-semibold">
-                  Custom Slug (optional)
+                <label className="form-label small fw-semibold d-flex justify-content-between align-items-center mb-1">
+                  <span>Custom Slug</span>
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 text-success text-decoration-none"
+                    style={{ fontSize: "0.75rem" }}
+                    onClick={() => {
+                      const autoSlug = slugify(form.name);
+                      setForm((prev) => ({ ...prev, slug: autoSlug }));
+                      setIsSlugCustomized(false);
+                    }}
+                  >
+                    <i className="bi bi-magic me-1"></i>Regenerate from Name
+                  </button>
                 </label>
                 <input
                   className="form-control"
                   placeholder="e.g. full-motion-tv-wall-mount"
                   value={form.slug || ""}
-                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                  onChange={(e) => {
+                    setForm({ ...form, slug: e.target.value });
+                    setIsSlugCustomized(true);
+                  }}
                 />
               </div>
               <div className="col-md-6">

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { isAdminRequestAuthorized } from "@/lib/admin/auth";
 
 export async function requireAdmin(
@@ -10,7 +11,22 @@ export async function requireAdmin(
   return null;
 }
 
+export function triggerRevalidation() {
+  try {
+    revalidatePath("/", "layout");
+    revalidatePath("/products");
+    revalidatePath("/about");
+    revalidatePath("/services");
+    revalidatePath("/contact");
+    revalidatePath("/blog");
+    revalidatePath("/location");
+  } catch (err) {
+    console.warn("Revalidation warning:", err);
+  }
+}
+
 export function jsonOk<T extends Record<string, unknown>>(data: T, init?: ResponseInit) {
+  triggerRevalidation();
   return NextResponse.json({ ok: true, ...data }, init);
 }
 
