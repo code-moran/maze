@@ -4,6 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SiteData, SocialLink } from "@/data/types";
+import { uploadToCloudinary, uploadMultipleToCloudinary } from "@/lib/cloudinary/upload";
 
 type SectionId =
   | "overview"
@@ -542,6 +543,183 @@ export default function AdminDashboard({
   );
 }
 
+function CloudinarySingleUpload({
+  label,
+  value,
+  onChange,
+  folder = "maze",
+  placeholder = "Upload image file or enter URL...",
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  folder?: string;
+  placeholder?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError("");
+    try {
+      const url = await uploadToCloudinary(file, folder);
+      onChange(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="mb-3">
+      <label className="form-label small fw-semibold d-flex justify-content-between align-items-center">
+        <span>{label}</span>
+        {uploading && (
+          <span className="text-success small fw-bold">
+            <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+            Uploading to Cloudinary...
+          </span>
+        )}
+      </label>
+      <div className="input-group input-group-sm">
+        <input
+          type="file"
+          accept="image/*"
+          className="form-control"
+          onChange={handleFileChange}
+          disabled={uploading}
+        />
+        {value && (
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => onChange("")}
+            title="Clear image"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      {error && <div className="text-danger small mt-1">{error}</div>}
+      <div className="mt-2 d-flex align-items-center gap-2">
+        <input
+          type="text"
+          className="form-control form-control-sm"
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+        />
+        {value ? (
+          <img
+            src={value}
+            alt="Preview"
+            className="rounded border flex-shrink-0"
+            style={{ width: 42, height: 42, objectFit: "cover" }}
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function CloudinaryMultiUpload({
+  imgs,
+  onChange,
+  folder = "maze/products",
+}: {
+  imgs: string[];
+  onChange: (urls: string[]) => void;
+  folder?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setError("");
+    try {
+      const newUrls = await uploadMultipleToCloudinary(files, folder);
+      onChange([...imgs, ...newUrls]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImg = (index: number) => {
+    const updated = imgs.filter((_, i) => i !== index);
+    onChange(updated);
+  };
+
+  return (
+    <div className="col-12 mb-3">
+      <label className="form-label small fw-semibold d-flex justify-content-between align-items-center mb-2">
+        <span>Product Images (Upload files or paste URLs)</span>
+        {uploading && (
+          <span className="text-success small fw-bold">
+            <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+            Uploading to Cloudinary...
+          </span>
+        )}
+      </label>
+
+      <div className="border rounded-3 p-3 bg-light mb-2">
+        <div className="row g-2 mb-3">
+          {imgs.map((url, idx) => (
+            <div key={idx} className="col-4 col-sm-3 col-md-2 position-relative">
+              <div className="ratio ratio-1x1 border rounded overflow-hidden bg-white shadow-sm">
+                <img src={url} alt={`Product ${idx + 1}`} style={{ objectFit: "cover" }} />
+              </div>
+              <button
+                type="button"
+                className="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle shadow-sm"
+                style={{ width: 22, height: 22, transform: "translate(20%, -20%)", lineHeight: "20px" }}
+                onClick={() => removeImg(idx)}
+                title="Remove image"
+              >
+                <i className="bi bi-x"></i>
+              </button>
+            </div>
+          ))}
+          {imgs.length === 0 && (
+            <div className="col-12 text-center text-muted small py-3">
+              <i className="bi bi-images fs-4 d-block mb-1"></i>
+              No images uploaded yet. Select files below or paste image URLs.
+            </div>
+          )}
+        </div>
+
+        <div className="input-group input-group-sm">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="form-control"
+            onChange={handleFiles}
+            disabled={uploading}
+          />
+        </div>
+        {error && <div className="text-danger small mt-1">{error}</div>}
+      </div>
+
+      <textarea
+        className="form-control form-control-sm"
+        rows={2}
+        placeholder="Image URLs (one per line)"
+        value={imgs.join("\n")}
+        onChange={(e) => onChange(parseLines(e.target.value))}
+      />
+    </div>
+  );
+}
+
 function HeroPanel({
   data,
   saving,
@@ -651,42 +829,13 @@ function HeroPanel({
                       }
                     />
                   </div>
-                  <div className="col-md-8">
-                    <label className="form-label small fw-semibold">
-                      Background image URL
-                    </label>
-                    <input
-                      className="form-control"
-                      type="url"
+                  <div className="col-12">
+                    <CloudinarySingleUpload
+                      label={`Slide ${i + 1} Background Image`}
                       value={backgrounds[i] || ""}
-                      onChange={(e) => updateBackground(i, e.target.value)}
-                      placeholder="https://…"
+                      onChange={(url) => updateBackground(i, url)}
+                      folder="maze/hero"
                     />
-                  </div>
-                  <div className="col-md-4 d-flex align-items-end">
-                    {backgrounds[i] ? (
-                      <img
-                        src={backgrounds[i]}
-                        alt={`Slide ${i + 1} preview`}
-                        className="rounded w-100"
-                        style={{
-                          height: 72,
-                          objectFit: "cover",
-                          border: "1px solid #dce8dc",
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="rounded w-100 d-flex align-items-center justify-content-center small text-secondary"
-                        style={{
-                          height: 72,
-                          background: "#f3f7f3",
-                          border: "1px dashed #c5d6c5",
-                        }}
-                      >
-                        No image
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1128,44 +1277,13 @@ function ProductsHeroPanel({
               onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
             />
           </div>
-          <div className="col-md-8">
-            <label className="form-label small fw-semibold">
-              Background image URL
-            </label>
-            <input
-              className="form-control"
-              type="url"
+          <div className="col-12">
+            <CloudinarySingleUpload
+              label="Products Hero Background Image"
               value={form.heroBackground || ""}
-              onChange={(e) =>
-                setForm({ ...form, heroBackground: e.target.value })
-              }
-              placeholder="https://…"
+              onChange={(url) => setForm({ ...form, heroBackground: url })}
+              folder="maze/products"
             />
-          </div>
-          <div className="col-md-4 d-flex align-items-end">
-            {form.heroBackground ? (
-              <img
-                src={form.heroBackground}
-                alt="Products hero preview"
-                className="rounded w-100"
-                style={{
-                  height: 72,
-                  objectFit: "cover",
-                  border: "1px solid #dce8dc",
-                }}
-              />
-            ) : (
-              <div
-                className="rounded w-100 d-flex align-items-center justify-content-center small text-secondary"
-                style={{
-                  height: 72,
-                  background: "#f3f7f3",
-                  border: "1px dashed #c5d6c5",
-                }}
-              >
-                No image
-              </div>
-            )}
           </div>
           <div className="col-12">
             <button className="btn btn-maze" type="submit" disabled={saving}>
@@ -1457,18 +1575,11 @@ function ProductsPanel({
                   ))}
                 </select>
               </div>
-              <div className="col-12">
-                <label className="form-label small fw-semibold">
-                  Image URLs (one per line)
-                </label>
-                <textarea
-                  className="form-control"
-                  value={(form.imgs || []).join("\n")}
-                  onChange={(e) =>
-                    setForm({ ...form, imgs: parseLines(e.target.value) })
-                  }
-                />
-              </div>
+              <CloudinaryMultiUpload
+                imgs={form.imgs || []}
+                onChange={(urls) => setForm({ ...form, imgs: urls })}
+                folder="maze/products"
+              />
               <div className="col-12">
                 <label className="form-label small fw-semibold">
                   Short description
@@ -1792,11 +1903,11 @@ function BlogsPanel({
                 />
               </div>
               <div className="col-12">
-                <label className="form-label small fw-semibold">Image URL</label>
-                <input
-                  className="form-control"
-                  value={form.image}
-                  onChange={(e) => setForm({ ...form, image: e.target.value })}
+                <CloudinarySingleUpload
+                  label="Featured Blog Image"
+                  value={form.image || ""}
+                  onChange={(url) => setForm({ ...form, image: url })}
+                  folder="maze/blogs"
                 />
               </div>
               <div className="col-12">
@@ -2453,17 +2564,12 @@ function ProfilePanel({
                   />
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label small fw-semibold">
-                    Avatar Image URL (optional)
-                  </label>
-                  <input
-                    className="form-control"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="https://..."
-                  />
-                </div>
+                <CloudinarySingleUpload
+                  label="Avatar Image"
+                  value={image || ""}
+                  onChange={(url) => setImage(url)}
+                  folder="maze/avatars"
+                />
 
                 <button
                   className="btn btn-maze w-100"
