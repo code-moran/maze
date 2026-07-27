@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { SiteData } from "@/data/types";
+import type { SiteData, SocialLink } from "@/data/types";
 
 type SectionId =
   | "overview"
@@ -802,7 +802,144 @@ function SettingsPanel({
               }
             />
           </div>
-          <div className="col-12">
+          <div className="col-12 border-top pt-4 mt-2">
+            <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
+              <div>
+                <h5 className="fw-bold mb-1">
+                  <i className="bi bi-share-fill me-2 text-success"></i>
+                  Social Media Links
+                </h5>
+                <p className="small text-secondary mb-0">
+                  Configure social media platforms, icons, handles, and URLs. Active platforms are displayed in the site footer.
+                </p>
+              </div>
+              <button
+                className="btn btn-maze-outline btn-sm flex-shrink-0"
+                type="button"
+                onClick={() => {
+                  const newLink: SocialLink = {
+                    platform: "Platform",
+                    icon: "facebook",
+                    handle: "",
+                    url: "https://",
+                    enabled: true,
+                  };
+                  setForm((prev) => ({
+                    ...prev,
+                    socialLinks: [...(prev.socialLinks || []), newLink],
+                  }));
+                }}
+              >
+                <i className="bi bi-plus-lg me-1"></i>Add Platform
+              </button>
+            </div>
+            <div className="table-responsive border rounded-3 overflow-hidden">
+              <table className="table table-hover align-middle mb-0" style={{ minWidth: 760 }}>
+                <thead className="table-light small fw-bold">
+                  <tr>
+                    <th style={{ width: "20%" }}>Platform</th>
+                    <th style={{ width: "20%" }}>Icon</th>
+                    <th style={{ width: "20%" }}>Handle</th>
+                    <th>Link URL</th>
+                    <th className="text-center" style={{ width: "10%" }}>Active</th>
+                    <th className="text-center" style={{ width: "10%" }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(form.socialLinks || []).map((item, idx) => (
+                    <tr key={idx}>
+                      <td>
+                        <input
+                          className="form-control form-control-sm"
+                          value={item.platform}
+                          onChange={(e) => {
+                            const updated = [...(form.socialLinks || [])];
+                            updated[idx] = { ...updated[idx], platform: e.target.value };
+                            setForm({ ...form, socialLinks: updated });
+                          }}
+                          placeholder="e.g. Facebook"
+                        />
+                      </td>
+                      <td>
+                        <div className="input-group input-group-sm">
+                          <span className="input-group-text bg-white">
+                            <i className={`bi bi-${(item.icon || "globe").replace(/^bi-/, "")}`}></i>
+                          </span>
+                          <input
+                            className="form-control form-control-sm"
+                            value={item.icon}
+                            onChange={(e) => {
+                              const updated = [...(form.socialLinks || [])];
+                              updated[idx] = { ...updated[idx], icon: e.target.value };
+                              setForm({ ...form, socialLinks: updated });
+                            }}
+                            placeholder="facebook, instagram, twitter-x, etc."
+                          />
+                        </div>
+                      </td>
+                      <td>
+                        <input
+                          className="form-control form-control-sm"
+                          value={item.handle}
+                          onChange={(e) => {
+                            const updated = [...(form.socialLinks || [])];
+                            updated[idx] = { ...updated[idx], handle: e.target.value };
+                            setForm({ ...form, socialLinks: updated });
+                          }}
+                          placeholder="@mazetech"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="form-control form-control-sm"
+                          type="url"
+                          value={item.url}
+                          onChange={(e) => {
+                            const updated = [...(form.socialLinks || [])];
+                            updated[idx] = { ...updated[idx], url: e.target.value };
+                            setForm({ ...form, socialLinks: updated });
+                          }}
+                          placeholder="https://..."
+                        />
+                      </td>
+                      <td className="text-center">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={Boolean(item.enabled)}
+                          onChange={(e) => {
+                            const updated = [...(form.socialLinks || [])];
+                            updated[idx] = { ...updated[idx], enabled: e.target.checked };
+                            setForm({ ...form, socialLinks: updated });
+                          }}
+                        />
+                      </td>
+                      <td className="text-center">
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger btn-sm p-1 px-2"
+                          onClick={() => {
+                            const updated = (form.socialLinks || []).filter((_, i) => i !== idx);
+                            setForm({ ...form, socialLinks: updated });
+                          }}
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!form.socialLinks || form.socialLinks.length === 0) && (
+                    <tr>
+                      <td colSpan={6} className="text-center text-secondary py-3 small">
+                        No social media links added yet. Click &quot;Add Platform&quot; above to add one.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="col-12 mt-3">
             <button className="btn btn-maze" type="submit" disabled={saving}>
               <i className="bi bi-save me-2"></i>Save Settings
             </button>
