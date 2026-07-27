@@ -18,7 +18,8 @@ type SectionId =
   | "inquiries-manager"
   | "blogs-manager"
   | "seo-manager"
-  | "profile-settings";
+  | "profile-settings"
+  | "users-manager";
 
 const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "overview", label: "Overview", icon: "bi-speedometer2" },
@@ -32,6 +33,7 @@ const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "inquiries-manager", label: "Inquiries", icon: "bi-chat-dots" },
   { id: "blogs-manager", label: "Blogs", icon: "bi-journal-text" },
   { id: "seo-manager", label: "SEO", icon: "bi-search-heart" },
+  { id: "users-manager", label: "Users & Roles", icon: "bi-people-fill" },
   { id: "profile-settings", label: "Profile & Security", icon: "bi-person-lock" },
 ];
 
@@ -47,6 +49,7 @@ const SECTION_LABELS: Record<SectionId, string> = {
   "inquiries-manager": "Inquiries",
   "blogs-manager": "Blogs",
   "seo-manager": "SEO",
+  "users-manager": "User Management",
   "profile-settings": "Profile & Security",
 };
 
@@ -202,8 +205,10 @@ export default function AdminDashboard({
     }
   }
 
-  async function logout() {
-    await signOut({ callbackUrl: "/admin/login" });
+  async function logout(e?: React.MouseEvent) {
+    if (e) e.preventDefault();
+    await signOut({ callbackUrl: "/admin/login", redirect: true });
+    window.location.href = "/admin/login";
   }
 
   const activeProduct = useMemo(
@@ -549,6 +554,13 @@ export default function AdminDashboard({
                   sessionData={sessionData}
                   onUpdateSession={(newData) => updateSession(newData)}
                   showAlert={showAlert}
+                />
+              ) : null}
+
+              {section === "users-manager" ? (
+                <UsersPanel
+                  showAlert={showAlert}
+                  currentUserId={(sessionData?.user as unknown as { id?: string })?.id}
                 />
               ) : null}
 
@@ -2432,6 +2444,332 @@ function InquiriesPanel({
           </div>
         </div>
       ) : null}
+    </section>
+  );
+}
+
+interface AdminUserRecord {
+  id: string;
+  email: string;
+  name: string;
+  role: "ADMIN" | "EDITOR";
+  image?: string | null;
+  createdAt: string;
+}
+
+function UsersPanel({
+  showAlert,
+  currentUserId,
+}: {
+  showAlert: (msg: string) => void;
+  currentUserId?: string;
+}) {
+  const [users, setUsers] = useState<AdminUserRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [savingUser, setSavingUser] = useState(false);
+  const [error, setError] = useState("");
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"ADMIN" | "EDITOR">("EDITOR");
+  const [image, setImage] = useState("");
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/users");
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setUsers(data.users || []);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    if (!password || password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setSavingUser(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role, image }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        showAlert("User created successfully!");
+        setName("");
+        setEmail("");
+        setPassword("");
+        setImage("");
+        setRole("EDITOR");
+        await loadUsers();
+      } else {
+        setError(data.error || "Failed to create user");
+      }
+    } catch {
+      setError("Failed to create user");
+    } finally {
+      setSavingUser(false);
+    }
+  }
+
+  async function handleUpdateUserRole(userId: string, newRole: "ADMIN" | "EDITOR") {
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userId, role: newRole }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        showAlert("User role updated successfully");
+        await loadUsers();
+      } else {
+        showAlert(data.error || "Failed to update role");
+      }
+    } catch {
+      showAlert("Failed to update user role");
+    }
+  }
+
+  async function handleDeleteUser(userId: string) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const res = await fetch(`/api/admin/users?id=${userId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        showAlert("User deleted successfully");
+        await loadUsers();
+      } else {
+        showAlert(data.error || "Failed to delete user");
+      }
+    } catch {
+      showAlert("Failed to delete user");
+    }
+  }
+
+  return (
+    <section className="dashboard-panel mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 className="mb-1">User Management</h3>
+          <p className="small text-secondary mb-0">
+            Manage admin accounts, assign roles (Admin / Editor), and provision access.
+          </p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-maze-outline btn-sm"
+          onClick={loadUsers}
+          disabled={loading}
+        >
+          <i className="bi bi-arrow-clockwise me-1"></i>Refresh List
+        </button>
+      </div>
+
+      <div className="row g-4">
+        <div className="col-lg-7">
+          <div className="card border shadow-sm">
+            <div className="card-header bg-white fw-bold py-3">
+              <i className="bi bi-people-fill me-2 text-success"></i>
+              Registered Accounts ({users.length})
+            </div>
+            <div className="table-responsive">
+              <table className="table table-hover align-middle mb-0">
+                <thead className="table-light small fw-bold">
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                    <th className="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4 text-secondary">
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        Loading users...
+                      </td>
+                    </tr>
+                  ) : users.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-4 text-secondary">
+                        No secondary users registered yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    users.map((u) => (
+                      <tr key={u.id}>
+                        <td>
+                          <div className="d-flex align-items-center gap-2">
+                            {u.image ? (
+                              <img
+                                src={u.image}
+                                alt={u.name}
+                                className="rounded-circle border"
+                                style={{ width: 36, height: 36, objectFit: "cover" }}
+                              />
+                            ) : (
+                              <div
+                                className="rounded-circle bg-light border d-flex align-items-center justify-content-center text-success fw-bold"
+                                style={{ width: 36, height: 36 }}
+                              >
+                                {u.name ? u.name.charAt(0).toUpperCase() : "A"}
+                              </div>
+                            )}
+                            <div>
+                              <div className="fw-bold small">{u.name}</div>
+                              <div className="text-secondary" style={{ fontSize: "0.78rem" }}>
+                                {u.email}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <select
+                            className={`form-select form-select-sm fw-bold ${
+                              u.role === "ADMIN" ? "text-success border-success" : "text-primary"
+                            }`}
+                            value={u.role}
+                            onChange={(e) =>
+                              handleUpdateUserRole(u.id, e.target.value as "ADMIN" | "EDITOR")
+                            }
+                            style={{ width: "auto" }}
+                          >
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="EDITOR">EDITOR</option>
+                          </select>
+                        </td>
+                        <td className="small text-secondary">
+                          {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
+                        </td>
+                        <td className="text-end">
+                          <button
+                            type="button"
+                            className="btn btn-outline-danger btn-sm p-1 px-2"
+                            onClick={() => handleDeleteUser(u.id)}
+                            disabled={u.id === currentUserId}
+                            title={
+                              u.id === currentUserId
+                                ? "Cannot delete your own account"
+                                : "Delete user"
+                            }
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-5">
+          <div className="card border shadow-sm">
+            <div className="card-header bg-white fw-bold py-3">
+              <i className="bi bi-person-plus-fill me-2 text-success"></i>
+              Add New User
+            </div>
+            <div className="card-body p-4">
+              <form onSubmit={handleCreateUser} className="dashboard-form">
+                {error && <div className="alert alert-danger small mb-3">{error}</div>}
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">Full Name</label>
+                  <input
+                    className="form-control"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Jane Doe"
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">Email Address</label>
+                  <input
+                    className="form-control"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="user@mazetechnologies.co.ke"
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">Password</label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">Assign Role</label>
+                  <select
+                    className="form-select"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as "ADMIN" | "EDITOR")}
+                  >
+                    <option value="ADMIN">ADMIN (Full access + user management)</option>
+                    <option value="EDITOR">EDITOR (Content & products editor)</option>
+                  </select>
+                </div>
+
+                <CloudinarySingleUpload
+                  label="Avatar Image (Optional)"
+                  value={image}
+                  onChange={(url) => setImage(url)}
+                  folder="maze/avatars"
+                />
+
+                <button
+                  className="btn btn-maze w-100 mt-2"
+                  type="submit"
+                  disabled={savingUser}
+                >
+                  {savingUser ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Creating User...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-person-check me-2"></i>Create Account
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
