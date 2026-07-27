@@ -91,20 +91,28 @@ export default function ProductsBrowser({
 
   useEffect(() => {
     if (preview || typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const cat = params.get("cat") || "all";
-    const productParam = params.get("product");
 
-    setCurrentFilter(cat);
-    setCurrentSubFilter("all");
-    setDisplayedCount(PER_PAGE);
+    const syncFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get("cat") || "all";
+      const subcat = params.get("subcat") || "all";
+      const productParam = params.get("product");
 
-    if (productParam) {
-      const id = Number(productParam);
-      if (!Number.isNaN(id)) openProduct(id);
-    } else {
-      applyListingMeta(cat);
-    }
+      setCurrentFilter(cat);
+      setCurrentSubFilter(subcat);
+      setDisplayedCount(PER_PAGE);
+
+      if (productParam) {
+        const id = Number(productParam);
+        if (!Number.isNaN(id)) openProduct(id);
+      } else {
+        applyListingMeta(cat);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
   }, [preview, openProduct, applyListingMeta]);
 
   useEffect(() => {
@@ -157,8 +165,16 @@ export default function ProductsBrowser({
   };
 
   const filterSubCategory = (subCatId: string) => {
-    setCurrentSubFilter(subCatId || "all");
+    const nextSub = subCatId || "all";
+    setCurrentSubFilter(nextSub);
     setDisplayedCount(PER_PAGE);
+    if (!preview) {
+      const url =
+        nextSub === "all"
+          ? `/products?cat=${encodeURIComponent(currentFilter)}`
+          : `/products?cat=${encodeURIComponent(currentFilter)}&subcat=${encodeURIComponent(nextSub)}`;
+      router.replace(url, { scroll: false });
+    }
   };
 
   const goToContact = () => {
@@ -219,6 +235,31 @@ export default function ProductsBrowser({
           className="d-flex flex-wrap justify-content-center gap-2 mb-4"
           id="catFilters"
         >
+          <span
+            className={`cat-pill${
+              !preview && currentFilter === "all" ? " active" : ""
+            }`}
+            onClick={() => {
+              if (preview) {
+                router.push("/products");
+              } else {
+                filterProducts("all");
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              if (preview) {
+                router.push("/products");
+              } else {
+                filterProducts("all");
+              }
+            }}
+          >
+            <i className="bi bi-grid-fill me-1"></i>
+            All Products
+          </span>
           {categories.map((cat) => (
             <span
               key={cat.id}
