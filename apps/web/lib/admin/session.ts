@@ -40,12 +40,18 @@ export function getAdminSecretConfigured(): boolean {
   return Boolean(adminSecret());
 }
 
-export function isAdminRequestAuthorized(request: Request): boolean {
-  const secret = adminSecret();
-  if (!secret) return false;
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
 
-  const auth = request.headers.get("authorization");
-  if (auth === `Bearer ${secret}`) return true;
+export async function isAdminRequestAuthorized(request: Request): Promise<boolean> {
+  const session = await getServerSession(authOptions);
+  if (session?.user) return true;
+
+  const secret = adminSecret();
+  if (secret) {
+    const auth = request.headers.get("authorization");
+    if (auth === `Bearer ${secret}`) return true;
+  }
 
   const cookieHeader = request.headers.get("cookie") || "";
   const match = cookieHeader.match(

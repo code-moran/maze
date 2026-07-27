@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AuthProvider from "@/components/AuthProvider";
 import "@/styles/maze.css";
 
 export const metadata: Metadata = {
@@ -11,5 +12,9 @@ export default function AdminRootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="dashboard-shell">{children}</div>;
+  return (
+    <AuthProvider>
+      <div className="dashboard-shell">{children}</div>
+    </AuthProvider>
+  );
 }

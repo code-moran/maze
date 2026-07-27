@@ -2,7 +2,7 @@ import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);

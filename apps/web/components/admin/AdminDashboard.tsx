@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SiteData } from "@/data/types";
 
@@ -15,7 +16,8 @@ type SectionId =
   | "subproducts-manager"
   | "inquiries-manager"
   | "blogs-manager"
-  | "seo-manager";
+  | "seo-manager"
+  | "profile-settings";
 
 const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "overview", label: "Overview", icon: "bi-speedometer2" },
@@ -29,6 +31,7 @@ const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "inquiries-manager", label: "Inquiries", icon: "bi-chat-dots" },
   { id: "blogs-manager", label: "Blogs", icon: "bi-journal-text" },
   { id: "seo-manager", label: "SEO", icon: "bi-search-heart" },
+  { id: "profile-settings", label: "Profile & Security", icon: "bi-person-lock" },
 ];
 
 const SECTION_LABELS: Record<SectionId, string> = {
@@ -43,6 +46,7 @@ const SECTION_LABELS: Record<SectionId, string> = {
   "inquiries-manager": "Inquiries",
   "blogs-manager": "Blogs",
   "seo-manager": "SEO",
+  "profile-settings": "Profile & Security",
 };
 
 function htmlToText(value: string) {
@@ -116,6 +120,7 @@ export default function AdminDashboard({
   initialData: SiteData;
   databaseConfigured: boolean;
 }) {
+  const { data: sessionData, update: updateSession } = useSession();
   const [section, setSection] = useState<SectionId>("overview");
   const [data, setData] = useState<SiteData>(initialData);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
@@ -197,8 +202,7 @@ export default function AdminDashboard({
   }
 
   async function logout() {
-    await fetch("/api/admin/login", { method: "DELETE" });
-    window.location.href = "/admin/login";
+    await signOut({ callbackUrl: "/admin/login" });
   }
 
   const activeProduct = useMemo(
@@ -505,6 +509,14 @@ export default function AdminDashboard({
                     setActiveProductId(id);
                     goSection("products-manager");
                   }}
+                />
+              ) : null}
+
+              {section === "profile-settings" ? (
+                <ProfilePanel
+                  sessionData={sessionData}
+                  onUpdateSession={(newData) => updateSession(newData)}
+                  showAlert={showAlert}
                 />
               ) : null}
 
@@ -2141,6 +2153,258 @@ function InquiriesPanel({
           </div>
         </div>
       ) : null}
+    </section>
+  );
+}
+
+function ProfilePanel({
+  sessionData,
+  onUpdateSession,
+  showAlert,
+}: {
+  sessionData: unknown;
+  onUpdateSession: (data: unknown) => void;
+  showAlert: (msg: string) => void;
+}) {
+  const user =
+    (
+      sessionData as {
+        user?: { name?: string; email?: string; image?: string };
+      }
+    )?.user || {};
+
+  const [name, setName] = useState(user.name || "");
+  const [email, setEmail] = useState(user.email || "");
+  const [image, setImage] = useState(user.image || "");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  useEffect(() => {
+    setName(user.name || "");
+    setEmail(user.email || "");
+    setImage(user.image || "");
+  }, [user.name, user.email, user.image]);
+
+  async function handleProfileSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSavingProfile(true);
+    try {
+      const res = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update_profile",
+          name,
+          email,
+          image,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        onUpdateSession({ name, email, image });
+        showAlert("Profile updated successfully");
+      } else {
+        showAlert(data.error || "Profile update failed");
+      }
+    } catch {
+      showAlert("Profile update failed");
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  async function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPasswordError("");
+    if (newPassword !== confirmPassword) {
+      setPasswordError("New password and confirmation do not match.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters long.");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const res = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "change_password",
+          currentPassword,
+          newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        showAlert("Password updated successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setPasswordError(data.error || "Password update failed");
+      }
+    } catch {
+      setPasswordError("Password update failed");
+    } finally {
+      setSavingPassword(false);
+    }
+  }
+
+  return (
+    <section className="dashboard-panel mb-4">
+      <h3 className="mb-4">Profile & Security</h3>
+      <div className="row g-4">
+        <div className="col-lg-6">
+          <div className="card border shadow-sm h-100">
+            <div className="card-header bg-white fw-bold py-3">
+              <i className="bi bi-person-badge me-2 text-success"></i>
+              Manage Profile
+            </div>
+            <div className="card-body p-4">
+              <form className="dashboard-form" onSubmit={handleProfileSubmit}>
+                <div className="mb-3 text-center">
+                  <div
+                    className="mx-auto rounded-circle overflow-hidden bg-light border d-flex align-items-center justify-content-center mb-2"
+                    style={{ width: 80, height: 80 }}
+                  >
+                    {image ? (
+                      <img
+                        src={image}
+                        alt="Profile"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <i className="bi bi-person-fill fs-1 text-secondary"></i>
+                    )}
+                  </div>
+                  <small className="text-secondary">Admin Avatar</small>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">
+                    Display Name
+                  </label>
+                  <input
+                    className="form-control"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">
+                    Email Address
+                  </label>
+                  <input
+                    className="form-control"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">
+                    Avatar Image URL (optional)
+                  </label>
+                  <input
+                    className="form-control"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <button
+                  className="btn btn-maze w-100"
+                  type="submit"
+                  disabled={savingProfile}
+                >
+                  {savingProfile ? "Saving Profile…" : "Save Profile"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-lg-6">
+          <div className="card border shadow-sm h-100">
+            <div className="card-header bg-white fw-bold py-3">
+              <i className="bi bi-shield-lock me-2 text-success"></i>
+              Change Password
+            </div>
+            <div className="card-body p-4">
+              <form className="dashboard-form" onSubmit={handlePasswordSubmit}>
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">
+                    Current Password
+                  </label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">
+                    New Password
+                  </label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="At least 6 characters"
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label small fw-semibold">
+                    Confirm New Password
+                  </label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repeat new password"
+                    required
+                  />
+                </div>
+
+                {passwordError ? (
+                  <p className="text-danger small mb-3">{passwordError}</p>
+                ) : null}
+
+                <button
+                  className="btn btn-maze-outline w-100"
+                  type="submit"
+                  disabled={savingPassword}
+                >
+                  {savingPassword ? "Updating Password…" : "Update Password"}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

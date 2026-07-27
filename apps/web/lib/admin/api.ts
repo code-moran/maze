@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { isAdminRequestAuthorized } from "@/lib/admin/auth";
 
-export function requireAdmin(request: Request): NextResponse | null {
-  if (!isAdminRequestAuthorized(request)) {
+export async function requireAdmin(
+  request: Request
+): Promise<NextResponse | null> {
+  if (!(await isAdminRequestAuthorized(request))) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
   return null;

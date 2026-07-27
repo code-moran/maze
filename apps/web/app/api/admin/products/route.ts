@@ -2,7 +2,7 @@ import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonOk({ products: [], categories: [] });
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);
@@ -153,7 +153,7 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);

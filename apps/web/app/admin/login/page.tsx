@@ -38,9 +38,7 @@ export default async function AdminLoginPage() {
           </p>
           <h1>Dashboard Login</h1>
           <p className="mb-0 text-white-50">
-            {getAdminSecretConfigured()
-              ? "Enter the dashboard secret to manage site content."
-              : "Set ADMIN_DASHBOARD_SECRET (or ADMIN_ENQUIRIES_SECRET) in env before signing in."}
+            Sign in with your admin credentials, secret key, or Google account.
           </p>
         </div>
       </section>
