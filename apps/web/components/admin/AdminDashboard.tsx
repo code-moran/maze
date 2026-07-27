@@ -384,6 +384,45 @@ export default function AdminDashboard({
                       ))}
                     </div>
                   </div>
+                  <div className="dashboard-panel mt-4">
+                    <h3>Data Actions</h3>
+                    <div className="d-flex flex-wrap gap-2">
+                      <button
+                        className="btn btn-maze"
+                        type="button"
+                        onClick={() => {
+                          const dataStr = JSON.stringify(data, null, 2);
+                          const blob = new Blob([dataStr], {
+                            type: "application/json",
+                          });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = "maze-dashboard-data.json";
+                          a.click();
+                          URL.revokeObjectURL(url);
+                          showAlert("Dashboard data exported as JSON.");
+                        }}
+                      >
+                        <i className="bi bi-download me-2"></i>Export Dashboard Data
+                      </button>
+                      <button
+                        className="btn btn-maze-outline"
+                        type="button"
+                        onClick={() => {
+                          if (
+                            confirm(
+                              "Reload website dashboard content to defaults?"
+                            )
+                          ) {
+                            window.location.reload();
+                          }
+                        }}
+                      >
+                        <i className="bi bi-arrow-counterclockwise me-2"></i>Reset To Defaults
+                      </button>
+                    </div>
+                  </div>
                 </section>
               ) : null}
 
