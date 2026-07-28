@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
             ? inputEmail.toLowerCase()
             : "admin@mazetechnologies.co.ke";
 
-        // 1. Try matching Prisma database user if configured
+        // 1. Check database user if Prisma is configured
         if (prisma) {
           try {
             const dbUser = await prisma.adminUser.findFirst({
@@ -69,9 +69,20 @@ export const authOptions: NextAuthOptions = {
                   isDefaultPassword: false,
                 };
               }
+              // Once a custom password is set in DB, DO NOT allow default fallback!
+              return null;
+            }
+
+            // Also check if ANY admin user in DB has a set password
+            const anyDbAdminWithPassword = await prisma.adminUser.findFirst({
+              where: { password: { not: null } },
+            });
+            if (anyDbAdminWithPassword && dbUser) {
+              // User exists in DB, but password did not match
+              return null;
             }
           } catch {
-            // Fallback to environment credentials if DB lookup fails
+            // Fallback to environment credentials if DB connection fails
           }
         }
 
@@ -93,7 +104,7 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // 3. Fallback default admin credentials if no secret is set
+        // 3. Fallback default admin credentials ONLY if no custom DB password exists
         if (
           !validSecret &&
           (inputPassword === "admin123" || inputEmail === "admin123")
