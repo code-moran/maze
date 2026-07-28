@@ -40,7 +40,6 @@ export const authOptions: NextAuthOptions = {
         const inputEmail = (credentials.email || "").trim();
         const inputPassword = credentials.password || "";
 
-        // Derive user email: use typed input email if valid email address, otherwise default
         const derivedEmail =
           inputEmail && inputEmail.includes("@")
             ? inputEmail.toLowerCase()
@@ -67,6 +66,7 @@ export const authOptions: NextAuthOptions = {
                   name: dbUser.name || "Admin User",
                   image: dbUser.image || null,
                   role: dbUser.role || "ADMIN",
+                  isDefaultPassword: false,
                 };
               }
             }
@@ -88,6 +88,7 @@ export const authOptions: NextAuthOptions = {
               name: derivedEmail.split("@")[0] || "Maze Administrator",
               image: null,
               role: "ADMIN",
+              isDefaultPassword: false,
             };
           }
         }
@@ -103,6 +104,7 @@ export const authOptions: NextAuthOptions = {
             name: derivedEmail.split("@")[0] || "Maze Admin",
             image: null,
             role: "ADMIN",
+            isDefaultPassword: true,
           };
         }
 
@@ -118,12 +120,16 @@ export const authOptions: NextAuthOptions = {
         token.name = user.name;
         token.picture = user.image;
         token.role = (user as unknown as { role?: string }).role || "ADMIN";
+        token.isDefaultPassword = (user as unknown as { isDefaultPassword?: boolean }).isDefaultPassword ?? false;
       }
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;
         if (session.email) token.email = session.email;
         if (session.image) token.picture = session.image;
         if (session.role) token.role = session.role;
+        if (typeof session.isDefaultPassword === "boolean") {
+          token.isDefaultPassword = session.isDefaultPassword;
+        }
       }
       return token;
     },
@@ -135,6 +141,8 @@ export const authOptions: NextAuthOptions = {
         session.user.image = token.picture as string | null;
         (session.user as unknown as { role: string }).role =
           (token.role as string) || "ADMIN";
+        (session.user as unknown as { isDefaultPassword: boolean }).isDefaultPassword =
+          Boolean(token.isDefaultPassword);
       }
       return session;
     },

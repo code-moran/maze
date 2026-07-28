@@ -201,7 +201,8 @@ export default function AdminDashboard({
   async function api(
     url: string,
     method: string,
-    body?: unknown
+    body?: unknown,
+    successMsg = "Changes saved successfully!"
   ): Promise<boolean> {
     setSaving(true);
     try {
@@ -212,14 +213,14 @@ export default function AdminDashboard({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json.ok === false) {
-        showAlert(json.error || "Save failed");
+        showAlert(json.error || "Save operation failed. Please try again.");
         return false;
       }
-      showAlert("Saved successfully");
+      showAlert(successMsg);
       await reload();
       return true;
     } catch {
-      showAlert("Network error");
+      showAlert("Network error. Please check your connection.");
       return false;
     } finally {
       setSaving(false);
@@ -348,9 +349,55 @@ export default function AdminDashboard({
 
       <main className="py-5">
         <div className="container">
+          {/* Toast Notification */}
           {alert ? (
-            <div className="alert alert-success mb-4" role="alert">
-              {alert}
+            <div
+              className="position-fixed top-0 end-0 p-3"
+              style={{ zIndex: 1090, maxWidth: 420 }}
+            >
+              <div
+                className="toast show align-items-center text-white bg-success border-0 shadow-lg"
+                role="alert"
+                style={{ borderRadius: 12 }}
+              >
+                <div className="d-flex p-3 align-items-center">
+                  <i className="bi bi-check-circle-fill fs-4 me-3"></i>
+                  <div className="toast-body p-0 fw-semibold fs-6">
+                    {alert}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-close btn-close-white me-2 m-auto"
+                    onClick={() => setAlert("")}
+                  ></button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Force Default Password Change Security Banner */}
+          {Boolean(
+            (sessionData?.user as unknown as { isDefaultPassword?: boolean })?.isDefaultPassword
+          ) ? (
+            <div className="alert alert-warning border-warning d-flex align-items-center justify-content-between p-3 mb-4 shadow-sm rounded-3">
+              <div className="d-flex align-items-center gap-3">
+                <i className="bi bi-shield-exclamation fs-2 text-warning"></i>
+                <div>
+                  <h6 className="fw-bold mb-1 text-dark">
+                    Security Notice: Default Password In Use
+                  </h6>
+                  <p className="small mb-0 text-dark">
+                    You are signed in with the initial default password. For your security, please update your password now.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-warning text-dark fw-bold btn-sm text-nowrap ms-2"
+                onClick={() => goSection("profile-settings")}
+              >
+                <i className="bi bi-key-fill me-1"></i>Change Password Now
+              </button>
             </div>
           ) : null}
 
@@ -485,7 +532,7 @@ export default function AdminDashboard({
                   data={data}
                   saving={saving}
                   onSave={(payload) =>
-                    api("/api/admin/settings", "PUT", payload)
+                    api("/api/admin/settings", "PUT", payload, "Website settings saved successfully!")
                   }
                 />
               ) : null}
@@ -495,10 +542,12 @@ export default function AdminDashboard({
                   data={data}
                   saving={saving}
                   onSave={(payload) =>
-                    api("/api/admin/pages", "PUT", {
-                      section: "charges",
-                      ...payload,
-                    })
+                    api(
+                      "/api/admin/pages",
+                      "PUT",
+                      { section: "charges", ...payload },
+                      "Installation charges saved successfully!"
+                    )
                   }
                 />
               ) : null}
@@ -507,7 +556,9 @@ export default function AdminDashboard({
                 <PagesPanel
                   data={data}
                   saving={saving}
-                  onSave={(payload) => api("/api/admin/pages", "PUT", payload)}
+                  onSave={(payload) =>
+                    api("/api/admin/pages", "PUT", payload, "Page text content updated successfully!")
+                  }
                 />
               ) : null}
 
@@ -521,14 +572,17 @@ export default function AdminDashboard({
                     const ok = await api(
                       "/api/admin/products",
                       isNew ? "POST" : "PUT",
-                      product
+                      product,
+                      isNew ? "New product added to catalog successfully!" : "Product details updated successfully!"
                     );
                     if (ok && isNew) setActiveProductId(null);
                   }}
                   onDelete={async (id) => {
                     const ok = await api(
                       `/api/admin/products?id=${id}`,
-                      "DELETE"
+                      "DELETE",
+                      undefined,
+                      "Product deleted successfully."
                     );
                     if (ok) setActiveProductId(null);
                   }}
@@ -542,7 +596,7 @@ export default function AdminDashboard({
                   setCategoryKey={setSubCatKey}
                   saving={saving}
                   onSave={(payload) =>
-                    api("/api/admin/subproducts", "PUT", payload)
+                    api("/api/admin/subproducts", "PUT", payload, "Sub-products list saved successfully!")
                   }
                 />
               ) : null}
@@ -557,12 +611,18 @@ export default function AdminDashboard({
                     const ok = await api(
                       "/api/admin/blogs",
                       isNew ? "POST" : "PUT",
-                      blog
+                      blog,
+                      isNew ? "New blog post published successfully!" : "Blog post updated successfully!"
                     );
                     if (ok && isNew) setActiveBlogId(null);
                   }}
                   onDelete={async (id) => {
-                    const ok = await api(`/api/admin/blogs?id=${id}`, "DELETE");
+                    const ok = await api(
+                      `/api/admin/blogs?id=${id}`,
+                      "DELETE",
+                      undefined,
+                      "Blog post deleted successfully."
+                    );
                     if (ok) setActiveBlogId(null);
                   }}
                 />
@@ -572,7 +632,9 @@ export default function AdminDashboard({
                 <SeoPanel
                   data={data}
                   saving={saving}
-                  onSave={(payload) => api("/api/admin/seo", "PUT", payload)}
+                  onSave={(payload) =>
+                    api("/api/admin/seo", "PUT", payload, "SEO metadata saved successfully!")
+                  }
                   onOpenProduct={(id) => {
                     setActiveProductId(id);
                     goSection("products-manager");
@@ -600,11 +662,21 @@ export default function AdminDashboard({
                   enquiries={enquiries}
                   onRefresh={loadEnquiries}
                   onStatus={async (id, status) => {
-                    await api("/api/admin/enquiries", "PATCH", { id, status });
+                    await api(
+                      "/api/admin/enquiries",
+                      "PATCH",
+                      { id, status },
+                      `Request #${id} status updated to "${status}".`
+                    );
                     await loadEnquiries();
                   }}
                   onDelete={async (id) => {
-                    await api(`/api/admin/enquiries?id=${id}`, "DELETE");
+                    await api(
+                      `/api/admin/enquiries?id=${id}`,
+                      "DELETE",
+                      undefined,
+                      `Request #${id} deleted successfully.`
+                    );
                     await loadEnquiries();
                   }}
                 />
