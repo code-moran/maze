@@ -116,6 +116,7 @@ model Product {
   id             String   @id @default(cuid())
   legacyId       Int      @unique
   name           String
+  slug           String?
   catLabel       String   @default("")
   subCat         String   @default("")
   shortDesc      String   @default("") @db.Text

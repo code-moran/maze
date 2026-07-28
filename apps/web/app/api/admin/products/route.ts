@@ -22,6 +22,7 @@ export async function GET(request: Request) {
   return jsonOk({
     products: products.map((p) => ({
       id: p.legacyId,
+      slug: p.slug || undefined,
       name: p.name,
       cat: p.category.key,
       catLabel: p.catLabel,
@@ -63,11 +64,13 @@ export async function POST(request: Request) {
 
   const max = await prisma.product.aggregate({ _max: { legacyId: true } });
   const legacyId = (max._max.legacyId || 0) + 1;
+  const slug = body.slug ? String(body.slug).trim() : null;
 
   const product = await prisma.product.create({
     data: {
       legacyId,
       name: String(body.name),
+      slug,
       catLabel: String(body.catLabel || category.title),
       subCat: String(body.subCat || ""),
       shortDesc: String(body.shortDesc || ""),
@@ -85,6 +88,7 @@ export async function POST(request: Request) {
   return jsonOk({
     product: {
       id: product.legacyId,
+      slug: product.slug || undefined,
       name: product.name,
       cat: product.category.key,
       catLabel: product.catLabel,
@@ -116,10 +120,13 @@ export async function PUT(request: Request) {
   });
   if (!category) return jsonError("Unknown category");
 
+  const slug = body.slug ? String(body.slug).trim() : null;
+
   const product = await prisma.product.update({
     where: { legacyId: id },
     data: {
       name: String(body.name || ""),
+      slug,
       catLabel: String(body.catLabel || category.title),
       subCat: String(body.subCat || ""),
       shortDesc: String(body.shortDesc || ""),
@@ -137,6 +144,7 @@ export async function PUT(request: Request) {
   return jsonOk({
     product: {
       id: product.legacyId,
+      slug: product.slug || undefined,
       name: product.name,
       cat: product.category.key,
       catLabel: product.catLabel,

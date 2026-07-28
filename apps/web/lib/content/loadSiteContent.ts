@@ -191,6 +191,7 @@ export async function loadSiteContent(): Promise<SiteData> {
     if (products.length) {
       merged.products = products.map((p) => ({
         id: p.legacyId,
+        slug: p.slug || undefined,
         name: p.name,
         cat: p.category.key,
         catLabel: p.catLabel,
