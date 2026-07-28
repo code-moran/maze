@@ -136,6 +136,8 @@ export default function PageHero({
       <ProductRequestModal
         isOpen={modalState.isOpen}
         onClose={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
+        catLabel={label || title}
+        productName={title}
         defaultType={modalState.type}
       />
     </section>
