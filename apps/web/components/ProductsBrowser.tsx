@@ -89,15 +89,18 @@ export default function ProductsBrowser({
           product.seoDescription || product.shortDesc
         );
       }
-      requestAnimationFrame(() => {
-        const el = document.getElementById("productModal");
-        if (el && window.bootstrap?.Modal) {
-          window.bootstrap.Modal.getOrCreateInstance(el).show();
-        }
-      });
     },
     [products]
   );
+
+  useEffect(() => {
+    if (selectedProduct && typeof document !== "undefined") {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [selectedProduct]);
 
   useEffect(() => {
     if (preview || typeof window === "undefined") return;
@@ -123,18 +126,7 @@ export default function ProductsBrowser({
     syncFromUrl();
     window.addEventListener("popstate", syncFromUrl);
     return () => window.removeEventListener("popstate", syncFromUrl);
-  }, [preview, initialCategory]);
-
-  useEffect(() => {
-    const modalEl = document.getElementById("productModal");
-    if (!modalEl) return;
-    const handleHidden = () => {
-      setSelectedProduct(null);
-      applyListingMeta(currentFilter);
-    };
-    modalEl.addEventListener("hidden.bs.modal", handleHidden);
-    return () => modalEl.removeEventListener("hidden.bs.modal", handleHidden);
-  }, [applyListingMeta, currentFilter]);
+  }, [preview, initialCategory, openProduct, applyListingMeta]);
 
   const filtered = useMemo(() => {
     if (currentFilter === "all") return products;
@@ -485,38 +477,58 @@ export default function ProductsBrowser({
         </div>
       </div>
 
-      <div className="modal fade" id="productModal" tabIndex={-1}>
-        <div className="modal-dialog modal-lg modal-dialog-scrollable">
+      {selectedProduct ? (
+        <div
+          className="modal fade show d-block"
+          id="productModal"
+          tabIndex={-1}
+          style={{
+            background: "rgba(0, 0, 0, 0.75)",
+            zIndex: 1080,
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+            padding: "1rem 0.5rem",
+          }}
+          onClick={() => setSelectedProduct(null)}
+        >
           <div
-            className="modal-content"
-            style={{ borderRadius: 14, overflow: "hidden" }}
+            className="modal-dialog modal-lg modal-dialog-centered my-auto"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-header border-0 pb-0">
-              <nav aria-label="breadcrumb">
-                <ol className="breadcrumb mb-0 small">
-                  <li className="breadcrumb-item">
-                    <Link href="/" className="text-success">
-                      Home
-                    </Link>
-                  </li>
-                  <li className="breadcrumb-item">
-                    <Link href="/products" className="text-success">
-                      Products
-                    </Link>
-                  </li>
-                  <li className="breadcrumb-item active">
-                    {selectedProduct?.catLabel || "Category"}
-                  </li>
-                </ol>
-              </nav>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            {selectedProduct ? (
-              <div className="modal-body pt-2">
+            <div
+              className="modal-content border-0 shadow-lg"
+              style={{ borderRadius: 16, overflow: "hidden" }}
+            >
+              <div className="modal-header border-0 pb-0 bg-light p-3 d-flex align-items-center justify-content-between">
+                <nav aria-label="breadcrumb">
+                  <ol className="breadcrumb mb-0 small">
+                    <li className="breadcrumb-item">
+                      <Link href="/" className="text-success">
+                        Home
+                      </Link>
+                    </li>
+                    <li className="breadcrumb-item">
+                      <Link href="/products" className="text-success">
+                        Products
+                      </Link>
+                    </li>
+                    <li className="breadcrumb-item active">
+                      {selectedProduct?.catLabel || "Category"}
+                    </li>
+                  </ol>
+                </nav>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSelectedProduct(null)}
+                ></button>
+              </div>
+              <div className="modal-body p-4 pt-2">
                 <div className="row g-4">
                   <div className="col-md-5">
                     <img
@@ -627,10 +639,10 @@ export default function ProductsBrowser({
                   ))}
                 </div>
               </div>
-            ) : null}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
 
       <ProductRequestModal
         isOpen={requestModalState.isOpen}

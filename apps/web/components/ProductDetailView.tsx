@@ -142,14 +142,14 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
                 <div className="d-flex flex-wrap gap-2">
                   <button
                     type="button"
-                    className="btn btn-maze btn-lg px-4"
+                    className="btn btn-maze"
                     onClick={() => setModalState({ isOpen: true, type: "QUOTE" })}
                   >
                     <i className="bi bi-calculator me-2"></i>Request Quote
                   </button>
                   <button
                     type="button"
-                    className="btn btn-maze-outline btn-lg px-4"
+                    className="btn btn-maze-outline"
                     onClick={() => setModalState({ isOpen: true, type: "INSTALLATION" })}
                   >
                     <i className="bi bi-tools me-2"></i>Request Installation

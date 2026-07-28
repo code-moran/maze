@@ -39,6 +39,15 @@ export default function ProductRequestModal({
     setError("");
   }, [isOpen, initialProductName, initialCatLabel, defaultType]);
 
+  useEffect(() => {
+    if (isOpen && typeof document !== "undefined") {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   async function handleSubmit(e: FormEvent) {
@@ -91,12 +100,23 @@ export default function ProductRequestModal({
   return (
     <div
       className="modal fade show d-block"
-      style={{ background: "rgba(0, 0, 0, 0.65)", zIndex: 1080 }}
+      style={{
+        background: "rgba(0, 0, 0, 0.75)",
+        zIndex: 1090,
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        padding: "1rem 0.5rem",
+      }}
       tabIndex={-1}
       onClick={onClose}
     >
       <div
-        className="modal-dialog modal-dialog-centered modal-lg"
+        className="modal-dialog modal-dialog-centered modal-lg my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: 16, overflow: "hidden" }}>
