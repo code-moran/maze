@@ -63,6 +63,13 @@ export async function PUT(req: Request) {
     if (action === "change_password") {
       const { currentPassword, newPassword } = body;
 
+      if (!currentPassword) {
+        return NextResponse.json(
+          { ok: false, error: "Please enter your current password." },
+          { status: 400 }
+        );
+      }
+
       if (!newPassword || newPassword.length < 6) {
         return NextResponse.json(
           { ok: false, error: "New password must be at least 6 characters long." },
@@ -76,17 +83,29 @@ export async function PUT(req: Request) {
           process.env.ADMIN_DASHBOARD_SECRET ||
           "admin123";
 
-        const existing = await prisma.adminUser.findFirst({
-          where: {
-            OR: [{ email: currentSessionEmail }, { role: "ADMIN" }],
-          },
-        });
+        const userId = (session.user as unknown as { id?: string })?.id;
+        let existing = null;
+
+        if (userId && !userId.startsWith("env-") && !userId.startsWith("default-")) {
+          existing = await prisma.adminUser.findUnique({ where: { id: userId } });
+        }
+        if (!existing) {
+          existing = await prisma.adminUser.findFirst({
+            where: { email: currentSessionEmail },
+          });
+        }
 
         if (existing && existing.password) {
-          const isDbValid = verifyPassword(currentPassword || "", existing.password);
+          const isDbValid = verifyPassword(currentPassword, existing.password);
+          if (!isDbValid) {
+            return NextResponse.json(
+              { ok: false, error: "Incorrect current password. Please enter your valid current password." },
+              { status: 400 }
+            );
+          }
+        } else {
           const isEnvValid = (currentPassword || "").trim() === defaultAdminPassword.trim();
-
-          if (!isDbValid && !isEnvValid) {
+          if (!isEnvValid) {
             return NextResponse.json(
               { ok: false, error: "Incorrect current password." },
               { status: 400 }
