@@ -13,6 +13,7 @@ type Props = {
   data: SiteData;
   preview?: boolean;
   hideIntro?: boolean;
+  initialCategory?: string;
 };
 
 function setDocumentMeta(title?: string, description?: string) {
@@ -33,10 +34,11 @@ export default function ProductsBrowser({
   data,
   preview = false,
   hideIntro = false,
+  initialCategory,
 }: Props) {
   const router = useRouter();
 
-  const [currentFilter, setCurrentFilter] = useState("all");
+  const [currentFilter, setCurrentFilter] = useState(initialCategory || "all");
   const [currentSubFilter, setCurrentSubFilter] = useState("all");
   const [displayedCount, setDisplayedCount] = useState(PER_PAGE);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -102,7 +104,7 @@ export default function ProductsBrowser({
 
     const syncFromUrl = () => {
       const params = new URLSearchParams(window.location.search);
-      const cat = params.get("cat") || "all";
+      const cat = params.get("cat") || initialCategory || "all";
       const subcat = params.get("subcat") || "all";
       const productParam = params.get("product");
 
@@ -121,7 +123,7 @@ export default function ProductsBrowser({
     syncFromUrl();
     window.addEventListener("popstate", syncFromUrl);
     return () => window.removeEventListener("popstate", syncFromUrl);
-  }, [preview]);
+  }, [preview, initialCategory]);
 
   useEffect(() => {
     const modalEl = document.getElementById("productModal");
@@ -174,7 +176,9 @@ export default function ProductsBrowser({
     applyListingMeta(cat);
     if (!preview && typeof window !== "undefined") {
       const url =
-        cat === "all" ? "/products" : `/products?cat=${encodeURIComponent(cat)}`;
+        cat === "all"
+          ? "/products"
+          : `/products/category/${encodeURIComponent(cat)}`;
       window.history.pushState(null, "", url);
     }
     scrollToGrid();

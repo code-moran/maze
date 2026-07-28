@@ -128,7 +128,7 @@ export default function Navbar({ data }: { data: SiteData }) {
                   {categories.map((cat) => (
                     <Link
                       key={cat.id}
-                      href={`/products?cat=${cat.id}`}
+                      href={`/products/category/${cat.id}`}
                       className="dropdown-item products-menu-item"
                     >
                       <i className={`bi ${cat.icon} text-success`}></i>
@@ -231,7 +231,7 @@ export default function Navbar({ data }: { data: SiteData }) {
             {categories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/products?cat=${cat.id}`}
+                href={`/products/category/${cat.id}`}
                 onClick={closeMenu}
               >
                 {cat.label}
