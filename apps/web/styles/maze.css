@@ -348,8 +348,37 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
   font-size:1.1rem
 }
 
+.btn,
+.btn-maze,
+.btn-maze-outline,
+.cat-pill,
+a.btn,
+a.btn-maze,
+a.btn-maze-outline {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 128, 0, 0.2);
+  cursor: pointer;
+  position: relative;
+  z-index: 5;
+}
+
+@media (max-width: 768px) {
+  .btn-maze,
+  .btn-maze-outline,
+  a.btn-maze,
+  a.btn-maze-outline {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.4rem;
+    font-size: 0.98rem;
+    font-weight: 700;
+  }
+}
+
 .btn.btn-maze,
-.btn-maze  {
+.btn-maze {
   --bs-btn-color:#fff;
   --bs-btn-bg:var(--maze-green);
   --bs-btn-border-color:var(--maze-green);
@@ -377,7 +406,7 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
 .btn.btn-maze:active,
 .btn-maze:hover,
 .btn-maze:focus,
-.btn-maze:active  {
+.btn-maze:active {
   background-color:var(--maze-green-dark);
   background:var(--maze-green-dark);
   color:#fff;
@@ -385,7 +414,7 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
 }
 
 .btn.btn-maze-outline,
-.btn-maze-outline  {
+.btn-maze-outline {
   --bs-btn-color:var(--maze-green);
   --bs-btn-bg:transparent;
   --bs-btn-border-color:var(--maze-green);
@@ -412,7 +441,7 @@ body:has(.mobile-nav-check:checked) .mobile-menu-icon-close  {
 .btn.btn-maze-outline:active,
 .btn-maze-outline:hover,
 .btn-maze-outline:focus,
-.btn-maze-outline:active  {
+.btn-maze-outline:active {
   background-color:var(--maze-green);
   background:var(--maze-green);
   color:#fff;
