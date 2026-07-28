@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import ProductsBrowser from "@/components/ProductsBrowser";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
@@ -17,6 +16,7 @@ export default async function ProductsPage() {
   const data = await loadSiteContent();
   const intro = data.sections.productsIntro;
   const background =
+    intro.heroBackground ||
     data.heroBackgrounds?.[0] ||
     data.products.find((p) => p.imgs?.[0])?.imgs?.[0] ||
     "";
@@ -34,9 +34,7 @@ export default async function ProductsPage() {
           { href: "/services", label: "Installation", outline: true },
         ]}
       />
-      <Suspense fallback={null}>
-        <ProductsBrowser data={data} hideIntro />
-      </Suspense>
+      <ProductsBrowser data={data} hideIntro />
     </>
   );
 }

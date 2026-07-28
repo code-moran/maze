@@ -191,6 +191,10 @@ export async function loadSiteContent(): Promise<SiteData> {
         title: productsPage.title ?? merged.sections.productsIntro.title,
         subtitle:
           productsPage.subtitle ?? merged.sections.productsIntro.subtitle,
+        heroBackground:
+          productsPage.heroBackground ??
+          merged.sections.productsIntro.heroBackground ??
+          "",
       };
     }
 

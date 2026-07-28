@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import BreadcrumbBar from "@/components/BreadcrumbBar";
+import PageHero from "@/components/PageHero";
 import ServicesSection from "@/components/ServicesSection";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
@@ -14,12 +14,24 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ServicesPage() {
   const data = await loadSiteContent();
+  const intro = data.sections.servicesIntro;
+  const background = data.heroBackgrounds[1] || data.heroBackgrounds[0] || "";
 
   return (
     <>
-      <BreadcrumbBar current="Installation Services" />
+      <PageHero
+        label={intro.label || "OUR SERVICES"}
+        title={intro.title || "Professional Installation & Setup"}
+        subtitle={intro.subtitle}
+        backgroundImage={background}
+        crumbs={[{ label: "Services" }]}
+        ctas={[
+          { href: "/contact", label: "Request Installation" },
+          { href: "/products", label: "Browse Products", outline: true },
+        ]}
+      />
       <ServicesSection
-        intro={data.sections.servicesIntro}
+        intro={intro}
         charges={data.serviceCharges}
       />
     </>

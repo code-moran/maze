@@ -106,4 +106,21 @@ export function findProduct(
   return data.products.find((product) => product.id === id);
 }
 
+export function getProductSlug(product: Product): string {
+  if (product.slug) {
+    return slugify(product.slug);
+  }
+  return slugify(product.name);
+}
+
+export function getProductBySlug(
+  slug: string,
+  data: SiteData = getSiteData()
+): Product | undefined {
+  const norm = slugify(slug);
+  return data.products.find(
+    (product) => getProductSlug(product) === norm || String(product.id) === norm
+  );
+}
+
 export { CATEGORY_ICONS, CATEGORY_ORDER };

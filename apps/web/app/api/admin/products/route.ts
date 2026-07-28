@@ -2,7 +2,7 @@ import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonOk({ products: [], categories: [] });
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
   return jsonOk({
     products: products.map((p) => ({
       id: p.legacyId,
+      slug: p.slug || undefined,
       name: p.name,
       cat: p.category.key,
       catLabel: p.catLabel,
@@ -47,7 +48,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);
@@ -63,11 +64,13 @@ export async function POST(request: Request) {
 
   const max = await prisma.product.aggregate({ _max: { legacyId: true } });
   const legacyId = (max._max.legacyId || 0) + 1;
+  const slug = body.slug ? String(body.slug).trim() : null;
 
   const product = await prisma.product.create({
     data: {
       legacyId,
       name: String(body.name),
+      slug,
       catLabel: String(body.catLabel || category.title),
       subCat: String(body.subCat || ""),
       shortDesc: String(body.shortDesc || ""),
@@ -85,6 +88,7 @@ export async function POST(request: Request) {
   return jsonOk({
     product: {
       id: product.legacyId,
+      slug: product.slug || undefined,
       name: product.name,
       cat: product.category.key,
       catLabel: product.catLabel,
@@ -101,7 +105,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);
@@ -116,10 +120,13 @@ export async function PUT(request: Request) {
   });
   if (!category) return jsonError("Unknown category");
 
+  const slug = body.slug ? String(body.slug).trim() : null;
+
   const product = await prisma.product.update({
     where: { legacyId: id },
     data: {
       name: String(body.name || ""),
+      slug,
       catLabel: String(body.catLabel || category.title),
       subCat: String(body.subCat || ""),
       shortDesc: String(body.shortDesc || ""),
@@ -137,6 +144,7 @@ export async function PUT(request: Request) {
   return jsonOk({
     product: {
       id: product.legacyId,
+      slug: product.slug || undefined,
       name: product.name,
       cat: product.category.key,
       catLabel: product.catLabel,
@@ -153,7 +161,7 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const denied = requireAdmin(request);
+  const denied = await requireAdmin(request);
   if (denied) return denied;
   if (!isDatabaseConfigured() || !prisma) {
     return jsonError("Database is not configured", 503);

@@ -4,7 +4,7 @@ import { prisma, isDatabaseConfigured } from "@/lib/prisma";
 import { isAdminRequestAuthorized } from "@/lib/admin/auth";
 
 const rateMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 5;
+const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 
 function clientIp(request: Request): string {
@@ -48,13 +48,29 @@ export async function POST(request: Request) {
     const email = String(body?.email || "").trim();
     const subject = String(body?.subject || "").trim();
     const message = String(body?.message || "").trim();
+    const type = String(body?.type || "GENERAL").trim().toUpperCase();
+    const productName = body?.productName ? String(body.productName).trim() : null;
+    const serviceType = body?.serviceType ? String(body.serviceType).trim() : null;
+    const preferredDate = body?.preferredDate ? String(body.preferredDate).trim() : null;
+    const location = body?.location ? String(body.location).trim() : null;
 
-    if (!name || !phone || !subject || !message) {
+    if (!name || !phone) {
       return NextResponse.json(
-        { ok: false, error: "Missing required fields" },
+        { ok: false, error: "Name and Phone number are required." },
         { status: 400 }
       );
     }
+
+    const enquiryType =
+      type === "QUOTE" ? "QUOTE" : type === "INSTALLATION" ? "INSTALLATION" : "GENERAL";
+
+    const finalSubject =
+      subject ||
+      (enquiryType === "QUOTE"
+        ? `Quote Request: ${productName || "Product"}`
+        : enquiryType === "INSTALLATION"
+        ? `Installation Request: ${serviceType || productName || "Service"}`
+        : "General Enquiry");
 
     if (isDatabaseConfigured() && prisma) {
       await prisma.enquiry.create({
@@ -62,17 +78,15 @@ export async function POST(request: Request) {
           name,
           phone,
           email: email || null,
-          subject,
+          subject: finalSubject,
           message,
+          type: enquiryType,
+          productName,
+          serviceType,
+          preferredDate,
+          location,
           status: "New",
         },
-      });
-    } else {
-      console.info("[enquiries] No database — logged only:", {
-        name,
-        phone,
-        email,
-        subject,
       });
     }
 
@@ -81,12 +95,17 @@ export async function POST(request: Request) {
       await resend.emails.send({
         from: process.env.RESEND_FROM || "Maze <onboarding@resend.dev>",
         to: process.env.ADMIN_EMAIL,
-        subject: `New enquiry: ${subject}`,
+        subject: `New ${enquiryType} request: ${finalSubject}`,
         text: [
+          `Type: ${enquiryType}`,
           `Name: ${name}`,
           `Phone: ${phone}`,
           `Email: ${email || "(none)"}`,
-          `Subject: ${subject}`,
+          `Product: ${productName || "(none)"}`,
+          `Service: ${serviceType || "(none)"}`,
+          `Location: ${location || "(none)"}`,
+          `Preferred Date: ${preferredDate || "(none)"}`,
+          `Subject: ${finalSubject}`,
           "",
           message,
         ].join("\n"),
@@ -97,7 +116,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[enquiries]", error);
     return NextResponse.json(
-      { ok: false, error: "Unable to save enquiry" },
+      { ok: false, error: "Unable to save request" },
       { status: 500 }
     );
   }
@@ -125,6 +144,11 @@ export async function GET(request: Request) {
       email: row.email,
       subject: row.subject,
       message: row.message,
+      type: row.type || "GENERAL",
+      productName: row.productName,
+      serviceType: row.serviceType,
+      preferredDate: row.preferredDate,
+      location: row.location,
       status: row.status,
       created_at: row.createdAt,
     })),

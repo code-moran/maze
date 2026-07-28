@@ -161,6 +161,11 @@ export async function loadSiteContent(): Promise<SiteData> {
         label: productsPage.label,
         title: productsPage.title,
         subtitle: productsPage.subtitle,
+        heroBackground:
+          productsPage.heroBackground ||
+          merged.sections.productsIntro.heroBackground ||
+          merged.heroBackgrounds[0] ||
+          "",
       };
     }
 
@@ -186,6 +191,7 @@ export async function loadSiteContent(): Promise<SiteData> {
     if (products.length) {
       merged.products = products.map((p) => ({
         id: p.legacyId,
+        slug: p.slug || undefined,
         name: p.name,
         cat: p.category.key,
         catLabel: p.catLabel,

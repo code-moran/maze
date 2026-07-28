@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import BreadcrumbBar from "@/components/BreadcrumbBar";
 import LocationSection from "@/components/LocationSection";
+import PageHero from "@/components/PageHero";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,10 +14,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LocationPage() {
   const data = await loadSiteContent();
+  const background = data.heroBackgrounds[0] || "";
 
   return (
     <>
-      <BreadcrumbBar current="Location" />
+      <PageHero
+        label="FIND US"
+        title="Our Office & Location"
+        subtitle={data.generalSettings.location || "Visit our physical store and service center."}
+        backgroundImage={background}
+        crumbs={[{ label: "Location" }]}
+      />
       <LocationSection
         settings={data.generalSettings}
         footer={data.footer}

@@ -58,6 +58,7 @@ export type ProductsIntro = {
   label: string;
   title: string;
   subtitle: string;
+  heroBackground: string;
 };
 
 export type ServicesIntro = {
@@ -85,6 +86,7 @@ export type ContactIntro = {
 
 export type Product = {
   id: number;
+  slug?: string;
   name: string;
   cat: string;
   catLabel: string;

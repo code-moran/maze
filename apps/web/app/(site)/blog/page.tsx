@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import BlogGrid from "@/components/BlogGrid";
-import BreadcrumbBar from "@/components/BreadcrumbBar";
+import PageHero from "@/components/PageHero";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,10 +14,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlogPage() {
   const data = await loadSiteContent();
+  const background = data.blogs[0]?.image || data.heroBackgrounds[0] || "";
 
   return (
     <>
-      <BreadcrumbBar current="Blog" />
+      <PageHero
+        label="MAZE BLOG"
+        title="Latest News & Expert Articles"
+        subtitle="Insights on TV mounting, security camera placement, and solar installation."
+        backgroundImage={background}
+        crumbs={[{ label: "Blog" }]}
+      />
       <BlogGrid posts={data.blogs} />
     </>
   );

@@ -34,10 +34,17 @@ export default function Navbar({ data }: { data: SiteData }) {
     ) as HTMLInputElement | null;
     if (about) about.checked = false;
     if (products) products.checked = false;
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
   };
 
   useEffect(() => {
     closeMenu();
+    return () => {
+      closeMenu();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
@@ -163,6 +170,7 @@ export default function Navbar({ data }: { data: SiteData }) {
         htmlFor={menuId}
         className="mobile-menu-backdrop"
         aria-label="Close menu"
+        onClick={closeMenu}
       />
       <aside id="mobileMenu" className="mobile-menu-drawer" aria-label="Mobile">
         <div className="mobile-menu-header">
@@ -175,15 +183,16 @@ export default function Navbar({ data }: { data: SiteData }) {
             htmlFor={menuId}
             className="mobile-menu-close"
             aria-label="Close"
+            onClick={closeMenu}
           >
             <i className="bi bi-x-lg"></i>
           </label>
         </div>
 
         <nav className="mobile-menu-body">
-          <a href="/" className="mobile-menu-link" onClick={closeMenu}>
+          <Link href="/" className="mobile-menu-link" onClick={closeMenu}>
             Home
-          </a>
+          </Link>
 
           <input
             id={aboutId}
@@ -195,15 +204,15 @@ export default function Navbar({ data }: { data: SiteData }) {
             <i className="bi bi-chevron-down"></i>
           </label>
           <div className="mobile-menu-sub">
-            <a href="/about" onClick={closeMenu}>
+            <Link href="/about" onClick={closeMenu}>
               About Maze
-            </a>
-            <a href="/blog" onClick={closeMenu}>
+            </Link>
+            <Link href="/blog" onClick={closeMenu}>
               Blog
-            </a>
-            <a href="/location" onClick={closeMenu}>
+            </Link>
+            <Link href="/location" onClick={closeMenu}>
               Location
-            </a>
+            </Link>
           </div>
 
           <input
@@ -216,29 +225,29 @@ export default function Navbar({ data }: { data: SiteData }) {
             <i className="bi bi-chevron-down"></i>
           </label>
           <div className="mobile-menu-sub">
-            <a href="/products" onClick={closeMenu}>
+            <Link href="/products" onClick={closeMenu}>
               All Products
-            </a>
+            </Link>
             {categories.map((cat) => (
-              <a
+              <Link
                 key={cat.id}
                 href={`/products?cat=${cat.id}`}
                 onClick={closeMenu}
               >
                 {cat.label}
-              </a>
+              </Link>
             ))}
           </div>
 
-          <a href="/services" className="mobile-menu-link" onClick={closeMenu}>
+          <Link href="/services" className="mobile-menu-link" onClick={closeMenu}>
             Installation Services
-          </a>
-          <a href="/contact" className="mobile-menu-link" onClick={closeMenu}>
+          </Link>
+          <Link href="/contact" className="mobile-menu-link" onClick={closeMenu}>
             Contact Us
-          </a>
+          </Link>
 
           <div className="mobile-menu-cta">
-            <a href={telHref(phone)} className="btn btn-maze w-100">
+            <a href={telHref(phone)} className="btn btn-maze w-100" onClick={closeMenu}>
               <i className="bi bi-telephone-fill me-2"></i>
               {phone}
             </a>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import BreadcrumbBar from "@/components/BreadcrumbBar";
 import ContactForm from "@/components/ContactForm";
+import PageHero from "@/components/PageHero";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,12 +14,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContactPage() {
   const data = await loadSiteContent();
+  const intro = data.sections.contactIntro;
+  const background = data.heroBackgrounds[2] || data.heroBackgrounds[0] || "";
 
   return (
     <>
-      <BreadcrumbBar current="Contact" />
+      <PageHero
+        label={intro.label || "GET IN TOUCH"}
+        title={intro.title || "Contact Our Support & Sales Team"}
+        subtitle={intro.subtitle}
+        backgroundImage={background}
+        crumbs={[{ label: "Contact" }]}
+      />
       <ContactForm
-        intro={data.sections.contactIntro}
+        intro={intro}
         settings={data.generalSettings}
       />
     </>

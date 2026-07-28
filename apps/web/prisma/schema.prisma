@@ -76,11 +76,12 @@ model ContactContent {
 }
 
 model ProductsPageContent {
-  id        String @id @default("default")
-  label     String @default("")
-  title     String @default("")
-  subtitle  String @default("") @db.Text
-  updatedAt DateTime @updatedAt
+  id             String @id @default("default")
+  label          String @default("")
+  title          String @default("")
+  subtitle       String @default("") @db.Text
+  heroBackground String @default("")
+  updatedAt      DateTime @updatedAt
 }
 
 model Category {
@@ -115,6 +116,7 @@ model Product {
   id             String   @id @default(cuid())
   legacyId       Int      @unique
   name           String
+  slug           String?
   catLabel       String   @default("")
   subCat         String   @default("")
   shortDesc      String   @default("") @db.Text
@@ -176,14 +178,30 @@ model SectionSeo {
 }
 
 model Enquiry {
-  id        Int      @id @default(autoincrement())
-  name      String
-  phone     String
-  email     String?
-  subject   String
-  message   String   @db.Text
-  status    String   @default("New")
-  createdAt DateTime @default(now()) @map("created_at")
+  id            Int      @id @default(autoincrement())
+  name          String
+  phone         String
+  email         String?
+  subject       String
+  message       String   @db.Text
+  type          String   @default("GENERAL")
+  productName   String?
+  serviceType   String?
+  preferredDate String?
+  location      String?
+  status        String   @default("New")
+  createdAt     DateTime @default(now()) @map("created_at")
 
   @@map("enquiries")
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  image     String?
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

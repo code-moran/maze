@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getProductCategories } from "@/data/siteData";
+import { getProductCategories, getProductSlug } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
+import ProductRequestModal from "@/components/ProductRequestModal";
 
 const PER_PAGE = 8;
 
@@ -33,18 +34,20 @@ export default function ProductsBrowser({
   preview = false,
   hideIntro = false,
 }: Props) {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const initialCat = searchParams.get("cat") || "all";
-  const productParam = searchParams.get("product");
 
-  const [currentFilter, setCurrentFilter] = useState(
-    preview ? "all" : initialCat
-  );
+  const [currentFilter, setCurrentFilter] = useState("all");
   const [currentSubFilter, setCurrentSubFilter] = useState("all");
   const [displayedCount, setDisplayedCount] = useState(PER_PAGE);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [mainImg, setMainImg] = useState("");
+  const [requestModalState, setRequestModalState] = useState<{
+    isOpen: boolean;
+    type: "QUOTE" | "INSTALLATION";
+  }>({
+    isOpen: false,
+    type: "QUOTE",
+  });
 
   const products = data.products;
   const categories = getProductCategories(data);
@@ -72,15 +75,6 @@ export default function ProductsBrowser({
     [data.categorySeo, data.sectionSeo.products, data.siteMeta, preview]
   );
 
-  useEffect(() => {
-    if (preview) return;
-    const cat = searchParams.get("cat") || "all";
-    setCurrentFilter(cat);
-    setCurrentSubFilter("all");
-    setDisplayedCount(PER_PAGE);
-    if (!searchParams.get("product")) applyListingMeta(cat);
-  }, [searchParams, preview, applyListingMeta]);
-
   const openProduct = useCallback(
     (id: number) => {
       const product = products.find((item) => item.id === id);
@@ -104,10 +98,30 @@ export default function ProductsBrowser({
   );
 
   useEffect(() => {
-    if (preview || !productParam) return;
-    const id = Number(productParam);
-    if (!Number.isNaN(id)) openProduct(id);
-  }, [productParam, preview, openProduct]);
+    if (preview || typeof window === "undefined") return;
+
+    const syncFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get("cat") || "all";
+      const subcat = params.get("subcat") || "all";
+      const productParam = params.get("product");
+
+      setCurrentFilter(cat);
+      setCurrentSubFilter(subcat);
+      setDisplayedCount(PER_PAGE);
+
+      if (productParam) {
+        const id = Number(productParam);
+        if (!Number.isNaN(id)) openProduct(id);
+      } else {
+        applyListingMeta(cat);
+      }
+    };
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [preview]);
 
   useEffect(() => {
     const modalEl = document.getElementById("productModal");
@@ -146,21 +160,38 @@ export default function ProductsBrowser({
     );
   }, [currentFilter, currentSubFilter, data.categorySeo, intro.subtitle]);
 
+  const scrollToGrid = () => {
+    if (typeof window !== "undefined") {
+      const grid = document.getElementById("productsGridWrap") || document.getElementById("products");
+      grid?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   const filterProducts = (cat: string) => {
     setCurrentFilter(cat);
     setCurrentSubFilter("all");
     setDisplayedCount(PER_PAGE);
     applyListingMeta(cat);
-    if (!preview) {
+    if (!preview && typeof window !== "undefined") {
       const url =
         cat === "all" ? "/products" : `/products?cat=${encodeURIComponent(cat)}`;
-      router.replace(url, { scroll: false });
+      window.history.pushState(null, "", url);
     }
+    scrollToGrid();
   };
 
   const filterSubCategory = (subCatId: string) => {
-    setCurrentSubFilter(subCatId || "all");
+    const nextSub = subCatId || "all";
+    setCurrentSubFilter(nextSub);
     setDisplayedCount(PER_PAGE);
+    if (!preview && typeof window !== "undefined") {
+      const url =
+        nextSub === "all"
+          ? `/products?cat=${encodeURIComponent(currentFilter)}`
+          : `/products?cat=${encodeURIComponent(currentFilter)}&subcat=${encodeURIComponent(nextSub)}`;
+      window.history.pushState(null, "", url);
+    }
+    scrollToGrid();
   };
 
   const goToContact = () => {
@@ -180,10 +211,7 @@ export default function ProductsBrowser({
     }
   };
 
-  const showSidebar =
-    !preview &&
-    currentFilter !== "all" &&
-    currentSubFilter !== "all";
+  const showSidebar = !preview && currentFilter !== "all";
 
   const subItems =
     currentFilter !== "all"
@@ -224,8 +252,25 @@ export default function ProductsBrowser({
           className="d-flex flex-wrap justify-content-center gap-2 mb-4"
           id="catFilters"
         >
+          <button
+            type="button"
+            className={`cat-pill${
+              !preview && currentFilter === "all" ? " active" : ""
+            }`}
+            onClick={() => {
+              if (preview) {
+                router.push("/products");
+              } else {
+                filterProducts("all");
+              }
+            }}
+          >
+            <i className="bi bi-grid-fill me-1"></i>
+            All Products
+          </button>
           {categories.map((cat) => (
-            <span
+            <button
+              type="button"
               key={cat.id}
               className={`cat-pill${
                 !preview && currentFilter === cat.id ? " active" : ""
@@ -237,20 +282,10 @@ export default function ProductsBrowser({
                   filterProducts(cat.id);
                 }
               }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key !== "Enter") return;
-                if (preview) {
-                  router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
-                } else {
-                  filterProducts(cat.id);
-                }
-              }}
             >
               <i className={`bi ${cat.icon} me-1`}></i>
               {cat.label}
-            </span>
+            </button>
           ))}
         </div>
 
@@ -264,34 +299,32 @@ export default function ProductsBrowser({
                 {data.categorySeo[currentFilter]?.title || "Sub Products"}
               </h5>
               <div id="subCatFilters">
-                <span
+                <button
+                  type="button"
                   className={`subcat-pill${
                     currentSubFilter === "all" ? " active" : ""
                   }`}
                   onClick={() => filterSubCategory("all")}
-                  role="button"
-                  tabIndex={0}
                 >
                   <span>All Sub Products</span>
                   <span className="subcat-count">{categoryProducts.length}</span>
-                </span>
+                </button>
                 {subItems.map((item) => {
                   const count = categoryProducts.filter(
                     (p) => p.subCat === item.id
                   ).length;
                   return (
-                    <span
+                    <button
+                      type="button"
                       key={item.id}
                       className={`subcat-pill${
                         currentSubFilter === item.id ? " active" : ""
                       }`}
                       onClick={() => filterSubCategory(item.id)}
-                      role="button"
-                      tabIndex={0}
                     >
                       <span>{item.label}</span>
                       <span className="subcat-count">{count}</span>
-                    </span>
+                    </button>
                   );
                 })}
               </div>
@@ -389,75 +422,48 @@ export default function ProductsBrowser({
                     </div>
                   );
                 })
-              ) : currentSubFilter === "all" ? (
-                <div className="col-12">
-                  <div className="subproduct-browser">
-                    <div className="subproduct-browser-title">
-                      {data.categorySeo[currentFilter]?.title || "Sub Products"}
-                    </div>
-                    <div className="subproduct-browser-list">
-                      {subItems.map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          className="subproduct-browser-link"
-                          onClick={() => filterSubCategory(item.id)}
-                        >
-                          <i className="bi bi-caret-right-fill"></i>
-                          <span>{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
               ) : visibleProducts.length === 0 ? (
                 <div className="col-12">
                   <div className="empty-state">No products found.</div>
                 </div>
               ) : (
-                visibleProducts.map((product) => (
-                  <div key={product.id} className="col-sm-6 col-lg-3">
-                    <div
-                      className="product-card h-100"
-                      onClick={() => openProduct(product.id)}
-                      style={{ cursor: "pointer" }}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div className="card-img-wrap">
-                        <img
-                          src={product.imgs[0]}
-                          alt={product.name}
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="card-body">
-                        <span className="badge-cat mb-2 d-inline-block">
-                          {product.catLabel}
-                        </span>
-                        <div className="card-title">{product.name}</div>
-                        <p className="card-text">{product.shortDesc}</p>
-                        <button
-                          className="btn btn-maze w-100 btn-sm"
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openProduct(product.id);
-                          }}
-                        >
-                          View Details{" "}
-                          <i className="bi bi-arrow-right ms-1"></i>
-                        </button>
-                      </div>
+                visibleProducts.map((product) => {
+                  const slug = getProductSlug(product);
+                  return (
+                    <div key={product.id} className="col-6 col-md-6 col-lg-4">
+                      <Link
+                        href={`/products/${slug}`}
+                        className="text-decoration-none text-dark d-block h-100"
+                      >
+                        <div className="product-card h-100">
+                          <div className="card-img-wrap">
+                            <img
+                              src={product.imgs[0]}
+                              alt={product.name}
+                              loading="lazy"
+                            />
+                          </div>
+                          <div className="card-body">
+                            <span className="badge-cat mb-2 d-inline-block">
+                              {product.catLabel}
+                            </span>
+                            <div className="card-title">{product.name}</div>
+                            <p className="card-text">{product.shortDesc}</p>
+                            <span className="btn btn-maze w-100 btn-sm">
+                              View Details{" "}
+                              <i className="bi bi-arrow-right ms-1"></i>
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
             {!preview &&
             currentFilter !== "all" &&
-            currentSubFilter !== "all" &&
             displayedCount < filtered.length ? (
               <div className="text-center mt-4">
                 <button
@@ -559,21 +565,24 @@ export default function ProductsBrowser({
                         <li key={feature}>{feature}</li>
                       ))}
                     </ul>
-                    <div className="d-flex flex-wrap gap-2 mt-3">
-                      <button
-                        type="button"
-                        className="btn btn-maze"
-                        onClick={goToContact}
-                      >
-                        <i className="bi bi-tools me-2"></i>Request Installation
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-maze-outline"
-                        onClick={goToContact}
-                      >
-                        <i className="bi bi-chat-dots me-2"></i>Enquire Now
-                      </button>
+                    {/* Request Quote / Installation Action Buttons */}
+                    <div className="p-3 bg-light rounded border mt-3">
+                      <div className="d-flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-maze btn-sm px-3"
+                          onClick={() => setRequestModalState({ isOpen: true, type: "QUOTE" })}
+                        >
+                          <i className="bi bi-calculator me-1"></i>Request Quote
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-maze-outline btn-sm px-3"
+                          onClick={() => setRequestModalState({ isOpen: true, type: "INSTALLATION" })}
+                        >
+                          <i className="bi bi-tools me-1"></i>Request Installation
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -618,6 +627,14 @@ export default function ProductsBrowser({
           </div>
         </div>
       </div>
+
+      <ProductRequestModal
+        isOpen={requestModalState.isOpen}
+        onClose={() => setRequestModalState((prev) => ({ ...prev, isOpen: false }))}
+        productName={selectedProduct?.name}
+        catLabel={selectedProduct?.catLabel}
+        defaultType={requestModalState.type}
+      />
     </section>
   );
 }

@@ -857,6 +857,13 @@ window.addEventListener("hashchange", () => {
 
 window.addEventListener("maze-data-updated", hydrateSite);
 
+// Re-hydrate when dashboard saves from another tab (native storage event fires cross-tab)
+window.addEventListener("storage", (event) => {
+  if (event.key === window.MazeContent.STORAGE_KEY) {
+    hydrateSite();
+  }
+});
+
 initSearch();
 initHeroCarousel();
 initDesktopDropdownHover();
