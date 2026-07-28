@@ -18,7 +18,9 @@ export default function ProductRequestModal({
   defaultType = "QUOTE",
 }: Props) {
   const [requestType, setRequestType] = useState<"QUOTE" | "INSTALLATION">(defaultType);
-  const [targetProduct, setTargetProduct] = useState(initialProductName);
+  const [targetProduct, setTargetProduct] = useState(
+    initialProductName || initialCatLabel || ""
+  );
   const [serviceType, setServiceType] = useState(initialCatLabel);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -33,7 +35,7 @@ export default function ProductRequestModal({
 
   useEffect(() => {
     setRequestType(defaultType);
-    setTargetProduct(initialProductName);
+    setTargetProduct(initialProductName || initialCatLabel || "");
     setServiceType(initialCatLabel);
     setSuccess(false);
     setError("");
@@ -121,13 +123,13 @@ export default function ProductRequestModal({
       >
         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: 16, overflow: "hidden" }}>
           {/* Header */}
-          <div className="modal-header border-bottom p-3 bg-light">
+          <div className="modal-header border-bottom p-3 bg-light d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-2">
               <div
                 className="rounded-circle d-flex align-items-center justify-content-center"
                 style={{
-                  width: 38,
-                  height: 38,
+                  width: 40,
+                  height: 40,
                   background: requestType === "QUOTE" ? "#fff3cd" : "#cff4fc",
                   color: requestType === "QUOTE" ? "#664d03" : "#055160",
                 }}
@@ -135,14 +137,12 @@ export default function ProductRequestModal({
                 <i className={`bi ${requestType === "QUOTE" ? "bi-calculator-fill" : "bi-tools"} fs-5`}></i>
               </div>
               <div>
-                <h5 className="modal-title fw-bold fs-6 mb-0">
+                <h5 className="modal-title fw-bold fs-6 mb-0 text-dark">
                   {requestType === "QUOTE" ? "Request a Product Quote" : "Book Installation Service"}
                 </h5>
-                {initialProductName ? (
-                  <span className="small text-secondary">Target: {initialProductName}</span>
-                ) : (
-                  <span className="small text-secondary">Maze Tech Support & Services</span>
-                )}
+                <span className="small text-secondary">
+                  {targetProduct ? `Item / Service: ${targetProduct}` : "Maze Technology Support & Quotes"}
+                </span>
               </div>
             </div>
             <button
@@ -153,15 +153,18 @@ export default function ProductRequestModal({
             ></button>
           </div>
 
-          {/* Type Toggle Tabs */}
+          {/* Type Toggle Tabs with High Contrast Visible Active Buttons */}
           <div className="px-4 pt-3 pb-0 bg-white border-bottom">
             <div className="nav nav-pills nav-fill gap-2" role="tablist">
               <button
                 type="button"
-                className={`nav-link py-2 fw-semibold ${
-                  requestType === "QUOTE" ? "active btn-maze" : "btn-outline-secondary text-dark"
-                }`}
-                style={requestType === "QUOTE" ? { background: "var(--maze-green)", color: "#fff" } : {}}
+                className="nav-link py-2 fw-bold"
+                style={{
+                  backgroundColor: requestType === "QUOTE" ? "#146c43" : "#f8f9fa",
+                  color: requestType === "QUOTE" ? "#ffffff" : "#212529",
+                  border: requestType === "QUOTE" ? "1px solid #146c43" : "1px solid #dee2e6",
+                  borderRadius: "8px",
+                }}
                 onClick={() => {
                   setRequestType("QUOTE");
                   setSuccess(false);
@@ -171,10 +174,13 @@ export default function ProductRequestModal({
               </button>
               <button
                 type="button"
-                className={`nav-link py-2 fw-semibold ${
-                  requestType === "INSTALLATION" ? "active btn-maze" : "btn-outline-secondary text-dark"
-                }`}
-                style={requestType === "INSTALLATION" ? { background: "var(--maze-green)", color: "#fff" } : {}}
+                className="nav-link py-2 fw-bold"
+                style={{
+                  backgroundColor: requestType === "INSTALLATION" ? "#146c43" : "#f8f9fa",
+                  color: requestType === "INSTALLATION" ? "#ffffff" : "#212529",
+                  border: requestType === "INSTALLATION" ? "1px solid #146c43" : "1px solid #dee2e6",
+                  borderRadius: "8px",
+                }}
                 onClick={() => {
                   setRequestType("INSTALLATION");
                   setSuccess(false);
@@ -210,27 +216,31 @@ export default function ProductRequestModal({
                 {error ? <div className="alert alert-danger small mb-3">{error}</div> : null}
 
                 <div className="row g-3">
-                  {!initialProductName ? (
-                    <div className="col-md-6">
-                      <label className="form-label small fw-semibold">Product or Service Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={targetProduct}
-                        onChange={(e) => setTargetProduct(e.target.value)}
-                        placeholder="e.g. Full-Motion TV Wall Mount, Solar Flood Light"
-                      />
-                    </div>
-                  ) : null}
+                  <div className="col-12">
+                    <label className="form-label small fw-semibold">
+                      Target Product / Service Name *
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={targetProduct}
+                      onChange={(e) => setTargetProduct(e.target.value)}
+                      placeholder="e.g. TV Wall Mount, Solar Outdoor Lights, Fridge Guard, TV Installation"
+                      required
+                    />
+                    <small className="form-text text-secondary">
+                      Specify the item or service you want a quote or installation for.
+                    </small>
+                  </div>
 
-                  <div className={initialProductName ? "col-md-6" : "col-md-6"}>
+                  <div className="col-md-6">
                     <label className="form-label small fw-semibold">Your Full Name *</label>
                     <input
                       type="text"
                       className="form-control"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. John Moran"
+                      placeholder="e.g. Jane Doe"
                       required
                     />
                   </div>
