@@ -339,82 +339,35 @@ export default function ProductsBrowser({
                   );
                   const previewImage = categoryProductsList[0]?.imgs?.[0] || "";
 
-                  const href = `/products?cat=${cat.id}`;
-                  const goToCategory = () => {
-                    if (preview) router.push(href);
-                    else filterProducts(cat.id);
-                  };
+                  const href = `/products/category/${cat.id}`;
 
                   return (
                     <div key={cat.id} className="col-md-6 col-xl-3">
-                      {preview ? (
-                        <Link href={href} className="product-category-card text-decoration-none text-dark d-block">
-                          <div className="product-category-image">
-                            {previewImage ? (
-                              <img
-                                src={previewImage}
-                                alt={cat.label}
-                                loading="lazy"
-                              />
-                            ) : null}
-                          </div>
-                          <div className="card-body">
-                            <span className="badge-cat mb-2 d-inline-block">
-                              <i className={`bi ${cat.icon} me-1`}></i>
-                              {cat.label}
-                            </span>
-                            <div className="card-title">{cat.label}</div>
-                            <p className="card-text text-secondary small">
-                              {cat.description}
-                            </p>
-                            <span className="btn btn-maze w-100 btn-sm">
-                              View Products{" "}
-                              <i className="bi bi-arrow-right ms-1"></i>
-                            </span>
-                          </div>
-                        </Link>
-                      ) : (
-                        <div
-                          className="product-category-card"
-                          onClick={goToCategory}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") goToCategory();
-                          }}
-                        >
-                          <div className="product-category-image">
-                            {previewImage ? (
-                              <img
-                                src={previewImage}
-                                alt={cat.label}
-                                loading="lazy"
-                              />
-                            ) : null}
-                          </div>
-                          <div className="card-body">
-                            <span className="badge-cat mb-2 d-inline-block">
-                              <i className={`bi ${cat.icon} me-1`}></i>
-                              {cat.label}
-                            </span>
-                            <div className="card-title">{cat.label}</div>
-                            <p className="card-text text-secondary small">
-                              {cat.description}
-                            </p>
-                            <button
-                              className="btn btn-maze w-100 btn-sm"
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                goToCategory();
-                              }}
-                            >
-                              View Products{" "}
-                              <i className="bi bi-arrow-right ms-1"></i>
-                            </button>
-                          </div>
+                      <Link href={href} className="product-category-card text-decoration-none text-dark d-block h-100">
+                        <div className="product-category-image">
+                          {previewImage ? (
+                            <img
+                              src={previewImage}
+                              alt={cat.label}
+                              loading="lazy"
+                            />
+                          ) : null}
                         </div>
-                      )}
+                        <div className="card-body">
+                          <span className="badge-cat mb-2 d-inline-block">
+                            <i className={`bi ${cat.icon} me-1`}></i>
+                            {cat.label}
+                          </span>
+                          <div className="card-title">{cat.label}</div>
+                          <p className="card-text text-secondary small">
+                            {cat.description}
+                          </p>
+                          <span className="btn btn-maze w-100 btn-sm text-white d-inline-flex align-items-center justify-content-center">
+                            View Products{" "}
+                            <i className="bi bi-arrow-right ms-1"></i>
+                          </span>
+                        </div>
+                      </Link>
                     </div>
                   );
                 })
@@ -584,20 +537,18 @@ export default function ProductsBrowser({
                     {/* Request Quote / Installation Action Buttons */}
                     <div className="p-3 bg-light rounded border mt-3">
                       <div className="d-flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          className="btn btn-maze btn-sm px-3"
-                          onClick={() => setRequestModalState({ isOpen: true, type: "QUOTE" })}
+                        <Link
+                          href={`/request?type=QUOTE&product=${encodeURIComponent(selectedProduct.name)}&cat=${encodeURIComponent(selectedProduct.catLabel)}`}
+                          className="btn btn-maze btn-sm px-3 text-white text-decoration-none"
                         >
-                          <i className="bi bi-calculator me-1"></i>Request Quote
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-maze-outline btn-sm px-3"
-                          onClick={() => setRequestModalState({ isOpen: true, type: "INSTALLATION" })}
+                          <i className="bi bi-calculator me-1 text-white"></i>Request Quote
+                        </Link>
+                        <Link
+                          href={`/request?type=INSTALLATION&product=${encodeURIComponent(selectedProduct.name)}&cat=${encodeURIComponent(selectedProduct.catLabel)}`}
+                          className="btn btn-maze-outline btn-sm px-3 text-decoration-none"
                         >
                           <i className="bi bi-tools me-1"></i>Request Installation
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </div>

@@ -92,25 +92,22 @@ export default function PageHero({
               const isInstall = cta.label.toLowerCase().includes("install");
 
               if (isQuote || isInstall) {
+                const targetType = isInstall ? "INSTALLATION" : "QUOTE";
+                const requestUrl = `/request?type=${targetType}&product=${encodeURIComponent(title)}&cat=${encodeURIComponent(label || title)}`;
+
                 return (
-                  <button
+                  <Link
                     key={cta.label}
-                    type="button"
-                    className={cta.outline ? "btn btn-maze-outline" : "btn btn-maze"}
+                    href={cta.href && cta.href !== "#" ? cta.href : requestUrl}
+                    className={cta.outline ? "btn btn-maze-outline text-decoration-none" : "btn btn-maze text-white text-decoration-none"}
                     style={
                       cta.outline
                         ? { borderColor: "#c8f5c8", color: "#c8f5c8" }
                         : undefined
                     }
-                    onClick={() =>
-                      setModalState({
-                        isOpen: true,
-                        type: isInstall ? "INSTALLATION" : "QUOTE",
-                      })
-                    }
                   >
                     {cta.label}
-                  </button>
+                  </Link>
                 );
               }
 
