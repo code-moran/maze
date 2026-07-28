@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   isOpen: boolean;
@@ -73,6 +74,8 @@ export default function ProductRequestModal({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  const router = useRouter();
+
   useEffect(() => {
     setRequestType(defaultType);
     const initialMatch = initialProductName || initialCatLabel;
@@ -83,13 +86,23 @@ export default function ProductRequestModal({
   }, [isOpen, initialProductName, initialCatLabel, defaultType]);
 
   useEffect(() => {
-    if (isOpen && typeof document !== "undefined") {
+    if (isOpen && typeof window !== "undefined") {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        onClose();
+        const params = new URLSearchParams();
+        params.set("type", defaultType);
+        if (initialProductName) params.set("product", initialProductName);
+        if (initialCatLabel) params.set("cat", initialCatLabel);
+        router.push(`/request?${params.toString()}`);
+        return;
+      }
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = "";
       };
     }
-  }, [isOpen]);
+  }, [isOpen, defaultType, initialProductName, initialCatLabel, onClose, router]);
 
   if (!isOpen) return null;
 
