@@ -523,12 +523,24 @@ export default function ProductsBrowser({
                       <div className="d-flex flex-wrap gap-2">
                         <Link
                           href={`/request?type=QUOTE&product=${encodeURIComponent(selectedProduct.name)}&cat=${encodeURIComponent(selectedProduct.catLabel)}`}
+                          onClick={(e) => {
+                            if (typeof window !== "undefined" && window.innerWidth > 768) {
+                              e.preventDefault();
+                              setRequestModalState({ isOpen: true, type: "QUOTE" });
+                            }
+                          }}
                           className="btn btn-maze btn-sm px-3 text-white text-decoration-none"
                         >
                           <i className="bi bi-calculator me-1 text-white"></i>Request Quote
                         </Link>
                         <Link
                           href={`/request?type=INSTALLATION&product=${encodeURIComponent(selectedProduct.name)}&cat=${encodeURIComponent(selectedProduct.catLabel)}`}
+                          onClick={(e) => {
+                            if (typeof window !== "undefined" && window.innerWidth > 768) {
+                              e.preventDefault();
+                              setRequestModalState({ isOpen: true, type: "INSTALLATION" });
+                            }
+                          }}
                           className="btn btn-maze-outline btn-sm px-3 text-decoration-none"
                         >
                           <i className="bi bi-tools me-1"></i>Request Installation

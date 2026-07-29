@@ -99,6 +99,17 @@ export default function PageHero({
                   <Link
                     key={cta.label}
                     href={cta.href && cta.href !== "#" ? cta.href : requestUrl}
+                    onClick={(e) => {
+                      if (!cta.href || cta.href === "#" || cta.href.startsWith("/request")) {
+                        if (typeof window !== "undefined" && window.innerWidth > 768) {
+                          e.preventDefault();
+                          setModalState({
+                            isOpen: true,
+                            type: targetType,
+                          });
+                        }
+                      }
+                    }}
                     className={cta.outline ? "btn btn-maze-outline text-decoration-none" : "btn btn-maze text-white text-decoration-none"}
                     style={
                       cta.outline

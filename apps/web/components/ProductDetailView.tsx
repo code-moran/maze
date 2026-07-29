@@ -142,12 +142,24 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
                 <div className="d-flex flex-wrap gap-2">
                   <Link
                     href={`/request?type=QUOTE&product=${encodeURIComponent(product.name)}&cat=${encodeURIComponent(product.catLabel)}`}
+                    onClick={(e) => {
+                      if (typeof window !== "undefined" && window.innerWidth > 768) {
+                        e.preventDefault();
+                        setModalState({ isOpen: true, type: "QUOTE" });
+                      }
+                    }}
                     className="btn btn-maze text-white text-decoration-none"
                   >
                     <i className="bi bi-calculator me-2 text-white"></i>Request Quote
                   </Link>
                   <Link
                     href={`/request?type=INSTALLATION&product=${encodeURIComponent(product.name)}&cat=${encodeURIComponent(product.catLabel)}`}
+                    onClick={(e) => {
+                      if (typeof window !== "undefined" && window.innerWidth > 768) {
+                        e.preventDefault();
+                        setModalState({ isOpen: true, type: "INSTALLATION" });
+                      }
+                    }}
                     className="btn btn-maze-outline text-decoration-none"
                   >
                     <i className="bi bi-tools me-2"></i>Request Installation
