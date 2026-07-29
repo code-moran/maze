@@ -58,7 +58,7 @@ function RequestFormContent() {
   const [requestType, setRequestType] = useState<"QUOTE" | "INSTALLATION">(initialType);
   const [selectedOption, setSelectedOption] = useState<string>(initialProduct || initialCat || "OTHER");
   const [customItem, setCustomItem] = useState<string>(initialProduct && selectedOption === "OTHER" ? initialProduct : "");
-  
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -124,47 +124,25 @@ function RequestFormContent() {
   }
 
   return (
-    <div className="container py-4">
-      <div className="card border-0 shadow-sm rounded-4 overflow-hidden max-w-2xl mx-auto" style={{ maxWidth: 680 }}>
-        {/* Toggle Header */}
-        <div className="card-header bg-white border-bottom p-3">
-          <div className="nav nav-pills nav-fill gap-2" role="tablist">
-            <button
-              type="button"
-              className="nav-link py-3 fw-bold d-flex align-items-center justify-content-center gap-2"
-              style={{
-                backgroundColor: requestType === "QUOTE" ? "#146c43" : "#f8f9fa",
-                color: requestType === "QUOTE" ? "#ffffff" : "#212529",
-                border: requestType === "QUOTE" ? "1px solid #146c43" : "1px solid #dee2e6",
-                borderRadius: "10px",
-              }}
-              onClick={() => {
-                setRequestType("QUOTE");
-                setSuccess(false);
-              }}
+    <div className="container py-4 px-3">
+      <div
+        className="card border-0 shadow-sm rounded-4 overflow-hidden mx-auto"
+        style={{ maxWidth: 640, background: "#ffffff" }}
+      >
+        {/* Header Badge */}
+        <div className="p-4 pb-3 border-bottom bg-light">
+          <div className="d-flex align-items-center gap-2 mb-2">
+            <span
+              className="badge px-3 py-2"
+              style={{ background: "#e6f7e6", color: "#008000", fontSize: "0.82rem", fontWeight: 700 }}
             >
-              <i className="bi bi-calculator fs-5"></i>
-              <span>Get Product Quote</span>
-            </button>
-
-            <button
-              type="button"
-              className="nav-link py-3 fw-bold d-flex align-items-center justify-content-center gap-2"
-              style={{
-                backgroundColor: requestType === "INSTALLATION" ? "#146c43" : "#f8f9fa",
-                color: requestType === "INSTALLATION" ? "#ffffff" : "#212529",
-                border: requestType === "INSTALLATION" ? "1px solid #146c43" : "1px solid #dee2e6",
-                borderRadius: "10px",
-              }}
-              onClick={() => {
-                setRequestType("INSTALLATION");
-                setSuccess(false);
-              }}
-            >
-              <i className="bi bi-tools fs-5"></i>
-              <span>Book Installation</span>
-            </button>
+              <i className="bi bi-lightning-charge-fill me-1"></i> Fast Support & Quote
+            </span>
           </div>
+          <h2 className="h5 fw-bold text-dark mb-1">Service & Pricing Request</h2>
+          <p className="text-secondary small mb-0">
+            Submit your request below for instant quote pricing or professional installation confirmation.
+          </p>
         </div>
 
         <div className="card-body p-4">
@@ -180,37 +158,97 @@ function RequestFormContent() {
                 {requestType === "QUOTE" ? "Quote Request Submitted!" : "Installation Booking Submitted!"}
               </h4>
               <p className="text-secondary small max-w-md mx-auto mb-4 fs-6">
-                Thank you! Your request for <strong>{targetItemName}</strong> has been received. Our team will contact you via WhatsApp or phone call shortly.
+                Thank you, <strong>{name}</strong>! Your request for <strong>{targetItemName}</strong> has been received. Our team will contact you via WhatsApp / Phone call shortly.
               </p>
               <div className="d-flex flex-column gap-2">
-                <button
-                  type="button"
-                  className="btn btn-maze btn-lg w-100 fw-bold"
-                  onClick={() => router.push("/products")}
-                >
+                <Link href="/products" className="btn btn-maze btn-lg w-100 fw-bold text-white text-decoration-none py-3">
                   Return to Products
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary btn-lg w-100"
-                  onClick={() => router.push("/")}
-                >
+                </Link>
+                <Link href="/" className="btn btn-outline-secondary btn-lg w-100 text-decoration-none py-3">
                   Go to Home Page
-                </button>
+                </Link>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="dashboard-form">
               {error ? <div className="alert alert-danger small mb-3">{error}</div> : null}
 
+              {/* 1. Request Type Segmented Radio Cards (No Buttons) */}
+              <div className="mb-4">
+                <label className="form-label small fw-bold text-dark mb-2">
+                  What would you like to request? *
+                </label>
+                <div className="row g-2">
+                  <div className="col-6">
+                    <label
+                      className={`card h-100 p-3 border text-start cursor-pointer position-relative rounded-3 transition-all ${
+                        requestType === "QUOTE" ? "border-success bg-light shadow-sm" : "border-secondary-subtle"
+                      }`}
+                      style={{
+                        cursor: "pointer",
+                        borderColor: requestType === "QUOTE" ? "#008000" : "#dee2e6",
+                        borderWidth: requestType === "QUOTE" ? 2 : 1,
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="requestTypeRadio"
+                        value="QUOTE"
+                        checked={requestType === "QUOTE"}
+                        onChange={() => setRequestType("QUOTE")}
+                        className="form-check-input position-absolute top-0 end-0 m-2"
+                      />
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <i className="bi bi-calculator fs-5 text-success"></i>
+                        <span className="fw-bold text-dark fs-6">Product Quote</span>
+                      </div>
+                      <span className="text-secondary extra-small" style={{ fontSize: "0.78rem" }}>
+                        Get pricing & specs for items
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="col-6">
+                    <label
+                      className={`card h-100 p-3 border text-start cursor-pointer position-relative rounded-3 transition-all ${
+                        requestType === "INSTALLATION" ? "border-success bg-light shadow-sm" : "border-secondary-subtle"
+                      }`}
+                      style={{
+                        cursor: "pointer",
+                        borderColor: requestType === "INSTALLATION" ? "#008000" : "#dee2e6",
+                        borderWidth: requestType === "INSTALLATION" ? 2 : 1,
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="requestTypeRadio"
+                        value="INSTALLATION"
+                        checked={requestType === "INSTALLATION"}
+                        onChange={() => setRequestType("INSTALLATION")}
+                        className="form-check-input position-absolute top-0 end-0 m-2"
+                      />
+                      <div className="d-flex align-items-center gap-2 mb-1">
+                        <i className="bi bi-tools fs-5 text-success"></i>
+                        <span className="fw-bold text-dark fs-6">Installation</span>
+                      </div>
+                      <span className="text-secondary extra-small" style={{ fontSize: "0.78rem" }}>
+                        Book professional setup
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Form Fields with High-Contrast Mobile Inputs */}
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label fw-bold text-dark mb-1">
-                    {requestType === "QUOTE" ? "Select Product for Quote *" : "Select Service for Installation *"}
+                  <label className="form-label small fw-bold text-dark mb-1">
+                    {requestType === "QUOTE" ? "Select Target Product *" : "Select Installation Service *"}
                   </label>
                   {requestType === "QUOTE" ? (
                     <select
                       className="form-select form-select-lg"
+                      style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                       value={selectedOption}
                       onChange={(e) => setSelectedOption(e.target.value)}
                       required
@@ -232,6 +270,7 @@ function RequestFormContent() {
                   ) : (
                     <select
                       className="form-select form-select-lg"
+                      style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                       value={selectedOption}
                       onChange={(e) => setSelectedOption(e.target.value)}
                       required
@@ -251,12 +290,13 @@ function RequestFormContent() {
 
                 {selectedOption === "OTHER" ? (
                   <div className="col-12">
-                    <label className="form-label fw-bold text-dark mb-1">
-                      Specify Custom Product or Service *
+                    <label className="form-label small fw-bold text-dark mb-1">
+                      Specify Custom Product or Service Name *
                     </label>
                     <input
                       type="text"
                       className="form-control form-control-lg"
+                      style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                       value={customItem}
                       onChange={(e) => setCustomItem(e.target.value)}
                       placeholder="e.g. 75-inch Curved OLED Wall Mount"
@@ -266,10 +306,11 @@ function RequestFormContent() {
                 ) : null}
 
                 <div className="col-12">
-                  <label className="form-label fw-bold text-dark mb-1">Your Full Name *</label>
+                  <label className="form-label small fw-bold text-dark mb-1">Your Full Name *</label>
                   <input
                     type="text"
                     className="form-control form-control-lg"
+                    style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Jane Doe"
@@ -278,10 +319,11 @@ function RequestFormContent() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label fw-bold text-dark mb-1">Phone / WhatsApp Number *</label>
+                  <label className="form-label small fw-bold text-dark mb-1">Phone / WhatsApp Number *</label>
                   <input
                     type="tel"
                     className="form-control form-control-lg"
+                    style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="07XX XXX XXX"
@@ -290,10 +332,11 @@ function RequestFormContent() {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label fw-bold text-dark mb-1">Email Address (Optional)</label>
+                  <label className="form-label small fw-bold text-dark mb-1">Email Address (Optional)</label>
                   <input
                     type="email"
                     className="form-control form-control-lg"
+                    style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
@@ -303,10 +346,11 @@ function RequestFormContent() {
                 {requestType === "INSTALLATION" ? (
                   <>
                     <div className="col-12">
-                      <label className="form-label fw-bold text-dark mb-1">Installation Location *</label>
+                      <label className="form-label small fw-bold text-dark mb-1">Installation Location *</label>
                       <input
                         type="text"
                         className="form-control form-control-lg"
+                        style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                         placeholder="e.g. Kilimani, Nairobi"
@@ -315,10 +359,11 @@ function RequestFormContent() {
                     </div>
 
                     <div className="col-12">
-                      <label className="form-label fw-bold text-dark mb-1">Preferred Installation Date</label>
+                      <label className="form-label small fw-bold text-dark mb-1">Preferred Installation Date</label>
                       <input
                         type="date"
                         className="form-control form-control-lg"
+                        style={{ minHeight: 52, fontSize: 16, borderRadius: 12 }}
                         value={preferredDate}
                         onChange={(e) => setPreferredDate(e.target.value)}
                       />
@@ -327,14 +372,15 @@ function RequestFormContent() {
                 ) : null}
 
                 <div className="col-12">
-                  <label className="form-label fw-bold text-dark mb-1">
+                  <label className="form-label small fw-bold text-dark mb-1">
                     {requestType === "QUOTE"
                       ? "Quantity, Delivery & Specification Notes"
                       : "Installation Wall Type & Setup Notes"}
                   </label>
                   <textarea
                     className="form-control"
-                    rows={4}
+                    rows={3}
+                    style={{ fontSize: 16, borderRadius: 12 }}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder={
@@ -348,13 +394,14 @@ function RequestFormContent() {
 
               <div className="mt-4 pt-3 border-top">
                 <button
-                  className="btn btn-maze btn-lg w-100 py-3 fw-bold text-white fs-6"
+                  className="btn btn-maze btn-lg w-100 py-3 rounded-3 fw-bold text-white fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2"
                   type="submit"
                   disabled={loading}
+                  style={{ minHeight: 52, background: "#008000", borderColor: "#008000" }}
                 >
                   {loading ? (
                     <>
-                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      <span className="spinner-border spinner-border-sm text-white me-2"></span>
                       Submitting Request...
                     </>
                   ) : (
@@ -362,7 +409,7 @@ function RequestFormContent() {
                       <i
                         className={`bi ${
                           requestType === "QUOTE" ? "bi-calculator" : "bi-tools"
-                        } me-2 text-white`}
+                        } text-white`}
                       ></i>
                       <span className="text-white">
                         {requestType === "QUOTE"
@@ -387,7 +434,7 @@ export default function RequestPage() {
       <PageHero
         label="Service & Quote Request"
         title="Request Quote or Installation"
-        subtitle="Submit your details below and our team will respond with instant pricing or booking confirmation."
+        subtitle="Fill out the form below to receive instant pricing or book professional technical setup."
         crumbs={[
           { label: "Products", href: "/products" },
           { label: "Service Request" },

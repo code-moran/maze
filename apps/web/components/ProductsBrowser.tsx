@@ -248,40 +248,26 @@ export default function ProductsBrowser({
           className="d-flex flex-wrap justify-content-center gap-2 mb-4"
           id="catFilters"
         >
-          <button
-            type="button"
-            className={`cat-pill${
+          <Link
+            href="/products"
+            className={`cat-pill text-decoration-none${
               !preview && currentFilter === "all" ? " active" : ""
             }`}
-            onClick={() => {
-              if (preview) {
-                router.push("/products");
-              } else {
-                filterProducts("all");
-              }
-            }}
           >
             <i className="bi bi-grid-fill me-1"></i>
             All Products
-          </button>
+          </Link>
           {categories.map((cat) => (
-            <button
-              type="button"
+            <Link
               key={cat.id}
-              className={`cat-pill${
+              href={`/products/category/${encodeURIComponent(cat.id)}`}
+              className={`cat-pill text-decoration-none${
                 !preview && currentFilter === cat.id ? " active" : ""
               }`}
-              onClick={() => {
-                if (preview) {
-                  router.push(`/products?cat=${encodeURIComponent(cat.id)}`);
-                } else {
-                  filterProducts(cat.id);
-                }
-              }}
             >
               <i className={`bi ${cat.icon} me-1`}></i>
               {cat.label}
-            </button>
+            </Link>
           ))}
         </div>
 
@@ -295,32 +281,30 @@ export default function ProductsBrowser({
                 {data.categorySeo[currentFilter]?.title || "Sub Products"}
               </h5>
               <div id="subCatFilters">
-                <button
-                  type="button"
-                  className={`subcat-pill${
+                <Link
+                  href={`/products/category/${encodeURIComponent(currentFilter)}`}
+                  className={`subcat-pill text-decoration-none d-flex justify-content-between align-items-center${
                     currentSubFilter === "all" ? " active" : ""
                   }`}
-                  onClick={() => filterSubCategory("all")}
                 >
                   <span>All Sub Products</span>
                   <span className="subcat-count">{categoryProducts.length}</span>
-                </button>
+                </Link>
                 {subItems.map((item) => {
                   const count = categoryProducts.filter(
                     (p) => p.subCat === item.id
                   ).length;
                   return (
-                    <button
-                      type="button"
+                    <Link
                       key={item.id}
-                      className={`subcat-pill${
+                      href={`/products/category/${encodeURIComponent(currentFilter)}?subcat=${encodeURIComponent(item.id)}`}
+                      className={`subcat-pill text-decoration-none d-flex justify-content-between align-items-center${
                         currentSubFilter === item.id ? " active" : ""
                       }`}
-                      onClick={() => filterSubCategory(item.id)}
                     >
                       <span>{item.label}</span>
                       <span className="subcat-count">{count}</span>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
