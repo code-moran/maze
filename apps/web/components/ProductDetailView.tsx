@@ -140,20 +140,18 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
                   Click below to get an instant quote or book professional installation for <strong>{product.name}</strong>.
                 </p>
                 <div className="d-flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-maze btn-lg px-4"
-                    onClick={() => setModalState({ isOpen: true, type: "QUOTE" })}
+                  <Link
+                    href={`/request?type=QUOTE&product=${encodeURIComponent(product.name)}&cat=${encodeURIComponent(product.catLabel)}`}
+                    className="btn btn-maze text-white text-decoration-none"
                   >
-                    <i className="bi bi-calculator me-2"></i>Request Quote
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-maze-outline btn-lg px-4"
-                    onClick={() => setModalState({ isOpen: true, type: "INSTALLATION" })}
+                    <i className="bi bi-calculator me-2 text-white"></i>Request Quote
+                  </Link>
+                  <Link
+                    href={`/request?type=INSTALLATION&product=${encodeURIComponent(product.name)}&cat=${encodeURIComponent(product.catLabel)}`}
+                    className="btn btn-maze-outline text-decoration-none"
                   >
                     <i className="bi bi-tools me-2"></i>Request Installation
-                  </button>
+                  </Link>
                 </div>
               </div>
 

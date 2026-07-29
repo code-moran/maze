@@ -43,7 +43,7 @@ export default function Footer({ data }: { data: SiteData }) {
           <div className="col-6 col-md-2">
             <h5>Products</h5>
             {categories.map((cat) => (
-              <Link key={cat.id} href={`/products?cat=${cat.id}`}>
+              <Link key={cat.id} href={`/products/category/${cat.id}`}>
                 {cat.id === "solar" ? "Solar Lights" : cat.label}
               </Link>
             ))}

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import PageHero from "@/components/PageHero";
 import ProductDetailView from "@/components/ProductDetailView";
-import { getProductBySlug, getProductSlug } from "@/data/siteData";
+import { getProductBySlug, getProductSlug, getProductCategories } from "@/data/siteData";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
 
 type Props = {
@@ -19,6 +19,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const data = await loadSiteContent();
+
+  const categories = getProductCategories(data);
+  if (categories.some((c) => c.id === slug)) {
+    const categorySeo = data.categorySeo[slug];
+    return {
+      title: categorySeo?.title ? `${categorySeo.title} | Maze` : "Product Category | Maze",
+    };
+  }
+
   const product = getProductBySlug(slug, data);
 
   if (!product) {
@@ -41,6 +50,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const data = await loadSiteContent();
+
+  const categories = getProductCategories(data);
+  if (categories.some((c) => c.id === slug)) {
+    redirect(`/products/category/${slug}`);
+  }
+
   const product = getProductBySlug(slug, data);
 
   if (!product) {
@@ -65,7 +80,7 @@ export default async function ProductDetailPage({ params }: Props) {
         backgroundImage={heroBackground}
         crumbs={[
           { label: "Products", href: "/products" },
-          { label: product.catLabel, href: `/products?cat=${product.cat}` },
+          { label: product.catLabel, href: `/products/category/${product.cat}` },
           { label: product.name },
         ]}
         ctas={[

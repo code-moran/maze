@@ -1462,18 +1462,42 @@ function ProductsHeroPanel({
   saving: boolean;
   onSave: (payload: Record<string, unknown>) => Promise<boolean>;
 }) {
-  const [form, setForm] = useState(data.sections.productsIntro);
+  const intro = data.sections.productsIntro as typeof data.sections.productsIntro & {
+    cta1Label?: string;
+    cta1Href?: string;
+    cta2Label?: string;
+    cta2Href?: string;
+  };
+
+  const [form, setForm] = useState({
+    label: intro.label || "Maze Products",
+    title: intro.title || "Products & Solutions",
+    subtitle: intro.subtitle || "",
+    heroBackground: intro.heroBackground || "",
+    cta1Label: intro.cta1Label || "Request a Quote",
+    cta1Href: intro.cta1Href || "/contact",
+    cta2Label: intro.cta2Label || "Installation Services",
+    cta2Href: intro.cta2Href || "/services",
+  });
 
   useEffect(() => {
-    setForm(data.sections.productsIntro);
-  }, [data.sections.productsIntro]);
+    setForm({
+      label: intro.label || "Maze Products",
+      title: intro.title || "Products & Solutions",
+      subtitle: intro.subtitle || "",
+      heroBackground: intro.heroBackground || "",
+      cta1Label: intro.cta1Label || "Request a Quote",
+      cta1Href: intro.cta1Href || "/contact",
+      cta2Label: intro.cta2Label || "Installation Services",
+      cta2Href: intro.cta2Href || "/services",
+    });
+  }, [intro]);
 
   return (
     <section className="dashboard-panel mb-4">
-      <h3>Products Hero</h3>
+      <h3>Products Hero & Action Buttons</h3>
       <p className="small text-secondary mb-3">
-        Controls the banner at the top of the Products page — label, title,
-        subtitle, and background image.
+        Controls the hero banner, background image, title, description, and call-to-action buttons at the top of the Products page.
       </p>
       <form
         className="dashboard-form"
@@ -1484,12 +1508,16 @@ function ProductsHeroPanel({
             title: form.title.trim(),
             subtitle: form.subtitle.trim(),
             heroBackground: form.heroBackground.trim(),
+            cta1Label: form.cta1Label.trim(),
+            cta1Href: form.cta1Href.trim(),
+            cta2Label: form.cta2Label.trim(),
+            cta2Href: form.cta2Href.trim(),
           });
         }}
       >
         <div className="row g-3">
           <div className="col-md-4">
-            <label className="form-label small fw-semibold">Label</label>
+            <label className="form-label small fw-semibold">Hero Label / Badge</label>
             <input
               className="form-control"
               value={form.label}
@@ -1497,7 +1525,7 @@ function ProductsHeroPanel({
             />
           </div>
           <div className="col-md-8">
-            <label className="form-label small fw-semibold">Title</label>
+            <label className="form-label small fw-semibold">Hero Title</label>
             <input
               className="form-control"
               value={form.title}
@@ -1505,7 +1533,7 @@ function ProductsHeroPanel({
             />
           </div>
           <div className="col-12">
-            <label className="form-label small fw-semibold">Subtitle</label>
+            <label className="form-label small fw-semibold">Hero Subtitle / Description</label>
             <textarea
               className="form-control"
               rows={2}
@@ -1519,6 +1547,38 @@ function ProductsHeroPanel({
               value={form.heroBackground || ""}
               onChange={(url) => setForm({ ...form, heroBackground: url })}
               folder="maze/products"
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold">Primary Action Button Label</label>
+            <input
+              className="form-control"
+              value={form.cta1Label}
+              onChange={(e) => setForm({ ...form, cta1Label: e.target.value })}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold">Primary Action Link / Target</label>
+            <input
+              className="form-control"
+              value={form.cta1Href}
+              onChange={(e) => setForm({ ...form, cta1Href: e.target.value })}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold">Secondary Action Button Label</label>
+            <input
+              className="form-control"
+              value={form.cta2Label}
+              onChange={(e) => setForm({ ...form, cta2Label: e.target.value })}
+            />
+          </div>
+          <div className="col-md-6">
+            <label className="form-label small fw-semibold">Secondary Action Link / Target</label>
+            <input
+              className="form-control"
+              value={form.cta2Href}
+              onChange={(e) => setForm({ ...form, cta2Href: e.target.value })}
             />
           </div>
           <div className="col-12">

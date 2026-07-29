@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   isOpen: boolean;
@@ -10,6 +11,48 @@ type Props = {
   defaultType?: "QUOTE" | "INSTALLATION";
 };
 
+const PRODUCT_GROUPS = [
+  {
+    group: "TV Wall Mounts & Brackets",
+    items: [
+      "Fixed TV Wall Mount (32\" - 85\")",
+      "Full-Motion Swivel TV Wall Mount",
+      "Tilt TV Wall Mount",
+      "Ceiling TV Mount",
+    ],
+  },
+  {
+    group: "Appliance & Voltage Guards",
+    items: [
+      "Fridge Guard (High-Voltage Protector)",
+      "Air Conditioner Guard",
+      "TV & Electronics Voltage Guard",
+    ],
+  },
+  {
+    group: "Solar Outdoor Lighting",
+    items: [
+      "Solar Street & Flood Light (100W - 300W)",
+      "Solar Motion-Sensor Security Light",
+    ],
+  },
+  {
+    group: "Cables & Power Extensions",
+    items: [
+      "Heavy Duty Multi-Socket Extension Cable",
+      "Power Distribution Extension Unit",
+    ],
+  },
+];
+
+const SERVICE_OPTIONS = [
+  "TV Wall Mounting & Cable Concealing Service",
+  "Appliance & Voltage Guard Installation Service",
+  "Solar Outdoor Light Mounting & Wiring Service",
+  "Full Home/Office Cable Setup & AV Installation",
+  "Custom Electrical & Mounting Setup",
+];
+
 export default function ProductRequestModal({
   isOpen,
   onClose,
@@ -18,8 +61,8 @@ export default function ProductRequestModal({
   defaultType = "QUOTE",
 }: Props) {
   const [requestType, setRequestType] = useState<"QUOTE" | "INSTALLATION">(defaultType);
-  const [targetProduct, setTargetProduct] = useState(initialProductName);
-  const [serviceType, setServiceType] = useState(initialCatLabel);
+  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [customItem, setCustomItem] = useState<string>("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -31,15 +74,42 @@ export default function ProductRequestModal({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  const router = useRouter();
+
   useEffect(() => {
     setRequestType(defaultType);
-    setTargetProduct(initialProductName);
-    setServiceType(initialCatLabel);
+    const initialMatch = initialProductName || initialCatLabel;
+    setSelectedOption(initialMatch || "OTHER");
+    setCustomItem(initialProductName && !initialMatch ? initialProductName : "");
     setSuccess(false);
     setError("");
   }, [isOpen, initialProductName, initialCatLabel, defaultType]);
 
+  useEffect(() => {
+    if (isOpen && typeof window !== "undefined") {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        onClose();
+        const params = new URLSearchParams();
+        params.set("type", defaultType);
+        if (initialProductName) params.set("product", initialProductName);
+        if (initialCatLabel) params.set("cat", initialCatLabel);
+        router.push(`/request?${params.toString()}`);
+        return;
+      }
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [isOpen, defaultType, initialProductName, initialCatLabel, onClose, router]);
+
   if (!isOpen) return null;
+
+  const targetItemName =
+    selectedOption === "OTHER"
+      ? customItem.trim() || "General Request"
+      : selectedOption || initialProductName || "General Request";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -48,14 +118,14 @@ export default function ProductRequestModal({
     setSuccess(false);
 
     try {
-      const finalProduct = targetProduct.trim() || "General Request";
+      const finalProduct = targetItemName;
       const res = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: requestType,
           productName: finalProduct,
-          serviceType: serviceType.trim() || "General",
+          serviceType: initialCatLabel || "General",
           name: name.trim(),
           phone: phone.trim(),
           email: email.trim(),
@@ -65,7 +135,7 @@ export default function ProductRequestModal({
           subject:
             requestType === "QUOTE"
               ? `Quote Request: ${finalProduct}`
-              : `Installation Request: ${finalProduct} (${serviceType || "Service"})`,
+              : `Installation Request: ${finalProduct}`,
         }),
       });
 
@@ -78,6 +148,7 @@ export default function ProductRequestModal({
         setLocation("");
         setPreferredDate("");
         setMessage("");
+        setCustomItem("");
       } else {
         setError(data.error || "Failed to submit request. Please try again.");
       }
@@ -91,23 +162,34 @@ export default function ProductRequestModal({
   return (
     <div
       className="modal fade show d-block"
-      style={{ background: "rgba(0, 0, 0, 0.65)", zIndex: 1080 }}
+      style={{
+        background: "rgba(0, 0, 0, 0.75)",
+        zIndex: 1090,
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        padding: "1rem 0.5rem",
+      }}
       tabIndex={-1}
       onClick={onClose}
     >
       <div
-        className="modal-dialog modal-dialog-centered modal-lg"
+        className="modal-dialog modal-dialog-centered modal-lg my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-content border-0 shadow-lg" style={{ borderRadius: 16, overflow: "hidden" }}>
           {/* Header */}
-          <div className="modal-header border-bottom p-3 bg-light">
+          <div className="modal-header border-bottom p-3 bg-light d-flex align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-2">
               <div
                 className="rounded-circle d-flex align-items-center justify-content-center"
                 style={{
-                  width: 38,
-                  height: 38,
+                  width: 40,
+                  height: 40,
                   background: requestType === "QUOTE" ? "#fff3cd" : "#cff4fc",
                   color: requestType === "QUOTE" ? "#664d03" : "#055160",
                 }}
@@ -115,14 +197,12 @@ export default function ProductRequestModal({
                 <i className={`bi ${requestType === "QUOTE" ? "bi-calculator-fill" : "bi-tools"} fs-5`}></i>
               </div>
               <div>
-                <h5 className="modal-title fw-bold fs-6 mb-0">
+                <h5 className="modal-title fw-bold fs-6 mb-0 text-dark">
                   {requestType === "QUOTE" ? "Request a Product Quote" : "Book Installation Service"}
                 </h5>
-                {initialProductName ? (
-                  <span className="small text-secondary">Target: {initialProductName}</span>
-                ) : (
-                  <span className="small text-secondary">Maze Tech Support & Services</span>
-                )}
+                <span className="small text-secondary">
+                  {targetItemName ? `Target: ${targetItemName}` : "Maze Technology Support & Quotes"}
+                </span>
               </div>
             </div>
             <button
@@ -133,34 +213,55 @@ export default function ProductRequestModal({
             ></button>
           </div>
 
-          {/* Type Toggle Tabs */}
+          {/* Type Toggle Tabs with Guaranteed White Text for Active Button */}
           <div className="px-4 pt-3 pb-0 bg-white border-bottom">
             <div className="nav nav-pills nav-fill gap-2" role="tablist">
               <button
                 type="button"
-                className={`nav-link py-2 fw-semibold ${
-                  requestType === "QUOTE" ? "active btn-maze" : "btn-outline-secondary text-dark"
-                }`}
-                style={requestType === "QUOTE" ? { background: "var(--maze-green)", color: "#fff" } : {}}
+                className="nav-link py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                style={{
+                  backgroundColor: requestType === "QUOTE" ? "#146c43" : "#f8f9fa",
+                  color: requestType === "QUOTE" ? "#ffffff" : "#212529",
+                  border: requestType === "QUOTE" ? "1px solid #146c43" : "1px solid #dee2e6",
+                  borderRadius: "8px",
+                  boxShadow: requestType === "QUOTE" ? "0 2px 6px rgba(20, 108, 67, 0.3)" : "none",
+                }}
                 onClick={() => {
                   setRequestType("QUOTE");
                   setSuccess(false);
                 }}
               >
-                <i className="bi bi-calculator me-2"></i>Get Quote
+                <i
+                  className="bi bi-calculator"
+                  style={{ color: requestType === "QUOTE" ? "#ffffff" : "inherit" }}
+                ></i>
+                <span style={{ color: requestType === "QUOTE" ? "#ffffff" : "inherit" }}>
+                  Get Quote
+                </span>
               </button>
+
               <button
                 type="button"
-                className={`nav-link py-2 fw-semibold ${
-                  requestType === "INSTALLATION" ? "active btn-maze" : "btn-outline-secondary text-dark"
-                }`}
-                style={requestType === "INSTALLATION" ? { background: "var(--maze-green)", color: "#fff" } : {}}
+                className="nav-link py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                style={{
+                  backgroundColor: requestType === "INSTALLATION" ? "#146c43" : "#f8f9fa",
+                  color: requestType === "INSTALLATION" ? "#ffffff" : "#212529",
+                  border: requestType === "INSTALLATION" ? "1px solid #146c43" : "1px solid #dee2e6",
+                  borderRadius: "8px",
+                  boxShadow: requestType === "INSTALLATION" ? "0 2px 6px rgba(20, 108, 67, 0.3)" : "none",
+                }}
                 onClick={() => {
                   setRequestType("INSTALLATION");
                   setSuccess(false);
                 }}
               >
-                <i className="bi bi-tools me-2"></i>Request Installation
+                <i
+                  className="bi bi-tools"
+                  style={{ color: requestType === "INSTALLATION" ? "#ffffff" : "inherit" }}
+                ></i>
+                <span style={{ color: requestType === "INSTALLATION" ? "#ffffff" : "inherit" }}>
+                  Request Installation
+                </span>
               </button>
             </div>
           </div>
@@ -179,9 +280,9 @@ export default function ProductRequestModal({
                   {requestType === "QUOTE" ? "Quote Request Submitted!" : "Installation Booking Submitted!"}
                 </h5>
                 <p className="text-secondary small max-w-md mx-auto mb-4">
-                  Thank you! Your request for <strong>{targetProduct || "Maze Services"}</strong> has been received. Our team will contact you via WhatsApp / Phone shortly.
+                  Thank you! Your request for <strong>{targetItemName}</strong> has been received. Our team will contact you via WhatsApp / Phone shortly.
                 </p>
-                <button type="button" className="btn btn-maze px-4" onClick={onClose}>
+                <button type="button" className="btn btn-maze text-white px-4" onClick={onClose}>
                   Done
                 </button>
               </div>
@@ -190,33 +291,87 @@ export default function ProductRequestModal({
                 {error ? <div className="alert alert-danger small mb-3">{error}</div> : null}
 
                 <div className="row g-3">
-                  {!initialProductName ? (
-                    <div className="col-md-6">
-                      <label className="form-label small fw-semibold">Product or Service Name</label>
+                  {/* Context Aware Product or Service Dropdown Selection */}
+                  <div className="col-12">
+                    <label className="form-label small fw-semibold text-dark mb-1">
+                      {requestType === "QUOTE" ? "Select Product for Quote *" : "Select Service for Installation *"}
+                    </label>
+                    {requestType === "QUOTE" ? (
+                      <select
+                        className="form-select"
+                        value={selectedOption}
+                        onChange={(e) => setSelectedOption(e.target.value)}
+                        required
+                      >
+                        {initialProductName ? (
+                          <option value={initialProductName}>
+                            {initialProductName} (Current Selection)
+                          </option>
+                        ) : null}
+                        {PRODUCT_GROUPS.map((group) => (
+                          <optgroup key={group.group} label={group.group}>
+                            {group.items.map((item) => (
+                              <option key={item} value={item}>
+                                {item}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                        <option value="OTHER">Other / Custom Product (Type below)</option>
+                      </select>
+                    ) : (
+                      <select
+                        className="form-select"
+                        value={selectedOption}
+                        onChange={(e) => setSelectedOption(e.target.value)}
+                        required
+                      >
+                        {initialProductName ? (
+                          <option value={initialProductName}>
+                            {initialProductName} (Current Selection)
+                          </option>
+                        ) : null}
+                        {SERVICE_OPTIONS.map((srv) => (
+                          <option key={srv} value={srv}>
+                            {srv}
+                          </option>
+                        ))}
+                        <option value="OTHER">Other / Custom Service (Type below)</option>
+                      </select>
+                    )}
+                  </div>
+
+                  {/* Custom Name input if "OTHER" or custom typed */}
+                  {selectedOption === "OTHER" ? (
+                    <div className="col-12">
+                      <label className="form-label small fw-semibold text-dark mb-1">
+                        Specify Product or Service Name *
+                      </label>
                       <input
                         type="text"
                         className="form-control"
-                        value={targetProduct}
-                        onChange={(e) => setTargetProduct(e.target.value)}
-                        placeholder="e.g. Full-Motion TV Wall Mount, Solar Flood Light"
+                        value={customItem}
+                        onChange={(e) => setCustomItem(e.target.value)}
+                        placeholder="e.g. 75-inch Curved OLED Wall Mount, Solar Battery Setup"
+                        required
                       />
                     </div>
                   ) : null}
 
-                  <div className={initialProductName ? "col-md-6" : "col-md-6"}>
-                    <label className="form-label small fw-semibold">Your Full Name *</label>
+                  <div className="col-md-6">
+                    <label className="form-label small fw-semibold text-dark mb-1">Your Full Name *</label>
                     <input
                       type="text"
                       className="form-control"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. John Moran"
+                      placeholder="e.g. Jane Doe"
                       required
                     />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold">Phone / WhatsApp Number *</label>
+                    <label className="form-label small fw-semibold text-dark mb-1">Phone / WhatsApp Number *</label>
                     <input
                       type="tel"
                       className="form-control"
@@ -228,7 +383,7 @@ export default function ProductRequestModal({
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label small fw-semibold">Email Address (Optional)</label>
+                    <label className="form-label small fw-semibold text-dark mb-1">Email Address (Optional)</label>
                     <input
                       type="email"
                       className="form-control"
@@ -241,7 +396,7 @@ export default function ProductRequestModal({
                   {requestType === "INSTALLATION" ? (
                     <>
                       <div className="col-md-6">
-                        <label className="form-label small fw-semibold">Installation Location *</label>
+                        <label className="form-label small fw-semibold text-dark mb-1">Installation Location *</label>
                         <input
                           type="text"
                           className="form-control"
@@ -253,7 +408,7 @@ export default function ProductRequestModal({
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label small fw-semibold">Preferred Installation Date</label>
+                        <label className="form-label small fw-semibold text-dark mb-1">Preferred Installation Date</label>
                         <input
                           type="date"
                           className="form-control"
@@ -265,8 +420,8 @@ export default function ProductRequestModal({
                   ) : null}
 
                   <div className="col-12">
-                    <label className="form-label small fw-semibold">
-                      {requestType === "QUOTE" ? "Quantity or Specification Notes" : "Installation Notes & Requirements"}
+                    <label className="form-label small fw-semibold text-dark mb-1">
+                      {requestType === "QUOTE" ? "Quantity, Delivery & Specification Notes" : "Installation Wall Type & Requirements"}
                     </label>
                     <textarea
                       className="form-control"
@@ -286,7 +441,7 @@ export default function ProductRequestModal({
                   <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
                     Cancel
                   </button>
-                  <button className="btn btn-maze px-4" type="submit" disabled={loading}>
+                  <button className="btn btn-maze text-white px-4" type="submit" disabled={loading}>
                     {loading ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2"></span>
@@ -294,8 +449,10 @@ export default function ProductRequestModal({
                       </>
                     ) : (
                       <>
-                        <i className={`bi ${requestType === "QUOTE" ? "bi-calculator" : "bi-tools"} me-2`}></i>
-                        {requestType === "QUOTE" ? "Submit Quote Request" : "Submit Installation Booking"}
+                        <i className={`bi ${requestType === "QUOTE" ? "bi-calculator" : "bi-tools"} me-2 text-white`}></i>
+                        <span className="text-white">
+                          {requestType === "QUOTE" ? "Submit Quote Request" : "Submit Installation Booking"}
+                        </span>
                       </>
                     )}
                   </button>
