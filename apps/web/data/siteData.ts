@@ -59,10 +59,25 @@ export function getBlogBySlug(
   slug: string,
   data: SiteData = getSiteData()
 ): BlogPost | undefined {
-  return data.blogs.find((post) => slugify(post.title) === slug);
+  const norm = slugify(slug);
+  return data.blogs.find((post) => {
+    if (post.slug && slugify(post.slug) === norm) return true;
+    if (slugify(post.title) === norm) return true;
+    const linkSlug = String(post.link || "")
+      .split("/")
+      .filter(Boolean)
+      .pop();
+    return linkSlug ? slugify(linkSlug) === norm : false;
+  });
 }
 
 export function getBlogSlug(post: BlogPost): string {
+  if (post.slug) return slugify(post.slug);
+  const linkSlug = String(post.link || "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+  if (linkSlug && linkSlug !== "#") return slugify(linkSlug);
   return slugify(post.title);
 }
 

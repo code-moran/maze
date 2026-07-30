@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonOk, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     include: { category: true },
   });
 
-  return jsonOk({
+  return jsonSaved({
     product: {
       id: product.legacyId,
       slug: product.slug || undefined,
@@ -141,7 +141,7 @@ export async function PUT(request: Request) {
     include: { category: true },
   });
 
-  return jsonOk({
+  return jsonSaved({
     product: {
       id: product.legacyId,
       slug: product.slug || undefined,
@@ -172,5 +172,5 @@ export async function DELETE(request: Request) {
   if (!id) return jsonError("id is required");
 
   await prisma.product.delete({ where: { legacyId: id } });
-  return jsonOk({});
+  return jsonSaved({});
 }

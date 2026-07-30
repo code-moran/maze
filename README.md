@@ -55,8 +55,12 @@ Without a database, the public site still serves `defaultSiteData.json`. Admin s
 | `/contact` | Contact form |
 | `/admin` | Maze content admin (settings, pages, products, blogs, SEO, inquiries) |
 | `/studio` | Sanity Studio (optional; separate from the thin CMS) |
+| `/sitemap.xml` | Dynamic sitemap (pages, categories, products, blogs) |
+| `/robots.txt` | Crawler rules + sitemap pointer |
 
 Redirects: `/dashboard` → `/admin`; `maze-technologies.html` → `/`.
+
+Set `NEXT_PUBLIC_SITE_URL` (e.g. `https://your-domain.com`) so canonical URLs and the sitemap use the correct origin.
 
 ## Admin
 

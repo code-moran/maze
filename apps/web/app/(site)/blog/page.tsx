@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import BlogGrid from "@/components/BlogGrid";
 import PageHero from "@/components/PageHero";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await loadSiteContent();
   const seo = data.sectionSeo.blog;
-  return {
+  return buildPageMetadata({
     title: seo.title,
     description: seo.description,
-  };
+    path: "/blog",
+    image: data.blogs[0]?.image || data.heroBackgrounds[0],
+  });
 }
 
 export default async function BlogPage() {

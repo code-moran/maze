@@ -40,6 +40,7 @@ export type ServiceCharge = {
 export type BlogPost = {
   id: number;
   title: string;
+  slug?: string;
   date: string;
   author: string;
   excerpt: string;

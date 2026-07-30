@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request) {
@@ -35,7 +35,7 @@ export async function PUT(request: Request) {
           aboutImages: body.aboutImages ?? [],
         },
       });
-      return jsonOk({ home });
+      return jsonSaved({ home });
     }
     case "about": {
       const about = await prisma.aboutContent.upsert({
@@ -62,9 +62,12 @@ export async function PUT(request: Request) {
           missionText: String(body.missionText ?? ""),
         },
       });
-      return jsonOk({ about });
+      return jsonSaved({ about });
     }
     case "services": {
+      const existingServices = await prisma.servicesContent.findUnique({
+        where: { id: "default" },
+      });
       const services = await prisma.servicesContent.upsert({
         where: { id: "default" },
         create: {
@@ -72,18 +75,18 @@ export async function PUT(request: Request) {
           label: String(body.label ?? ""),
           title: String(body.title ?? ""),
           subtitle: String(body.subtitle ?? ""),
-          tv: body.tv ?? {},
-          solar: body.solar ?? {},
+          tv: body.tv ?? existingServices?.tv ?? {},
+          solar: body.solar ?? existingServices?.solar ?? {},
         },
         update: {
           label: String(body.label ?? ""),
           title: String(body.title ?? ""),
           subtitle: String(body.subtitle ?? ""),
-          tv: body.tv ?? undefined,
-          solar: body.solar ?? undefined,
+          ...(body.tv !== undefined ? { tv: body.tv } : {}),
+          ...(body.solar !== undefined ? { solar: body.solar } : {}),
         },
       });
-      return jsonOk({ services });
+      return jsonSaved({ services });
     }
     case "contact": {
       const contact = await prisma.contactContent.upsert({
@@ -100,7 +103,7 @@ export async function PUT(request: Request) {
           subtitle: String(body.subtitle ?? ""),
         },
       });
-      return jsonOk({ contact });
+      return jsonSaved({ contact });
     }
     case "products": {
       const productsPage = await prisma.productsPageContent.upsert({
@@ -119,7 +122,7 @@ export async function PUT(request: Request) {
           heroBackground: String(body.heroBackground ?? ""),
         },
       });
-      return jsonOk({ productsPage });
+      return jsonSaved({ productsPage });
     }
     case "charges": {
       const existing = await prisma.servicesContent.findUnique({
@@ -137,7 +140,7 @@ export async function PUT(request: Request) {
           solar: body.solar ?? existing?.solar ?? {},
         },
       });
-      return jsonOk({ services });
+      return jsonSaved({ services });
     }
     default:
       return jsonError("Unknown section");

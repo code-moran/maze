@@ -9,6 +9,11 @@ import {
   getBlogSlug,
 } from "@/data/siteData";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
+import {
+  blogPostingJsonLd,
+  buildPageMetadata,
+  jsonLdScript,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,10 +27,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await loadSiteContent();
   const post = getBlogBySlug(slug, data);
   if (!post) return { title: "Blog | Maze" };
-  return {
+  const path = `/blog/${getBlogSlug(post)}`;
+  return buildPageMetadata({
     title: `${post.title} | Maze`,
     description: post.excerpt,
-  };
+    path,
+    image: post.image,
+    type: "article",
+  });
 }
 
 export default async function BlogPostPage({ params }: Props) {
@@ -34,8 +43,14 @@ export default async function BlogPostPage({ params }: Props) {
   const post = getBlogBySlug(slug, data);
   if (!post) notFound();
 
+  const path = `/blog/${getBlogSlug(post)}`;
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(blogPostingJsonLd(post, path))}
+      />
       <BreadcrumbBar
         items={[
           { label: "Blog", href: "/blog" },
@@ -62,7 +77,7 @@ export default async function BlogPostPage({ params }: Props) {
             className="text-secondary"
             dangerouslySetInnerHTML={{ __html: formatRichText(post.content) }}
           />
-          {post.link && post.link !== "#" ? (
+          {post.link && post.link !== "#" && !post.link.startsWith("/blog/") ? (
             <div className="mt-4">
               <a
                 href={post.link}

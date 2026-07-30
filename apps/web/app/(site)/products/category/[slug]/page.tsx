@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero";
 import ProductsBrowser from "@/components/ProductsBrowser";
 import { getProductCategories } from "@/data/siteData";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
+import { buildPageMetadata } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -40,14 +41,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     categorySeo?.description ||
     `Browse ${title} at Maze Technologies. Premium quality products with professional installation services in Nairobi, Kenya.`;
 
-  return {
+  return buildPageMetadata({
     title: `${title} | Maze Technologies`,
     description,
-    openGraph: {
-      title: `${title} | Maze Technologies`,
-      description,
-    },
-  };
+    path: `/products/category/${slug}`,
+    image: data.sections.productsIntro.heroBackground || data.heroBackgrounds[0],
+  });
 }
 
 export default async function CategoryDetailPage({ params }: Props) {

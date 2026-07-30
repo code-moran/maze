@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonOk, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 function slugify(title: string): string {
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     },
   });
 
-  return jsonOk({
+  return jsonSaved({
     blog: {
       id: blog.legacyId,
       title: blog.title,
@@ -107,7 +107,7 @@ export async function PUT(request: Request) {
     },
   });
 
-  return jsonOk({
+  return jsonSaved({
     blog: {
       id: blog.legacyId,
       title: blog.title,
@@ -134,5 +134,5 @@ export async function DELETE(request: Request) {
   if (!id) return jsonError("id is required");
 
   await prisma.blogPost.delete({ where: { legacyId: id } });
-  return jsonOk({});
+  return jsonSaved({});
 }

@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request) {
@@ -45,7 +45,7 @@ export async function PUT(request: Request) {
     orderBy: { sortOrder: "asc" },
   });
 
-  return jsonOk({
+  return jsonSaved({
     subProducts: refreshed.map((s) => ({ id: s.subId, label: s.label })),
   });
 }

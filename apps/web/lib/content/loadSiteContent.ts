@@ -210,6 +210,7 @@ export async function loadSiteContent(): Promise<SiteData> {
       merged.blogs = blogs.map((b) => ({
         id: b.legacyId,
         title: b.title,
+        slug: b.slug || undefined,
         date: b.date,
         author: b.author,
         excerpt: b.excerpt,

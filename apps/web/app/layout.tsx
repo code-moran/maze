@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
 import Script from "next/script";
 import { getSiteData } from "@/data/siteData";
+import { getSiteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const figtree = Figtree({
@@ -10,16 +11,32 @@ const figtree = Figtree({
   display: "swap",
 });
 
-const data = getSiteData();
+const fallback = getSiteData();
 
 export const metadata: Metadata = {
-  title: data.siteMeta.title,
-  description: data.siteMeta.description,
-  keywords: data.siteMeta.keywords,
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: fallback.siteMeta.title,
+    template: "%s",
+  },
+  description: fallback.siteMeta.description,
+  keywords: fallback.siteMeta.keywords,
   openGraph: {
-    title: data.siteMeta.ogTitle,
-    description: data.siteMeta.ogDescription,
+    title: fallback.siteMeta.ogTitle || fallback.siteMeta.title,
+    description:
+      fallback.siteMeta.ogDescription || fallback.siteMeta.description,
     type: "website",
+    siteName: "Maze",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: fallback.siteMeta.ogTitle || fallback.siteMeta.title,
+    description:
+      fallback.siteMeta.ogDescription || fallback.siteMeta.description,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

@@ -340,7 +340,9 @@ export default function AdminDashboard({
             </div>
             <div className="col-lg-4">
               <div className="dashboard-note">
-                Changes save immediately and update your main website in real time.
+                {databaseConfigured
+                  ? "Changes save to Postgres and update the public site after refresh."
+                  : "DATABASE_URL is unset. Saves will fail until Postgres is configured."}
               </div>
             </div>
           </div>
@@ -349,6 +351,13 @@ export default function AdminDashboard({
 
       <main className="py-5">
         <div className="container">
+          {!databaseConfigured ? (
+            <div className="alert alert-warning mb-4" role="alert">
+              <strong>Database not configured.</strong> The site is serving
+              default JSON content. Set <code>DATABASE_URL</code> and run{" "}
+              <code>npm run db:push</code> before saving from admin.
+            </div>
+          ) : null}
           {/* Toast Notification */}
           {alert ? (
             <div

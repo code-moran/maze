@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request) {
@@ -83,5 +83,5 @@ export async function PUT(request: Request) {
     }
   }
 
-  return jsonOk({});
+  return jsonSaved({});
 }
