@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import ProductsBrowser from "@/components/ProductsBrowser";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
@@ -41,7 +42,9 @@ export default async function ProductsPage() {
           { href: "/services", label: "Installation", outline: true },
         ]}
       />
-      <ProductsBrowser data={data} hideIntro />
+      <Suspense fallback={<div className="container py-5">Loading products…</div>}>
+        <ProductsBrowser data={data} hideIntro />
+      </Suspense>
     </>
   );
 }

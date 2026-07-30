@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
 import ProductsBrowser from "@/components/ProductsBrowser";
@@ -90,7 +91,9 @@ export default async function CategoryDetailPage({ params }: Props) {
           { href: "/services", label: "Installation Services", outline: true },
         ]}
       />
-      <ProductsBrowser data={data} initialCategory={slug} hideIntro />
+      <Suspense fallback={<div className="container py-5">Loading products…</div>}>
+        <ProductsBrowser data={data} initialCategory={slug} hideIntro />
+      </Suspense>
     </>
   );
 }

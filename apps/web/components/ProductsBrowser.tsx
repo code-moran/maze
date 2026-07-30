@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getProductCategories, getProductSlug } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
@@ -36,10 +36,19 @@ export default function ProductsBrowser({
   hideIntro = false,
   initialCategory,
 }: Props) {
-  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [currentFilter, setCurrentFilter] = useState(initialCategory || "all");
-  const [currentSubFilter, setCurrentSubFilter] = useState("all");
+  const urlCategory =
+    initialCategory ||
+    searchParams.get("cat") ||
+    (pathname?.startsWith("/products/category/")
+      ? pathname.split("/").filter(Boolean).pop() || "all"
+      : "all");
+  const urlSubcat = searchParams.get("subcat") || "all";
+
+  const [currentFilter, setCurrentFilter] = useState(urlCategory);
+  const [currentSubFilter, setCurrentSubFilter] = useState(urlSubcat);
   const [displayedCount, setDisplayedCount] = useState(PER_PAGE);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [mainImg, setMainImg] = useState("");
@@ -102,31 +111,27 @@ export default function ProductsBrowser({
     }
   }, [selectedProduct]);
 
+  // Keep filters in sync with App Router Link navigations (critical on mobile)
   useEffect(() => {
-    if (preview || typeof window === "undefined") return;
+    if (preview) return;
+    setCurrentFilter(urlCategory);
+    setCurrentSubFilter(urlSubcat);
+    setDisplayedCount(PER_PAGE);
+    applyListingMeta(urlCategory);
 
-    const syncFromUrl = () => {
-      const params = new URLSearchParams(window.location.search);
-      const cat = params.get("cat") || initialCategory || "all";
-      const subcat = params.get("subcat") || "all";
-      const productParam = params.get("product");
-
-      setCurrentFilter(cat);
-      setCurrentSubFilter(subcat);
-      setDisplayedCount(PER_PAGE);
-
-      if (productParam) {
-        const id = Number(productParam);
-        if (!Number.isNaN(id)) openProduct(id);
-      } else {
-        applyListingMeta(cat);
-      }
-    };
-
-    syncFromUrl();
-    window.addEventListener("popstate", syncFromUrl);
-    return () => window.removeEventListener("popstate", syncFromUrl);
-  }, [preview, initialCategory, openProduct, applyListingMeta]);
+    const productParam = searchParams.get("product");
+    if (productParam) {
+      const id = Number(productParam);
+      if (!Number.isNaN(id)) openProduct(id);
+    }
+  }, [
+    preview,
+    urlCategory,
+    urlSubcat,
+    searchParams,
+    applyListingMeta,
+    openProduct,
+  ]);
 
   const filtered = useMemo(() => {
     if (currentFilter === "all") return products;
@@ -149,70 +154,13 @@ export default function ProductsBrowser({
     if (currentSubFilter === "all") {
       return "Select a sub product to view the items inside this category.";
     }
-    return (
-      data.categorySeo[currentFilter]?.description || intro.subtitle
-    );
+    return data.categorySeo[currentFilter]?.description || intro.subtitle;
   }, [currentFilter, currentSubFilter, data.categorySeo, intro.subtitle]);
-
-  const scrollToGrid = () => {
-    if (typeof window !== "undefined") {
-      const grid = document.getElementById("productsGridWrap") || document.getElementById("products");
-      grid?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  const filterProducts = (cat: string) => {
-    setCurrentFilter(cat);
-    setCurrentSubFilter("all");
-    setDisplayedCount(PER_PAGE);
-    applyListingMeta(cat);
-    if (!preview && typeof window !== "undefined") {
-      const url =
-        cat === "all"
-          ? "/products"
-          : `/products/category/${encodeURIComponent(cat)}`;
-      window.history.pushState(null, "", url);
-    }
-    scrollToGrid();
-  };
-
-  const filterSubCategory = (subCatId: string) => {
-    const nextSub = subCatId || "all";
-    setCurrentSubFilter(nextSub);
-    setDisplayedCount(PER_PAGE);
-    if (!preview && typeof window !== "undefined") {
-      const url =
-        nextSub === "all"
-          ? `/products?cat=${encodeURIComponent(currentFilter)}`
-          : `/products?cat=${encodeURIComponent(currentFilter)}&subcat=${encodeURIComponent(nextSub)}`;
-      window.history.pushState(null, "", url);
-    }
-    scrollToGrid();
-  };
-
-  const goToContact = () => {
-    const modalEl = document.getElementById("productModal");
-    const navigate = () => router.push("/contact");
-
-    if (modalEl && modalEl.classList.contains("show") && window.bootstrap?.Modal) {
-      const instance = window.bootstrap.Modal.getInstance(modalEl);
-      const handleHidden = () => {
-        modalEl.removeEventListener("hidden.bs.modal", handleHidden);
-        navigate();
-      };
-      modalEl.addEventListener("hidden.bs.modal", handleHidden);
-      instance?.hide();
-    } else {
-      navigate();
-    }
-  };
 
   const showSidebar = !preview && currentFilter !== "all";
 
   const subItems =
-    currentFilter !== "all"
-      ? data.subProducts[currentFilter] || []
-      : [];
+    currentFilter !== "all" ? data.subProducts[currentFilter] || [] : [];
 
   const categoryProducts =
     currentFilter !== "all"
@@ -229,8 +177,20 @@ export default function ProductsBrowser({
         .slice(0, 3)
     : [];
 
+  const categoryHref = (catId: string) =>
+    catId === "all"
+      ? "/products"
+      : `/products/category/${encodeURIComponent(catId)}`;
+
+  const subcatHref = (subId: string) => {
+    const base = `/products/category/${encodeURIComponent(currentFilter)}`;
+    return subId === "all"
+      ? base
+      : `${base}?subcat=${encodeURIComponent(subId)}`;
+  };
+
   return (
-    <section id="products" className="py-5" style={{ background: "#fafffe" }}>
+    <section id="products" className="products-browser py-4 py-md-5">
       <div className="container">
         {hideIntro && !preview ? null : (
           <div className="text-center mb-4">
@@ -244,90 +204,110 @@ export default function ProductsBrowser({
             </p>
           </div>
         )}
-        <div
-          className="d-flex flex-wrap justify-content-center gap-2 mb-4"
-          id="catFilters"
-        >
-          <Link
-            href="/products"
-            className={`cat-pill text-decoration-none${
-              !preview && currentFilter === "all" ? " active" : ""
-            }`}
-          >
-            <i className="bi bi-grid-fill me-1"></i>
-            All Products
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/products/category/${encodeURIComponent(cat.id)}`}
-              className={`cat-pill text-decoration-none${
-                !preview && currentFilter === cat.id ? " active" : ""
-              }`}
+
+        {!preview ? (
+          <div className="products-filter-shell mb-3 mb-md-4">
+            <div
+              className="products-filter-track"
+              id="catFilters"
+              role="navigation"
+              aria-label="Product categories"
             >
-              <i className={`bi ${cat.icon} me-1`}></i>
-              {cat.label}
-            </Link>
-          ))}
-        </div>
-
-        <div className="row g-4 align-items-start">
-          <div
-            className={`col-12 col-lg-3${showSidebar ? "" : " d-none"}`}
-            id="subCatPanel"
-          >
-            <div className="subcat-sidebar">
-              <h5 className="fw-bold mb-3">
-                {data.categorySeo[currentFilter]?.title || "Sub Products"}
-              </h5>
-              <div id="subCatFilters">
+              <Link
+                href="/products"
+                className={`cat-pill text-decoration-none${
+                  currentFilter === "all" ? " active" : ""
+                }`}
+                scroll={false}
+              >
+                <i className="bi bi-grid-fill" aria-hidden />
+                <span>All</span>
+              </Link>
+              {categories.map((cat) => (
                 <Link
-                  href={`/products/category/${encodeURIComponent(currentFilter)}`}
-                  className={`subcat-pill text-decoration-none d-flex justify-content-between align-items-center${
-                    currentSubFilter === "all" ? " active" : ""
+                  key={cat.id}
+                  href={categoryHref(cat.id)}
+                  className={`cat-pill text-decoration-none${
+                    currentFilter === cat.id ? " active" : ""
                   }`}
+                  scroll={false}
+                  aria-current={currentFilter === cat.id ? "page" : undefined}
                 >
-                  <span>All Sub Products</span>
-                  <span className="subcat-count">{categoryProducts.length}</span>
+                  <i className={`bi ${cat.icon}`} aria-hidden />
+                  <span>{cat.label}</span>
                 </Link>
-                {subItems.map((item) => {
-                  const count = categoryProducts.filter(
-                    (p) => p.subCat === item.id
-                  ).length;
-                  return (
-                    <Link
-                      key={item.id}
-                      href={`/products/category/${encodeURIComponent(currentFilter)}?subcat=${encodeURIComponent(item.id)}`}
-                      className={`subcat-pill text-decoration-none d-flex justify-content-between align-items-center${
-                        currentSubFilter === item.id ? " active" : ""
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      <span className="subcat-count">{count}</span>
-                    </Link>
-                  );
-                })}
-              </div>
+              ))}
             </div>
-          </div>
 
-          <div
-            className={showSidebar ? "col-12 col-lg-9" : "col-12"}
-            id="productsGridWrap"
-          >
-            <div className="row g-4" id="productsGrid">
+            {showSidebar ? (
+              <div className="products-subfilter" id="subCatPanel">
+                <div className="products-subfilter-label">
+                  <span>Filter</span>
+                  <strong>
+                    {data.categorySeo[currentFilter]?.title || "Sub products"}
+                  </strong>
+                  <em>{filtered.length} items</em>
+                </div>
+                <div
+                  className="products-filter-track products-filter-track--sub"
+                  id="subCatFilters"
+                  role="navigation"
+                  aria-label="Sub categories"
+                >
+                  <Link
+                    href={subcatHref("all")}
+                    className={`subcat-pill text-decoration-none${
+                      currentSubFilter === "all" ? " active" : ""
+                    }`}
+                    scroll={false}
+                  >
+                    <span>All</span>
+                    <span className="subcat-count">{categoryProducts.length}</span>
+                  </Link>
+                  {subItems.map((item) => {
+                    const count = categoryProducts.filter(
+                      (p) => p.subCat === item.id
+                    ).length;
+                    return (
+                      <Link
+                        key={item.id}
+                        href={subcatHref(item.id)}
+                        className={`subcat-pill text-decoration-none${
+                          currentSubFilter === item.id ? " active" : ""
+                        }`}
+                        scroll={false}
+                        aria-current={
+                          currentSubFilter === item.id ? "page" : undefined
+                        }
+                      >
+                        <span>{item.label}</span>
+                        <span className="subcat-count">{count}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="row g-3 g-md-4 align-items-start">
+          <div className="col-12" id="productsGridWrap">
+            <div className="row g-3 g-md-4" id="productsGrid">
               {preview || currentFilter === "all" ? (
                 categories.map((cat) => {
                   const categoryProductsList = products.filter(
                     (p) => p.cat === cat.id
                   );
                   const previewImage = categoryProductsList[0]?.imgs?.[0] || "";
-
-                  const href = `/products/category/${cat.id}`;
+                  const href = categoryHref(cat.id);
 
                   return (
-                    <div key={cat.id} className="col-md-6 col-xl-3">
-                      <Link href={href} className="product-category-card text-decoration-none text-dark d-block h-100">
+                    <div key={cat.id} className="col-6 col-md-6 col-xl-3">
+                      <Link
+                        href={href}
+                        className="product-category-card text-decoration-none text-dark d-block h-100"
+                      >
                         <div className="product-category-image">
                           {previewImage ? (
                             <img
@@ -343,11 +323,11 @@ export default function ProductsBrowser({
                             {cat.label}
                           </span>
                           <div className="card-title">{cat.label}</div>
-                          <p className="card-text text-secondary small">
+                          <p className="card-text text-secondary small d-none d-md-block">
                             {cat.description}
                           </p>
                           <span className="btn btn-maze w-100 btn-sm text-white d-inline-flex align-items-center justify-content-center">
-                            View Products{" "}
+                            View
                             <i className="bi bi-arrow-right ms-1"></i>
                           </span>
                         </div>
@@ -381,9 +361,11 @@ export default function ProductsBrowser({
                               {product.catLabel}
                             </span>
                             <div className="card-title">{product.name}</div>
-                            <p className="card-text">{product.shortDesc}</p>
+                            <p className="card-text d-none d-sm-block">
+                              {product.shortDesc}
+                            </p>
                             <span className="btn btn-maze w-100 btn-sm">
-                              View Details{" "}
+                              Details
                               <i className="bi bi-arrow-right ms-1"></i>
                             </span>
                           </div>
@@ -400,13 +382,14 @@ export default function ProductsBrowser({
             displayedCount < filtered.length ? (
               <div className="text-center mt-4">
                 <button
-                  className="btn btn-maze-outline"
+                  className="btn btn-maze-outline products-load-more"
                   type="button"
                   onClick={() =>
                     setDisplayedCount((count) => count + PER_PAGE)
                   }
                 >
-                  Load More Products <i className="bi bi-arrow-down ms-1"></i>
+                  Load more
+                  <i className="bi bi-arrow-down ms-1"></i>
                 </button>
               </div>
             ) : null}
