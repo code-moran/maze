@@ -47,7 +47,10 @@ export async function loadSiteContent(): Promise<SiteData> {
       prisma.contactContent.findUnique({ where: { id: "default" } }),
       prisma.productsPageContent.findUnique({ where: { id: "default" } }),
       prisma.category.findMany({
-        include: { subProducts: { orderBy: { sortOrder: "asc" } } },
+        include: {
+          subProducts: { orderBy: { sortOrder: "asc" } },
+          _count: { select: { products: true, subProducts: true } },
+        },
         orderBy: { sortOrder: "asc" },
       }),
       prisma.product.findMany({
@@ -185,6 +188,18 @@ export async function loadSiteContent(): Promise<SiteData> {
         }));
       }
       merged.categorySeo = categorySeo;
+      merged.categories = categories.map((cat) => ({
+        id: cat.id,
+        key: cat.key,
+        title: cat.title,
+        description: cat.description,
+        metaTitle: cat.metaTitle,
+        metaDescription: cat.metaDescription,
+        icon: cat.icon || "bi-box",
+        sortOrder: cat.sortOrder,
+        productCount: cat._count?.products ?? 0,
+        subProductCount: cat._count?.subProducts ?? cat.subProducts.length,
+      }));
       if (Object.keys(subProducts).length) merged.subProducts = subProducts;
     }
 

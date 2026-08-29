@@ -8,6 +8,19 @@ export type CategorySeo = SeoBlock & {
   metaDescription: string;
 };
 
+export type CategoryItem = {
+  id?: string;
+  key: string;
+  title: string;
+  description: string;
+  metaTitle: string;
+  metaDescription: string;
+  icon: string;
+  sortOrder: number;
+  productCount?: number;
+  subProductCount?: number;
+};
+
 export type SubProduct = {
   id: string;
   label: string;
@@ -142,6 +155,7 @@ export type SiteData = {
   };
   sectionSeo: Record<string, SeoBlock>;
   categorySeo: Record<string, CategorySeo>;
+  categories?: CategoryItem[];
   subProducts: Record<string, SubProduct[]>;
   generalSettings: GeneralSettings;
   serviceCharges: Record<string, ServiceCharge>;

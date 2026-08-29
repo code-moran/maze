@@ -64,6 +64,7 @@ export async function PUT(request: Request) {
         }
       >
     )) {
+      if (key === "all") continue;
       await prisma.category.upsert({
         where: { key },
         create: {

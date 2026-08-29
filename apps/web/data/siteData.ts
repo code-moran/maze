@@ -42,12 +42,28 @@ export function slugify(title: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function getCategoryIcon(catId: string): string {
+export function getCategoryIcon(catId: string, fallback?: string): string {
+  if (fallback) return fallback;
   return CATEGORY_ICONS[catId as ProductCategoryId] || "bi-box";
 }
 
 export function getProductCategories(data: SiteData = getSiteData()) {
-  return CATEGORY_ORDER.map((id) => ({
+  if (Array.isArray(data.categories) && data.categories.length > 0) {
+    return [...data.categories]
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((c) => ({
+        id: c.key,
+        label: c.title || data.categorySeo[c.key]?.title || c.key,
+        icon: c.icon || getCategoryIcon(c.key),
+        description:
+          c.description || data.categorySeo[c.key]?.description || "",
+      }));
+  }
+
+  const keys = Object.keys(data.categorySeo || {}).filter((k) => k !== "all");
+  const allKeys = Array.from(new Set([...CATEGORY_ORDER, ...keys]));
+
+  return allKeys.map((id) => ({
     id,
     label: data.categorySeo[id]?.title || id,
     icon: getCategoryIcon(id),

@@ -68,6 +68,44 @@
       "metaDescription": "Choose extension cables with surge protection, safety shutters, and practical cable lengths for daily use."
     }
   },
+  "categories": [
+    {
+      "key": "tv-mounts",
+      "title": "TV Wall Mounts",
+      "description": "Fixed, tilting, and full-motion wall mounts for every screen size.",
+      "metaTitle": "TV Wall Mounts | Maze",
+      "metaDescription": "Shop durable TV wall mounts with clean finishes, flexible viewing angles, and professional installation options.",
+      "icon": "bi-tv",
+      "sortOrder": 0
+    },
+    {
+      "key": "guards",
+      "title": "Guards",
+      "description": "Reliable security guards and monitoring products for homes and businesses.",
+      "metaTitle": "Guards | Maze",
+      "metaDescription": "Discover durable security guard products designed for dependable monitoring and protection.",
+      "icon": "bi-shield-check",
+      "sortOrder": 1
+    },
+    {
+      "key": "solar",
+      "title": "Solar Outdoor Lights",
+      "description": "Eco-friendly lighting solutions for compounds, pathways, and outdoor spaces.",
+      "metaTitle": "Solar Outdoor Lights | Maze",
+      "metaDescription": "Browse efficient solar flood lights and garden lights that improve visibility while reducing energy costs.",
+      "icon": "bi-sun",
+      "sortOrder": 2
+    },
+    {
+      "key": "cables",
+      "title": "Extension Cables",
+      "description": "Heavy-duty extension cables built for safety, power distribution, and durability.",
+      "metaTitle": "Extension Cables | Maze",
+      "metaDescription": "Choose extension cables with surge protection, safety shutters, and practical cable lengths for daily use.",
+      "icon": "bi-plug",
+      "sortOrder": 3
+    }
+  ],
   "subProducts": {
     "tv-mounts": [
       {
