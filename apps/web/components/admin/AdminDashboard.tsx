@@ -2030,7 +2030,7 @@ function CategoriesPanel({
               {!isNew && (
                 <div className="d-flex gap-2">
                   <a
-                    href={`/products/category/${form.key}`}
+                    href={`/${form.key}`}
                     target="_blank"
                     rel="noreferrer"
                     className="btn btn-outline-secondary btn-sm"
@@ -2083,7 +2083,7 @@ function CategoriesPanel({
                 </label>
                 <div className="input-group">
                   <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
-                    /products/category/
+                    /
                   </span>
                   <input
                     required

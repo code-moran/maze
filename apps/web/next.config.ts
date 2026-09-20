@@ -40,6 +40,11 @@ const nextConfig: NextConfig = {
         destination: "/admin",
         permanent: false,
       },
+      {
+        source: "/products/category/:slug",
+        destination: "/:slug",
+        permanent: true,
+      },
     ];
   },
 };

@@ -30,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const categories = getProductCategories(data).map((cat) => ({
-    url: absoluteUrl(`/products/category/${cat.id}`),
+    url: absoluteUrl(`/${cat.id}`),
     lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.8,

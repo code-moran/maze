@@ -40,6 +40,22 @@ export async function GET(request: Request) {
   });
 }
 
+const RESERVED_SLUGS = new Set([
+  "all",
+  "admin",
+  "api",
+  "products",
+  "about",
+  "contact",
+  "services",
+  "blog",
+  "location",
+  "request",
+  "sitemap.xml",
+  "robots.txt",
+  "studio",
+]);
+
 export async function POST(request: Request) {
   const denied = await requireAdmin(request);
   if (denied) return denied;
@@ -60,8 +76,8 @@ export async function POST(request: Request) {
     return jsonError("A valid slug is required");
   }
 
-  if (slug === "all") {
-    return jsonError("'all' is a reserved category slug and cannot be used");
+  if (RESERVED_SLUGS.has(slug)) {
+    return jsonError(`'${slug}' is a reserved path and cannot be used as a category slug`);
   }
 
   const existing = await prisma.category.findUnique({
@@ -151,8 +167,8 @@ export async function PUT(request: Request) {
     return jsonError("A valid slug is required");
   }
 
-  if (slug === "all") {
-    return jsonError("'all' is a reserved category slug and cannot be used");
+  if (RESERVED_SLUGS.has(slug)) {
+    return jsonError(`'${slug}' is a reserved path and cannot be used as a category slug`);
   }
 
   if (slug !== existing.key) {

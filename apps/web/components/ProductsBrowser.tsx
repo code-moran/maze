@@ -38,12 +38,15 @@ export default function ProductsBrowser({
 }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const categories = getProductCategories(data);
 
   const urlCategory =
     initialCategory ||
     searchParams.get("cat") ||
     (pathname?.startsWith("/products/category/")
       ? pathname.split("/").filter(Boolean).pop() || "all"
+      : categories.some((c) => `/${c.id}` === pathname)
+      ? pathname.slice(1)
       : "all");
   const urlSubcat = searchParams.get("subcat") || "all";
 
@@ -61,7 +64,6 @@ export default function ProductsBrowser({
   });
 
   const products = data.products;
-  const categories = getProductCategories(data);
   const intro = data.sections.productsIntro;
 
   const applyListingMeta = useCallback(
@@ -180,10 +182,13 @@ export default function ProductsBrowser({
   const categoryHref = (catId: string) =>
     catId === "all"
       ? "/products"
-      : `/products/category/${encodeURIComponent(catId)}`;
+      : `/${encodeURIComponent(catId)}`;
 
   const subcatHref = (subId: string) => {
-    const base = `/products/category/${encodeURIComponent(currentFilter)}`;
+    const base =
+      currentFilter === "all"
+        ? "/products"
+        : `/${encodeURIComponent(currentFilter)}`;
     return subId === "all"
       ? base
       : `${base}?subcat=${encodeURIComponent(subId)}`;

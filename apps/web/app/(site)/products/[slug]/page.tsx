@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ? `${categorySeo.title} | Maze`
         : "Product Category | Maze",
       description: categorySeo?.description,
-      path: `/products/category/${slug}`,
+      path: `/${slug}`,
     });
   }
 
@@ -61,7 +61,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const categories = getProductCategories(data);
   if (categories.some((c) => c.id === slug)) {
-    redirect(`/products/category/${slug}`);
+    redirect(`/${slug}`);
   }
 
   const product = getProductBySlug(slug, data);
@@ -90,7 +90,7 @@ export default async function ProductDetailPage({ params }: Props) {
           { label: "Products", href: "/products" },
           {
             label: product.catLabel,
-            href: `/products/category/${product.cat}`,
+            href: `/${product.cat}`,
           },
           { label: product.name },
         ]}
