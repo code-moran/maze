@@ -2097,8 +2097,11 @@ function CategoriesPanel({
                     }}
                   />
                 </div>
-                <div className="form-text small text-muted" style={{ fontSize: "0.75rem" }}>
-                  Used in URL routing. Letters, numbers, and hyphens only.
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Used in URL routing. Letters, numbers, and hyphens only.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/{form.key || "..."}
+                  </span>
                 </div>
               </div>
 
@@ -2429,15 +2432,27 @@ function ProductsPanel({
                     <i className="bi bi-magic me-1"></i>Regenerate from Name
                   </button>
                 </label>
-                <input
-                  className="form-control"
-                  placeholder="e.g. full-motion-tv-wall-mount"
-                  value={form.slug || ""}
-                  onChange={(e) => {
-                    setForm({ ...form, slug: e.target.value });
-                    setIsSlugCustomized(true);
-                  }}
-                />
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /{form.cat || "category"}/
+                  </span>
+                  <input
+                    className="form-control font-monospace"
+                    placeholder="e.g. fixed-wall-mount-14-43"
+                    value={form.slug || ""}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      setForm({ ...form, slug: sanitized });
+                      setIsSlugCustomized(true);
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Used in URL routing.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/{form.cat || "category"}/{form.slug || slugify(form.name) || "..."}
+                  </span>
+                </div>
               </div>
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">Category</label>
@@ -2608,10 +2623,12 @@ function SubProductsPanel({
 }) {
   const [items, setItems] = useState(data.subProducts[categoryKey] || []);
   const [editIndex, setEditIndex] = useState(0);
+  const [customizedSlugs, setCustomizedSlugs] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     setItems(data.subProducts[categoryKey] || []);
     setEditIndex(0);
+    setCustomizedSlugs({});
   }, [data.subProducts, categoryKey]);
 
   const current = items[editIndex] || { id: "", label: "" };
@@ -2624,9 +2641,11 @@ function SubProductsPanel({
           className="btn btn-maze"
           type="button"
           onClick={() => {
+            const newLabel = "New Sub Product";
+            const newId = `sub-product-${items.length + 1}`;
             setItems([
               ...items,
-              { id: `new-${items.length + 1}`, label: "New sub product" },
+              { id: newId, label: newLabel },
             ]);
             setEditIndex(items.length);
           }}
@@ -2661,12 +2680,13 @@ function SubProductsPanel({
               <button
                 key={`${item.id}-${index}`}
                 type="button"
-                className={`dashboard-item w-100 text-start${
+                className={`dashboard-item w-100 text-start d-flex justify-content-between align-items-center${
                   editIndex === index ? " active" : ""
                 }`}
                 onClick={() => setEditIndex(index)}
               >
-                {item.label}
+                <span>{item.label}</span>
+                <span className="small text-muted font-monospace">/{item.id}</span>
               </button>
             ))}
           </div>
@@ -2682,31 +2702,67 @@ function SubProductsPanel({
             <div className="row g-3">
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">
-                  Sub Product ID
+                  Sub Product Name <span className="text-danger">*</span>
                 </label>
                 <input
                   className="form-control"
-                  value={current.id}
+                  required
+                  value={current.label}
                   onChange={(e) => {
+                    const newLabel = e.target.value;
+                    const autoSlug = slugify(newLabel);
                     const next = [...items];
-                    next[editIndex] = { ...current, id: e.target.value };
+                    next[editIndex] = {
+                      ...current,
+                      label: newLabel,
+                      id: customizedSlugs[editIndex] ? current.id : autoSlug,
+                    };
                     setItems(next);
                   }}
                 />
               </div>
               <div className="col-md-6">
-                <label className="form-label small fw-semibold">
-                  Sub Product Name
+                <label className="form-label small fw-semibold d-flex justify-content-between align-items-center mb-1">
+                  <span>Custom Slug <span className="text-danger">*</span></span>
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 text-success text-decoration-none"
+                    style={{ fontSize: "0.75rem" }}
+                    onClick={() => {
+                      const autoSlug = slugify(current.label);
+                      const next = [...items];
+                      next[editIndex] = { ...current, id: autoSlug };
+                      setItems(next);
+                      setCustomizedSlugs((prev) => ({ ...prev, [editIndex]: false }));
+                    }}
+                  >
+                    <i className="bi bi-magic me-1"></i>Regenerate from Name
+                  </button>
                 </label>
-                <input
-                  className="form-control"
-                  value={current.label}
-                  onChange={(e) => {
-                    const next = [...items];
-                    next[editIndex] = { ...current, label: e.target.value };
-                    setItems(next);
-                  }}
-                />
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /{categoryKey}/
+                  </span>
+                  <input
+                    required
+                    className="form-control font-monospace"
+                    placeholder="e.g. fixed-wall-mounts"
+                    value={current.id}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      const next = [...items];
+                      next[editIndex] = { ...current, id: sanitized };
+                      setItems(next);
+                      setCustomizedSlugs((prev) => ({ ...prev, [editIndex]: true }));
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Used in subcategory URL routing.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/{categoryKey}/{current.id || "..."}
+                  </span>
+                </div>
               </div>
               <div className="col-12 d-flex flex-wrap gap-2">
                 <button className="btn btn-maze" type="submit" disabled={saving}>
@@ -2750,6 +2806,7 @@ function BlogsPanel({
   const empty = {
     id: 0,
     title: "",
+    slug: "",
     date: new Date().toISOString().slice(0, 10),
     author: "Admin",
     excerpt: "",
@@ -2758,10 +2815,14 @@ function BlogsPanel({
     link: "#",
   };
   const [form, setForm] = useState(activeBlog || empty);
+  const [isSlugCustomized, setIsSlugCustomized] = useState(
+    Boolean(activeBlog?.slug)
+  );
   const isNew = !activeBlog;
 
   useEffect(() => {
     setForm(activeBlog || empty);
+    setIsSlugCustomized(Boolean(activeBlog?.slug));
   }, [activeBlog]);
 
   return (
@@ -2802,14 +2863,60 @@ function BlogsPanel({
             }}
           >
             <div className="row g-3">
-              <div className="col-12">
-                <label className="form-label small fw-semibold">Title</label>
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold">Title <span className="text-danger">*</span></label>
                 <input
                   className="form-control"
                   required
                   value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  onChange={(e) => {
+                    const newTitle = e.target.value;
+                    const autoSlug = slugify(newTitle);
+                    setForm((prev) => ({
+                      ...prev,
+                      title: newTitle,
+                      slug: isSlugCustomized ? (prev.slug || autoSlug) : autoSlug,
+                    }));
+                  }}
                 />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold d-flex justify-content-between align-items-center mb-1">
+                  <span>Custom Slug</span>
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 text-success text-decoration-none"
+                    style={{ fontSize: "0.75rem" }}
+                    onClick={() => {
+                      const autoSlug = slugify(form.title);
+                      setForm((prev) => ({ ...prev, slug: autoSlug }));
+                      setIsSlugCustomized(false);
+                    }}
+                  >
+                    <i className="bi bi-magic me-1"></i>Regenerate from Title
+                  </button>
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /blog/
+                  </span>
+                  <input
+                    className="form-control font-monospace"
+                    placeholder="e.g. smart-tv-mounting-guide"
+                    value={form.slug || ""}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      setForm({ ...form, slug: sanitized });
+                      setIsSlugCustomized(true);
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Direct article path.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/blog/{form.slug || slugify(form.title) || "..."}
+                  </span>
+                </div>
               </div>
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">Date</label>
