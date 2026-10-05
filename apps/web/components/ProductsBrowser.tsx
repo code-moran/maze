@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getProductCategories, getProductSlug } from "@/data/siteData";
+import {
+  getProductCategories,
+  getProductHref,
+  getProductSlug,
+} from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
 import ProductRequestModal from "@/components/ProductRequestModal";
 
@@ -14,6 +18,7 @@ type Props = {
   preview?: boolean;
   hideIntro?: boolean;
   initialCategory?: string;
+  initialSubCategory?: string;
 };
 
 function setDocumentMeta(title?: string, description?: string) {
@@ -35,6 +40,7 @@ export default function ProductsBrowser({
   preview = false,
   hideIntro = false,
   initialCategory,
+  initialSubCategory,
 }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,7 +54,10 @@ export default function ProductsBrowser({
       : categories.some((c) => `/${c.id}` === pathname)
       ? pathname.slice(1)
       : "all");
-  const urlSubcat = searchParams.get("subcat") || "all";
+  const urlSubcat =
+    initialSubCategory ||
+    searchParams.get("subcat") ||
+    "all";
 
   const [currentFilter, setCurrentFilter] = useState(urlCategory);
   const [currentSubFilter, setCurrentSubFilter] = useState(urlSubcat);
@@ -185,13 +194,10 @@ export default function ProductsBrowser({
       : `/${encodeURIComponent(catId)}`;
 
   const subcatHref = (subId: string) => {
-    const base =
-      currentFilter === "all"
-        ? "/products"
-        : `/${encodeURIComponent(currentFilter)}`;
+    if (currentFilter === "all") return "/products";
     return subId === "all"
-      ? base
-      : `${base}?subcat=${encodeURIComponent(subId)}`;
+      ? `/${encodeURIComponent(currentFilter)}`
+      : `/${encodeURIComponent(currentFilter)}/${encodeURIComponent(subId)}`;
   };
 
   return (
@@ -346,11 +352,10 @@ export default function ProductsBrowser({
                 </div>
               ) : (
                 visibleProducts.map((product) => {
-                  const slug = getProductSlug(product);
                   return (
                     <div key={product.id} className="col-6 col-md-6 col-lg-4">
                       <Link
-                        href={`/products/${slug}`}
+                        href={getProductHref(product)}
                         className="text-decoration-none text-dark d-block h-100"
                       >
                         <div className="product-card h-100">

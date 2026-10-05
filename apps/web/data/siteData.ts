@@ -1,19 +1,32 @@
 import defaultSiteData from "./defaultSiteData.json";
 import type { BlogPost, Product, ProductCategoryId, SiteData } from "./types";
 
-const CATEGORY_ICONS: Record<ProductCategoryId, string> = {
+const CATEGORY_ICONS: Record<string, string> = {
   "tv-mounts": "bi-tv",
+  "solar-outdoor-lights": "bi-sun",
   guards: "bi-shield-check",
+  "extension-sockets": "bi-plug",
   solar: "bi-sun",
   cables: "bi-plug",
 };
 
-const CATEGORY_ORDER: ProductCategoryId[] = [
+const CATEGORY_ORDER: string[] = [
   "tv-mounts",
+  "solar-outdoor-lights",
   "guards",
-  "solar",
-  "cables",
+  "extension-sockets",
 ];
+
+export const CATEGORY_ALIASES: Record<string, string> = {
+  solar: "solar-outdoor-lights",
+  cables: "extension-sockets",
+  "extension-cables": "extension-sockets",
+};
+
+export function normalizeCategorySlug(slug: string): string {
+  const norm = slugify(slug);
+  return CATEGORY_ALIASES[norm] || norm;
+}
 
 export function getSiteData(): SiteData {
   return defaultSiteData as SiteData;
@@ -152,6 +165,30 @@ export function getProductBySlug(
   return data.products.find(
     (product) => getProductSlug(product) === norm || String(product.id) === norm
   );
+}
+
+export function getProductHref(product: Product): string {
+  const cat = normalizeCategorySlug(product.cat);
+  const slug = getProductSlug(product);
+  return `/${cat}/${slug}`;
+}
+
+export function getProductByCategoryAndSlug(
+  categorySlug: string,
+  productSlug: string,
+  data: SiteData = getSiteData()
+): Product | undefined {
+  const normCat = normalizeCategorySlug(categorySlug);
+  const normSlug = slugify(productSlug);
+  return data.products.find((p) => {
+    const pCat = normalizeCategorySlug(p.cat);
+    if (pCat !== normCat) return false;
+    return (
+      getProductSlug(p) === normSlug ||
+      String(p.id) === normSlug ||
+      slugify(p.subCat) === normSlug
+    );
+  });
 }
 
 export { CATEGORY_ICONS, CATEGORY_ORDER };

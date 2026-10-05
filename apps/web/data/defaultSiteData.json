@@ -41,7 +41,7 @@
       "title": "Our Products",
       "description": "Quality products for your home and office",
       "metaTitle": "Products | Maze",
-      "metaDescription": "Explore all Maze products including TV wall mounts, guards, solar lights, and extension cables."
+      "metaDescription": "Explore all Maze products including TV wall mounts, guards, solar outdoor lights, and extension sockets."
     },
     "tv-mounts": {
       "title": "TV Wall Mounts",
@@ -49,23 +49,35 @@
       "metaTitle": "TV Wall Mounts | Maze",
       "metaDescription": "Shop durable TV wall mounts with clean finishes, flexible viewing angles, and professional installation options."
     },
+    "solar-outdoor-lights": {
+      "title": "Solar Outdoor Lights",
+      "description": "Eco-friendly lighting solutions for compounds, pathways, and outdoor spaces.",
+      "metaTitle": "Solar Outdoor Lights | Maze",
+      "metaDescription": "Browse efficient solar flood lights, street lights, and wall lights that improve visibility while reducing energy costs."
+    },
     "guards": {
       "title": "Guards",
-      "description": "Reliable security guards and monitoring products for homes and businesses.",
+      "description": "Reliable voltage guards and power protection for appliances.",
       "metaTitle": "Guards | Maze",
-      "metaDescription": "Discover durable security guard products designed for dependable monitoring and protection."
+      "metaDescription": "Discover durable fridge guards, tv guards, and hi-volt protection guards designed for dependable device protection."
+    },
+    "extension-sockets": {
+      "title": "Extension Sockets",
+      "description": "Heavy-duty extension sockets built for safety, power distribution, and durability.",
+      "metaTitle": "Extension Sockets | Maze",
+      "metaDescription": "Choose 4-way, 6-way, and USB extension sockets with surge protection, safety shutters, and practical cable lengths."
     },
     "solar": {
       "title": "Solar Outdoor Lights",
       "description": "Eco-friendly lighting solutions for compounds, pathways, and outdoor spaces.",
       "metaTitle": "Solar Outdoor Lights | Maze",
-      "metaDescription": "Browse efficient solar flood lights and garden lights that improve visibility while reducing energy costs."
+      "metaDescription": "Browse efficient solar flood lights, street lights, and wall lights that improve visibility while reducing energy costs."
     },
     "cables": {
-      "title": "Extension Cables",
-      "description": "Heavy-duty extension cables built for safety, power distribution, and durability.",
-      "metaTitle": "Extension Cables | Maze",
-      "metaDescription": "Choose extension cables with surge protection, safety shutters, and practical cable lengths for daily use."
+      "title": "Extension Sockets",
+      "description": "Heavy-duty extension sockets built for safety, power distribution, and durability.",
+      "metaTitle": "Extension Sockets | Maze",
+      "metaDescription": "Choose 4-way, 6-way, and USB extension sockets with surge protection, safety shutters, and practical cable lengths."
     }
   },
   "categories": [
@@ -79,29 +91,29 @@
       "sortOrder": 0
     },
     {
-      "key": "guards",
-      "title": "Guards",
-      "description": "Reliable security guards and monitoring products for homes and businesses.",
-      "metaTitle": "Guards | Maze",
-      "metaDescription": "Discover durable security guard products designed for dependable monitoring and protection.",
-      "icon": "bi-shield-check",
-      "sortOrder": 1
-    },
-    {
-      "key": "solar",
+      "key": "solar-outdoor-lights",
       "title": "Solar Outdoor Lights",
       "description": "Eco-friendly lighting solutions for compounds, pathways, and outdoor spaces.",
       "metaTitle": "Solar Outdoor Lights | Maze",
-      "metaDescription": "Browse efficient solar flood lights and garden lights that improve visibility while reducing energy costs.",
+      "metaDescription": "Browse efficient solar flood lights, street lights, and wall lights that improve visibility while reducing energy costs.",
       "icon": "bi-sun",
+      "sortOrder": 1
+    },
+    {
+      "key": "guards",
+      "title": "Guards",
+      "description": "Reliable voltage guards and power protection for appliances.",
+      "metaTitle": "Guards | Maze",
+      "metaDescription": "Discover durable fridge guards, tv guards, and hi-volt protection guards designed for dependable device protection.",
+      "icon": "bi-shield-check",
       "sortOrder": 2
     },
     {
-      "key": "cables",
-      "title": "Extension Cables",
-      "description": "Heavy-duty extension cables built for safety, power distribution, and durability.",
-      "metaTitle": "Extension Cables | Maze",
-      "metaDescription": "Choose extension cables with surge protection, safety shutters, and practical cable lengths for daily use.",
+      "key": "extension-sockets",
+      "title": "Extension Sockets",
+      "description": "Heavy-duty extension sockets built for safety, power distribution, and durability.",
+      "metaTitle": "Extension Sockets | Maze",
+      "metaDescription": "Choose 4-way, 6-way, and USB extension sockets with surge protection, safety shutters, and practical cable lengths.",
       "icon": "bi-plug",
       "sortOrder": 3
     }
@@ -109,66 +121,86 @@
   "subProducts": {
     "tv-mounts": [
       {
-        "id": "fixed-flat",
-        "label": "Fixed/Flat Wall Mounts"
+        "id": "fixed-wall-mounts",
+        "label": "Fixed Wall Mounts"
       },
       {
-        "id": "tilt-wall",
-        "label": "Tilt Wall Mounts"
+        "id": "tilting-wall-mounts",
+        "label": "Tilting Wall Mounts"
       },
       {
-        "id": "full-motion-single",
-        "label": "Full Motion Single Arm Mounts"
+        "id": "full-motion-wall-mounts",
+        "label": "Full Motion Wall Mounts"
+      }
+    ],
+    "solar-outdoor-lights": [
+      {
+        "id": "solar-flood-lights",
+        "label": "Solar Flood Lights"
       },
       {
-        "id": "full-motion-double",
-        "label": "Full Motion Double Arm Mounts"
+        "id": "solar-street-lights",
+        "label": "Solar Street Lights"
       },
       {
-        "id": "other-mounts",
-        "label": "Other Mounts"
+        "id": "solar-wall-lights",
+        "label": "Solar Wall Lights"
       }
     ],
     "guards": [
       {
-        "id": "bullet",
-        "label": "Bullet Guards"
+        "id": "fridge-guard",
+        "label": "Fridge Guards"
       },
       {
-        "id": "dome",
-        "label": "Dome Guards"
+        "id": "tv-guard",
+        "label": "TV Guards"
       },
       {
-        "id": "ptz",
-        "label": "PTZ Guards"
+        "id": "hi-volt-guard",
+        "label": "Hi Volt Guards"
+      }
+    ],
+    "extension-sockets": [
+      {
+        "id": "4way",
+        "label": "4 Way"
+      },
+      {
+        "id": "6way",
+        "label": "6 Way"
+      },
+      {
+        "id": "6way-with-usb",
+        "label": "6 Way with USB"
       }
     ],
     "solar": [
       {
-        "id": "solar-fixed",
-        "label": "Solar Fixed Lights"
+        "id": "solar-flood-lights",
+        "label": "Solar Flood Lights"
       },
       {
-        "id": "solar-street",
+        "id": "solar-street-lights",
         "label": "Solar Street Lights"
       },
       {
-        "id": "solar-wall",
+        "id": "solar-wall-lights",
         "label": "Solar Wall Lights"
       }
     ],
     "cables": [
       {
-        "id": "4-way",
-        "label": "4-Way Extensions"
+        "id": "4way",
+        "label": "4 Way"
       },
       {
-        "id": "6-way",
-        "label": "6-Way Extensions"
+        "id": "6way",
+        "label": "6 Way"
       },
       {
-        "id": "reel",
-        "label": "Cable Reels"
+        "id": "6way-with-usb",
+        "label": "6 Way with USB"
       }
     ]
   },
@@ -310,94 +342,59 @@
   "products": [
     {
       "id": 1,
-      "name": "Full Motion TV Wall Mount",
+      "name": "Fixed Wall Mount (14–43\")",
+      "slug": "fixed-wall-mounts-14-43",
       "cat": "tv-mounts",
       "catLabel": "TV Wall Mounts",
-      "subCat": "full-motion-single",
-      "shortDesc": "Adjustable arm mount compatible with 32–75 inch screens. Tilt, swivel and extend.",
-      "desc": "Our Full Motion TV Wall Mount provides the ultimate viewing flexibility. The sturdy steel arm extends, swivels 180°, and tilts ±15°, letting you find the perfect angle from anywhere in the room.",
-      "seoTitle": "Full Motion TV Wall Mount | Maze",
-      "seoDescription": "Buy a full motion TV wall mount with tilt, swivel, extension, and professional installation support from Maze.",
+      "subCat": "fixed-wall-mounts",
+      "shortDesc": "Ultra-slim fixed profile for 14–43 inch TVs. Clean flush look with sturdy heavy-gauge steel.",
+      "desc": "The Fixed Wall Mount (14–43\") keeps your TV snug against the wall with a 25mm profile for a clean, picture-frame look. Built from cold-rolled steel with anti-drop locking tabs.",
+      "seoTitle": "Fixed Wall Mount 14-43 | Maze",
+      "seoDescription": "Buy Fixed Wall Mount for 14–43 inch screens with quick delivery and professional installation in Nairobi.",
       "specs": [
-        [
-          "Compatibility",
-          "32 – 75 inch TVs"
-        ],
-        [
-          "Max Load",
-          "45 kg"
-        ],
-        [
-          "VESA",
-          "75×75 to 600×400"
-        ],
-        [
-          "Extension",
-          "60–450mm"
-        ],
-        [
-          "Material",
-          "Cold-rolled steel"
-        ],
-        [
-          "Warranty",
-          "2 years"
-        ]
+        ["Screen Size", "14 – 43 inch"],
+        ["Max Load", "25 kg"],
+        ["VESA", "75×75 to 200×200"],
+        ["Profile", "25mm from wall"],
+        ["Material", "Heavy-gauge cold-rolled steel"],
+        ["Warranty", "2 years"]
       ],
       "features": [
-        "360° swivel rotation",
-        "±15° tilt adjustment",
-        "Integrated cable management",
-        "Bubble level included",
-        "Anti-theft locking bolt"
+        "Low 25mm profile",
+        "Quick-release safety lock",
+        "Built-in bubble level",
+        "Anti-scratch coating",
+        "Universal hardware kit included"
       ],
       "imgs": [
-        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&h=400&crop=right"
+        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop"
       ]
     },
     {
       "id": 2,
-      "name": "Fixed Slim TV Wall Mount",
+      "name": "Tilting Wall Mount (32–55\")",
+      "slug": "tilting-wall-mount-32-55",
       "cat": "tv-mounts",
       "catLabel": "TV Wall Mounts",
-      "subCat": "fixed-flat",
-      "shortDesc": "Ultra-slim profile for 26–60 inch TVs. Just 25mm from wall for a clean, flush look.",
-      "desc": "The Fixed Slim TV Wall Mount keeps your TV just 25mm from the wall for a sleek, picture-frame appearance. Perfect for bedrooms and offices where you watch from a fixed position.",
-      "seoTitle": "Fixed Slim TV Wall Mount | Maze",
-      "seoDescription": "Choose a slim fixed TV wall mount with a clean low-profile finish for bedrooms, offices, and living rooms.",
+      "subCat": "tilting-wall-mounts",
+      "shortDesc": "Slim tilting bracket for 32–55 inch TVs. Tilt up to 15° downward to reduce glare and optimize angle.",
+      "desc": "The Tilting Wall Mount (32–55\") is ideal for living rooms, bedrooms, or higher wall placements. Tilt smoothly up to 15° downward to eliminate overhead reflections.",
+      "seoTitle": "Tilting Wall Mount 32-55 | Maze",
+      "seoDescription": "Choose a tilting TV wall mount for 32–55 inch TVs. Glare-free viewing with solid steel construction.",
       "specs": [
-        [
-          "Compatibility",
-          "26 – 60 inch TVs"
-        ],
-        [
-          "Max Load",
-          "35 kg"
-        ],
-        [
-          "VESA",
-          "100×100 to 400×400"
-        ],
-        [
-          "Profile",
-          "25mm from wall"
-        ],
-        [
-          "Material",
-          "Reinforced steel"
-        ],
-        [
-          "Warranty",
-          "2 years"
-        ]
+        ["Screen Size", "32 – 55 inch"],
+        ["Max Load", "35 kg"],
+        ["VESA", "100×100 to 400×400"],
+        ["Tilt Angle", "0° to –15°"],
+        ["Profile", "38mm from wall"],
+        ["Warranty", "2 years"]
       ],
       "features": [
-        "Ultra-slim 25mm profile",
-        "Quick-release safety lock",
-        "Easy single-person install",
-        "Anti-vibration pads",
-        "Weight capacity 35kg"
+        "15° downward tilt adjustment",
+        "Fingertip tilt tension lock",
+        "Integrated cable routing space",
+        "Dual stud mounting bracket",
+        "Safety pull-straps"
       ],
       "imgs": [
         "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop"
@@ -405,93 +402,60 @@
     },
     {
       "id": 3,
-      "name": "Outdoor CCTV Security Guard",
-      "cat": "guards",
-      "catLabel": "Guards",
-      "subCat": "bullet",
-      "shortDesc": "4MP IP66 weatherproof outdoor camera. Night vision up to 30m. Remote viewing.",
-      "desc": "Protect your property around the clock with this 4MP outdoor CCTV security camera. IP66 weatherproof rated, it features infrared night vision reaching 30m and supports remote live viewing via mobile app.",
-      "seoTitle": "Outdoor CCTV Security Guard | Maze",
-      "seoDescription": "Secure your property with an outdoor security guard camera featuring weatherproof housing, night vision, and remote access.",
+      "name": "Full Motion Double Arm Wall Mount (32–75\")",
+      "slug": "full-motion-double-arm-32-75",
+      "cat": "tv-mounts",
+      "catLabel": "TV Wall Mounts",
+      "subCat": "full-motion-wall-mounts",
+      "shortDesc": "Heavy-duty dual arm articulating mount for 32–75 inch TVs. Extends, swivels, and tilts.",
+      "desc": "Our Full Motion Double Arm Wall Mount provides maximum flexibility and security for large screens up to 75 inches. Extends up to 450mm from the wall and swivels 160°.",
+      "seoTitle": "Full Motion Double Arm Wall Mount 32-75 | Maze",
+      "seoDescription": "Full motion dual arm TV wall bracket for 32 to 75 inch screens with swivel, tilt, and extension.",
       "specs": [
-        [
-          "Resolution",
-          "4MP (2688×1520)"
-        ],
-        [
-          "Night Vision",
-          "30m IR"
-        ],
-        [
-          "Weatherproof",
-          "IP66"
-        ],
-        [
-          "Power",
-          "PoE or 12V DC"
-        ],
-        [
-          "Storage",
-          "MicroSD / NVR"
-        ],
-        [
-          "Viewing Angle",
-          "100°"
-        ]
+        ["Screen Size", "32 – 75 inch"],
+        ["Max Load", "45 kg"],
+        ["VESA", "100×100 to 600×400"],
+        ["Extension", "65–450mm"],
+        ["Swivel", "±80°"],
+        ["Warranty", "2 years"]
       ],
       "features": [
-        "4MP ultra-HD recording",
-        "30m night vision range",
-        "IP66 weatherproof rating",
-        "Motion detection alerts",
-        "Mobile app remote access"
+        "Dual heavy-duty articulating arms",
+        "Smooth 160° swivel",
+        "±15° tilt",
+        "Cable management channels",
+        "Post-install level adjustment"
       ],
       "imgs": [
-        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop&h=400&crop=right"
       ]
     },
     {
       "id": 4,
-      "name": "Solar Flood Light 50W",
-      "cat": "solar",
+      "name": "Solar Flood Lights 100W",
+      "slug": "solar-flood-lights-100w",
+      "cat": "solar-outdoor-lights",
       "catLabel": "Solar Outdoor Lights",
-      "subCat": "solar-fixed",
-      "shortDesc": "50W solar powered floodlight with motion sensor. Auto on/off. 6500K cool white.",
-      "desc": "The 50W Solar Flood Light is a powerful, all-in-one outdoor lighting solution. The integrated solar panel charges the built-in battery during the day, automatically powering the light at night.",
-      "seoTitle": "Solar Flood Light 50W | Maze",
-      "seoDescription": "Light outdoor spaces with a 50W solar flood light featuring motion sensing, automatic dusk-to-dawn operation, and no wiring.",
+      "subCat": "solar-flood-lights",
+      "shortDesc": "100W high-output outdoor solar floodlight with monocrystalline solar panel, remote control, and IP67 waterproof body.",
+      "desc": "Illuminate compounds, gates, and perimeters with the 100W Solar Flood Light. Features auto dusk-to-dawn sensor, high-capacity Lithium battery, and bright 6500K LED array.",
+      "seoTitle": "Solar Flood Lights 100W | Maze",
+      "seoDescription": "Buy 100W Solar Flood Lights with remote control, dusk-to-dawn auto sensor, and IP67 weatherproofing.",
       "specs": [
-        [
-          "Power",
-          "50W LED"
-        ],
-        [
-          "Solar Panel",
-          "18V / 10W"
-        ],
-        [
-          "Battery",
-          "5000mAh Li-ion"
-        ],
-        [
-          "Color Temp",
-          "6500K cool white"
-        ],
-        [
-          "IP Rating",
-          "IP65"
-        ],
-        [
-          "Charge Time",
-          "6–8 hours"
-        ]
+        ["LED Power", "100W High Lumen"],
+        ["Solar Panel", "Polycrystalline 6V/18W"],
+        ["Battery", "LiFePO4 3.2V 15,000mAh"],
+        ["Lighting Time", "12–16 Hours"],
+        ["Color Temp", "6500K Cool Daylight"],
+        ["Waterproof", "IP67 Rating"]
       ],
       "features": [
-        "Motion-activated sensing",
-        "Auto dusk-to-dawn control",
-        "No wiring needed",
-        "IP65 waterproof",
-        "Remote control included"
+        "Automatic dusk-to-dawn operation",
+        "Remote control with timer & brightness settings",
+        "IP67 heavy-duty aluminium alloy housing",
+        "Zero electricity bills",
+        "5m extension cable between panel and light"
       ],
       "imgs": [
         "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop"
@@ -499,46 +463,29 @@
     },
     {
       "id": 5,
-      "name": "Solar Garden Path Light",
-      "cat": "solar",
+      "name": "Solar Street Light 100W",
+      "slug": "solar-street-light-100w",
+      "cat": "solar-outdoor-lights",
       "catLabel": "Solar Outdoor Lights",
-      "subCat": "solar-wall",
-      "shortDesc": "Elegant solar stake light for pathways and gardens. Warm 3000K glow. Set of 6.",
-      "desc": "These premium solar garden path lights add elegant ambience to your driveway, pathway, or garden. Each stake charges fully in 6 hours and illuminates for up to 10 hours. Sold as a set of 6.",
-      "seoTitle": "Solar Garden Path Light | Maze",
-      "seoDescription": "Add warm pathway lighting with solar garden path lights that charge during the day and glow through the night.",
+      "subCat": "solar-street-lights",
+      "shortDesc": "100W all-in-one solar street light with integrated radar motion sensor, wide-angle lens, and mounting pole.",
+      "desc": "Built for driveways, estate roads, and parking lots, the 100W Solar Street Light combines high-efficiency solar cells, long-life battery, and radar motion sensing in a sleek one-piece design.",
+      "seoTitle": "Solar Street Light 100W | Maze",
+      "seoDescription": "100W Solar Street Light with radar motion sensor, pole mount kit, and all-night battery backup.",
       "specs": [
-        [
-          "Lumens",
-          "15lm per unit"
-        ],
-        [
-          "Solar Panel",
-          "2V / 0.06W"
-        ],
-        [
-          "Battery",
-          "NiMH 1.2V 300mAh"
-        ],
-        [
-          "Color Temp",
-          "3000K warm white"
-        ],
-        [
-          "IP Rating",
-          "IP44"
-        ],
-        [
-          "Runtime",
-          "Up to 10 hrs"
-        ]
+        ["Power", "100W LED"],
+        ["Panel Type", "Integrated Monocrystalline"],
+        ["Battery", "12,000mAh Lithium"],
+        ["Sensor", "PIR Radar Motion Sensor"],
+        ["Mounting Height", "3 – 5 Metres"],
+        ["Waterproof", "IP65 Rated"]
       ],
       "features": [
-        "Automatic dusk-to-dawn sensor",
-        "No wiring or electricity",
-        "Stainless steel stake design",
-        "Set of 6 units",
-        "Warm 3000K ambience lighting"
+        "All-in-one integrated compact design",
+        "Radar motion sensor dimming (30% to 100% on motion)",
+        "Anti-corrosion ABS & aluminium shell",
+        "Mounting bracket & hardware included",
+        "Overcharge & discharge protection"
       ],
       "imgs": [
         "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop"
@@ -546,93 +493,59 @@
     },
     {
       "id": 6,
-      "name": "Heavy Duty Extension Cable 4-Way",
-      "cat": "cables",
-      "catLabel": "Extension Cables",
-      "subCat": "4-way",
-      "shortDesc": "4-socket extension with surge protector, 5m cable, and individual switches.",
-      "desc": "This heavy-duty 4-way extension cable is built for safety and convenience. Each socket has its own on/off switch and indicator light. The integrated surge protector safeguards your electronics.",
-      "seoTitle": "Heavy Duty Extension Cable 4-Way | Maze",
-      "seoDescription": "Power appliances safely with a 4-way heavy duty extension cable featuring surge protection and individual switches.",
+      "name": "Solar Wall Light 100 LED Lights",
+      "slug": "solar-wall-light-100-led",
+      "cat": "solar-outdoor-lights",
+      "catLabel": "Solar Outdoor Lights",
+      "subCat": "solar-wall-lights",
+      "shortDesc": "100 LED wide-angle solar wall light with 3 intelligent lighting modes and 270° wide illumination.",
+      "desc": "Upgrade garden walls, gates, and balconies with the 100 LED Solar Wall Light. Provides 270-degree broad illumination with sensitive motion detection up to 5 meters.",
+      "seoTitle": "Solar Wall Light 100 LED Lights | Maze",
+      "seoDescription": "Shop 100 LED solar motion sensor wall light for fences, gates, and exterior security lighting.",
       "specs": [
-        [
-          "Sockets",
-          "4 universal"
-        ],
-        [
-          "Cable Length",
-          "5 metres"
-        ],
-        [
-          "Cable Rating",
-          "3 core × 1.5mm²"
-        ],
-        [
-          "Max Load",
-          "2500W / 10A"
-        ],
-        [
-          "Surge Protection",
-          "Yes"
-        ],
-        [
-          "Certification",
-          "KEBS Approved"
-        ]
+        ["LEDs", "100 High-Power LEDs"],
+        ["Illumination Angle", "270° Wide Angle"],
+        ["Battery", "1800mAh Li-ion 3.7V"],
+        ["Motion Range", "3 – 5 Metres (120°)"],
+        ["Modes", "3 Work Modes"],
+        ["Waterproof", "IP65 Weatherproof"]
       ],
       "features": [
-        "Individual socket switches",
-        "Surge and overload protection",
-        "Child-safety shutters",
-        "KEBS certified",
-        "Anti-slip rubberized base"
+        "3 operating modes: Motion, Dim+Motion, Constant On",
+        "270° four-sided wide angle illumination",
+        "Solar powered — no wiring needed",
+        "IP65 heatproof and frost resistant",
+        "Easy 2-screw wall mounting"
       ],
       "imgs": [
-        "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=600&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop"
       ]
     },
     {
       "id": 7,
-      "name": "Outdoor Security Dome Guard",
+      "name": "Fridge Guard",
+      "slug": "fridge-guard",
       "cat": "guards",
       "catLabel": "Guards",
-      "subCat": "dome",
-      "shortDesc": "2MP 1080p dome camera with 30m night vision and wide 120° angle. Weatherproof.",
-      "desc": "The Outdoor Security Dome Guard delivers reliable 1080p surveillance in a vandal-resistant dome housing. Suitable for entrances, car parks, and perimeters.",
-      "seoTitle": "Outdoor Security Dome Guard | Maze",
-      "seoDescription": "Monitor entrances and open areas with a weatherproof dome guard camera offering wide-angle coverage and night vision.",
+      "subCat": "fridge-guard",
+      "shortDesc": "Automatic voltage protection guard for refrigerators, freezers, and cooling appliances against power surges and brownouts.",
+      "desc": "The Maze Fridge Guard protects refrigeration equipment by disconnecting power when voltage falls below or rises above safe levels. Built-in 3-minute startup delay prevents compressor damage from frequent power fluctuations.",
+      "seoTitle": "Fridge Guard Voltage Protector | Maze",
+      "seoDescription": "Protect your refrigerator and freezer from voltage spikes, brownouts, and surges with the Maze Fridge Guard.",
       "specs": [
-        [
-          "Resolution",
-          "2MP 1080p Full HD"
-        ],
-        [
-          "Night Vision",
-          "30m"
-        ],
-        [
-          "Housing",
-          "Vandal-resistant dome"
-        ],
-        [
-          "Angle",
-          "120° wide"
-        ],
-        [
-          "IP Rating",
-          "IP66"
-        ],
-        [
-          "Power",
-          "DC12V or PoE"
-        ]
+        ["Current Rating", "13 Amps"],
+        ["Nominal Voltage", "230V AC (50Hz)"],
+        ["Wait Time Delay", "3 Minutes"],
+        ["Under-Voltage Disconnect", "185V"],
+        ["Over-Voltage Disconnect", "260V"],
+        ["Plug Type", "Standard UK 3-Pin (Type G)"]
       ],
       "features": [
-        "1080p full HD recording",
-        "Vandal-resistant dome design",
-        "Wide 120° coverage angle",
-        "IP66 weatherproof",
-        "Easy ceiling/wall mount"
+        "3-minute compressor protection delay",
+        "Under-voltage & over-voltage automatic cutoff",
+        "LED status indicators (Normal, Wait, High/Low)",
+        "Direct plug-in design",
+        "Flame-retardant casing"
       ],
       "imgs": [
         "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop"
@@ -640,49 +553,152 @@
     },
     {
       "id": 8,
-      "name": "Tilting TV Wall Mount",
-      "cat": "tv-mounts",
-      "catLabel": "TV Wall Mounts",
-      "subCat": "tilt-wall",
-      "shortDesc": "Slim tilting bracket for 23–55 inch TVs. Tilt up to 15° downward to reduce glare.",
-      "desc": "The Tilting TV Wall Mount is ideal for high wall or above-fireplace installations. Tilt the screen up to 15° downward to eliminate glare and maintain comfortable eye-level viewing.",
-      "seoTitle": "Tilting TV Wall Mount | Maze",
-      "seoDescription": "Choose a tilting TV wall mount for elevated installations and reduce glare while keeping viewing comfortable.",
+      "name": "TV Guard",
+      "slug": "tv-guard",
+      "cat": "guards",
+      "catLabel": "Guards",
+      "subCat": "tv-guard",
+      "shortDesc": "Precision voltage surge protector for TVs, home theatres, soundbars, and sensitive electronics.",
+      "desc": "The TV Guard shields expensive smart TVs, audio systems, decoders, and gaming consoles from power surges, spikes, and voltage dips with a fast 30-second reset delay.",
+      "seoTitle": "TV Guard Surge Protector | Maze",
+      "seoDescription": "Protect smart TVs, amplifiers, and entertainment setups from dangerous voltage surges with the Maze TV Guard.",
       "specs": [
-        [
-          "Compatibility",
-          "23 – 55 inch TVs"
-        ],
-        [
-          "Max Load",
-          "30 kg"
-        ],
-        [
-          "VESA",
-          "75×75 to 400×400"
-        ],
-        [
-          "Tilt",
-          "0° to –15°"
-        ],
-        [
-          "Profile",
-          "38mm from wall"
-        ],
-        [
-          "Warranty",
-          "2 years"
-        ]
+        ["Current Rating", "5 Amps / 13 Amps Max"],
+        ["Nominal Voltage", "220–240V AC"],
+        ["Wait Time Delay", "30 Seconds"],
+        ["Max Surge Energy", "140 Joules"],
+        ["Response Time", "< 10 Nanoseconds"],
+        ["Plug Type", "Standard UK 3-Pin"]
       ],
       "features": [
-        "15° downward tilt",
-        "Integrated cable guide",
-        "Side-access locking bolt",
-        "Dual stud or concrete mounting",
-        "Low 38mm profile"
+        "Fast 30-second start-up safety delay",
+        "High-speed surge suppression",
+        "Protects TVs up to 85 inches and home cinema gear",
+        "Compact sleek wall socket design",
+        "LED power and protection indicator"
       ],
       "imgs": [
-        "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=600&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Hi-Volt Guard",
+      "slug": "hi-volt-guard",
+      "cat": "guards",
+      "catLabel": "Guards",
+      "subCat": "hi-volt-guard",
+      "shortDesc": "Heavy-duty voltage protection guard for air conditioners, water heaters, pumps, and high-load appliances.",
+      "desc": "The Hi-Volt Guard is engineered for high-power appliances that demand robust protection from extreme voltage spikes, electrical surges, and line noise.",
+      "seoTitle": "Hi-Volt Guard Power Protector | Maze",
+      "seoDescription": "Heavy-duty Hi-Volt Guard for air conditioners, microwave ovens, and high-wattage equipment protection.",
+      "specs": [
+        ["Current Rating", "16 Amps / 20 Amps Max"],
+        ["Nominal Voltage", "230V AC"],
+        ["Wait Time Delay", "3 Minutes"],
+        ["Over-Voltage Cutoff", "260V"],
+        ["Surge Protection", "350 Joules"],
+        ["Compliance", "KEBS Approved"]
+      ],
+      "features": [
+        "High current 16A capacity",
+        "Microprocessor-controlled voltage detection",
+        "Auto disconnect & reconnect",
+        "Surge and spike clamping",
+        "Heavy-duty brass contacts"
+      ],
+      "imgs": [
+        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&auto=format&fit=crop"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "4 Way Extension Socket",
+      "slug": "4way",
+      "cat": "extension-sockets",
+      "catLabel": "Extension Sockets",
+      "subCat": "4way",
+      "shortDesc": "4-way heavy duty power extension socket with individual on/off switches, neon indicators, and 3m pure copper cable.",
+      "desc": "The 4 Way Extension Socket delivers safe and organized power distribution for home workstations and entertainment centers. Features individually switched outlets and built-in surge protection.",
+      "seoTitle": "4 Way Extension Socket | Maze",
+      "seoDescription": "Heavy-duty 4 Way Extension Socket with individual switches, surge protector, and safety shutters.",
+      "specs": [
+        ["Outlets", "4 Universal Sockets"],
+        ["Cable Length", "3 Metres / 5 Metres"],
+        ["Max Load", "2500W (13A 250V)"],
+        ["Cable Spec", "3-Core 1.5mm² Pure Copper"],
+        ["Safety", "Surge Protection & Child Shutters"],
+        ["Certification", "KEBS Certified"]
+      ],
+      "features": [
+        "Individual switch and indicator for each socket",
+        "Integrated surge & overload protection",
+        "Child-safety protective socket shutters",
+        "Robust flame-retardant polycarbonate housing",
+        "Wall mounting keyhole slots"
+      ],
+      "imgs": [
+        "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=600&auto=format&fit=crop"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "6 Way Extension Socket",
+      "slug": "6way",
+      "cat": "extension-sockets",
+      "catLabel": "Extension Sockets",
+      "subCat": "6way",
+      "shortDesc": "6-way heavy duty extension socket with individual switches, overload breaker, and 5m durable cable.",
+      "desc": "Connect up to 6 devices safely with this heavy-duty 6 Way Extension Socket. Ideal for offices, TV units, and computer stations requiring multiple reliable power connections.",
+      "seoTitle": "6 Way Extension Socket | Maze",
+      "seoDescription": "Buy 6 Way Extension Socket with individual switches, surge suppression, and 5-meter power cord.",
+      "specs": [
+        ["Outlets", "6 Universal Sockets"],
+        ["Cable Length", "5 Metres"],
+        ["Max Load", "3000W (13A)"],
+        ["Cable Spec", "3-Core 1.5mm² Copper"],
+        ["Protection", "Overload Circuit Breaker + Surge"],
+        ["Certification", "KEBS Approved"]
+      ],
+      "features": [
+        "6 individually switched power sockets",
+        "Reset button for overload circuit breaker",
+        "High conductivity nickel-plated phosphor bronze pins",
+        "Fire-resistant body up to 750°C",
+        "Anti-slip rubber feet"
+      ],
+      "imgs": [
+        "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=600&auto=format&fit=crop"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "6 Way Extension Socket with USB",
+      "slug": "6way-with-usb",
+      "cat": "extension-sockets",
+      "catLabel": "Extension Sockets",
+      "subCat": "6way-with-usb",
+      "shortDesc": "6-way extension socket plus 4 fast-charging USB ports (including USB-C PD) with master switch and surge suppression.",
+      "desc": "The ultimate power hub for modern electronics. Offers 6 AC power sockets and 4 smart USB charging ports to charge phones, tablets, and laptops alongside standard appliances.",
+      "seoTitle": "6 Way Extension Socket with USB | Maze",
+      "seoDescription": "6 Way Extension Socket with USB and USB-C fast charging ports. Master switch, surge protection, and 3m cable.",
+      "specs": [
+        ["AC Outlets", "6 Universal Sockets"],
+        ["USB Ports", "3 USB-A + 1 USB-C PD (3.4A Total / 20W Max)"],
+        ["Cable Length", "3 Metres"],
+        ["Max Load", "2500W (10A/13A 250V)"],
+        ["Protection", "Surge, Overcurrent, Short-Circuit"],
+        ["Material", "Fireproof ABS+PC"]
+      ],
+      "features": [
+        "6 AC outlets + 4 high-speed USB charging ports",
+        "Smart IC auto-detects device charging current",
+        "Master on/off switch with soft LED indicator",
+        "Heavy-duty 3m cable with molded UK plug",
+        "Full surge, spike, and overload protection"
+      ],
+      "imgs": [
+        "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=600&auto=format&fit=crop"
       ]
     }
   ],

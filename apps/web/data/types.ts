@@ -178,4 +178,10 @@ export type SiteData = {
   heroBackgrounds: string[];
 };
 
-export type ProductCategoryId = "tv-mounts" | "guards" | "solar" | "cables";
+export type ProductCategoryId =
+  | "tv-mounts"
+  | "solar-outdoor-lights"
+  | "guards"
+  | "extension-sockets"
+  | "solar"
+  | "cables";
