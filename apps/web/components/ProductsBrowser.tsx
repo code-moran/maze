@@ -7,6 +7,7 @@ import {
   getProductCategories,
   getProductHref,
   getProductSlug,
+  normalizeCategorySlug,
 } from "@/data/siteData";
 import type { Product, SiteData } from "@/data/types";
 import ProductRequestModal from "@/components/ProductRequestModal";
@@ -46,18 +47,28 @@ export default function ProductsBrowser({
   const searchParams = useSearchParams();
   const categories = getProductCategories(data);
 
+  const pathSegments = (pathname || "").split("/").filter(Boolean);
+  const firstSeg = pathSegments[0] || "";
+  const secondSeg = pathSegments[1] || "";
+  const isMatchingCat = categories.some(
+    (c) => c.id === firstSeg || normalizeCategorySlug(firstSeg) === c.id
+  );
+
   const urlCategory =
     initialCategory ||
     searchParams.get("cat") ||
     (pathname?.startsWith("/products/category/")
       ? pathname.split("/").filter(Boolean).pop() || "all"
-      : categories.some((c) => `/${c.id}` === pathname)
-      ? pathname.slice(1)
+      : isMatchingCat
+      ? normalizeCategorySlug(firstSeg)
       : "all");
+
   const urlSubcat =
     initialSubCategory ||
     searchParams.get("subcat") ||
-    "all";
+    (isMatchingCat && secondSeg && secondSeg !== "all"
+      ? secondSeg
+      : "all");
 
   const [currentFilter, setCurrentFilter] = useState(urlCategory);
   const [currentSubFilter, setCurrentSubFilter] = useState(urlSubcat);

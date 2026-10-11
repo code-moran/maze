@@ -185,8 +185,7 @@ export function getProductByCategoryAndSlug(
     if (pCat !== normCat) return false;
     return (
       getProductSlug(p) === normSlug ||
-      String(p.id) === normSlug ||
-      slugify(p.subCat) === normSlug
+      String(p.id) === normSlug
     );
   });
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import BreadcrumbBar from "@/components/BreadcrumbBar";
 import ProductRequestModal from "@/components/ProductRequestModal";
 
 type Crumb = { label: string; href?: string };
@@ -40,8 +41,9 @@ export default function PageHero({
   });
 
   return (
-    <section
-      className={`page-hero${compact ? " page-hero-compact" : ""}`}
+    <>
+      <section
+        className={`page-hero${compact ? " page-hero-compact" : ""}`}
       style={
         backgroundImage
           ? { ["--page-hero-image" as string]: `url('${backgroundImage}')` }
@@ -51,37 +53,6 @@ export default function PageHero({
       <div className="page-hero-bg" aria-hidden="true" />
       <div className="page-hero-overlay" aria-hidden="true" />
       <div className="container page-hero-content">
-        {crumbs?.length ? (
-          <nav aria-label="breadcrumb" className="page-hero-crumbs">
-            <ol className="breadcrumb maze-breadcrumb mb-0">
-              <li className="breadcrumb-item">
-                <Link href="/">Home</Link>
-              </li>
-              {crumbs.map((crumb, index) => {
-                const isLast = index === crumbs.length - 1;
-                if (isLast || !crumb.href) {
-                  return (
-                    <li
-                      key={`${crumb.label}-${index}`}
-                      className="breadcrumb-item active"
-                      aria-current="page"
-                    >
-                      {crumb.label}
-                    </li>
-                  );
-                }
-                return (
-                  <li
-                    key={`${crumb.label}-${index}`}
-                    className="breadcrumb-item"
-                  >
-                    <Link href={crumb.href}>{crumb.label}</Link>
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
-        ) : null}
         {label ? <p className="page-hero-label">{label}</p> : null}
         <h1 className="page-hero-title">{title}</h1>
         {subtitle ? <p className="page-hero-subtitle">{subtitle}</p> : null}
@@ -149,5 +120,7 @@ export default function PageHero({
         defaultType={modalState.type}
       />
     </section>
+    {crumbs?.length ? <BreadcrumbBar items={crumbs} /> : null}
+    </>
   );
 }
