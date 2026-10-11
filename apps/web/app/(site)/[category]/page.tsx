@@ -78,7 +78,6 @@ export default async function CategoryDetailPage({ params }: Props) {
   return (
     <>
       <PageHero
-        label="Product Category"
         title={categoryTitle}
         subtitle={categoryDescription}
         backgroundImage={heroBackground}
