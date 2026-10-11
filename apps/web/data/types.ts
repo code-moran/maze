@@ -73,6 +73,7 @@ export type ProductsIntro = {
   title: string;
   subtitle: string;
   heroBackground: string;
+  productHeroMode?: "category" | "product";
 };
 
 export type ServicesIntro = {
@@ -112,6 +113,10 @@ export type Product = {
   specs: string[][];
   features: string[];
   imgs: string[];
+  overrideHero?: boolean;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroBackground?: string;
 };
 
 export type StatItem = {

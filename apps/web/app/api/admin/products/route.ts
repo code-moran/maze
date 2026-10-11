@@ -34,6 +34,10 @@ export async function GET(request: Request) {
       specs: p.specs,
       features: p.features,
       imgs: p.imageUrls,
+      overrideHero: p.overrideHero,
+      heroTitle: p.heroTitle || undefined,
+      heroSubtitle: p.heroSubtitle || undefined,
+      heroBackground: p.heroBackground || undefined,
     })),
     categories: categories.map((c) => ({
       key: c.key,
@@ -81,6 +85,10 @@ export async function POST(request: Request) {
       features: body.features ?? [],
       imageUrls: body.imgs ?? body.imageUrls ?? [],
       categoryId: category.id,
+      overrideHero: Boolean(body.overrideHero),
+      heroTitle: body.heroTitle ? String(body.heroTitle).trim() : null,
+      heroSubtitle: body.heroSubtitle ? String(body.heroSubtitle).trim() : null,
+      heroBackground: body.heroBackground ? String(body.heroBackground).trim() : null,
     },
     include: { category: true },
   });
@@ -100,6 +108,10 @@ export async function POST(request: Request) {
       specs: product.specs,
       features: product.features,
       imgs: product.imageUrls,
+      overrideHero: product.overrideHero,
+      heroTitle: product.heroTitle || undefined,
+      heroSubtitle: product.heroSubtitle || undefined,
+      heroBackground: product.heroBackground || undefined,
     },
   });
 }
@@ -137,6 +149,10 @@ export async function PUT(request: Request) {
       features: body.features ?? [],
       imageUrls: body.imgs ?? body.imageUrls ?? [],
       categoryId: category.id,
+      overrideHero: Boolean(body.overrideHero),
+      heroTitle: body.heroTitle ? String(body.heroTitle).trim() : null,
+      heroSubtitle: body.heroSubtitle ? String(body.heroSubtitle).trim() : null,
+      heroBackground: body.heroBackground ? String(body.heroBackground).trim() : null,
     },
     include: { category: true },
   });
@@ -156,6 +172,10 @@ export async function PUT(request: Request) {
       specs: product.specs,
       features: product.features,
       imgs: product.imageUrls,
+      overrideHero: product.overrideHero,
+      heroTitle: product.heroTitle || undefined,
+      heroSubtitle: product.heroSubtitle || undefined,
+      heroBackground: product.heroBackground || undefined,
     },
   });
 }

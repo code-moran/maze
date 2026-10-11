@@ -114,12 +114,14 @@ export async function PUT(request: Request) {
           title: String(body.title ?? ""),
           subtitle: String(body.subtitle ?? ""),
           heroBackground: String(body.heroBackground ?? ""),
+          productHeroMode: String(body.productHeroMode ?? "category"),
         },
         update: {
           label: String(body.label ?? ""),
           title: String(body.title ?? ""),
           subtitle: String(body.subtitle ?? ""),
           heroBackground: String(body.heroBackground ?? ""),
+          productHeroMode: String(body.productHeroMode ?? "category"),
         },
       });
       return jsonSaved({ productsPage });

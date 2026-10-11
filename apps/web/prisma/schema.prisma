@@ -79,8 +79,9 @@ model ProductsPageContent {
   id             String @id @default("default")
   label          String @default("")
   title          String @default("")
-  subtitle       String @default("") @db.Text
-  heroBackground String @default("")
+  subtitle       String   @default("") @db.Text
+  heroBackground String   @default("")
+  productHeroMode String  @default("category")
   updatedAt      DateTime @updatedAt
 }
 
@@ -126,6 +127,10 @@ model Product {
   specs          Json     @default("[]")
   features       Json     @default("[]")
   imageUrls      Json     @default("[]")
+  overrideHero   Boolean  @default(false)
+  heroTitle      String?
+  heroSubtitle   String?
+  heroBackground String?
   categoryId     String
   category       Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   createdAt      DateTime @default(now())
