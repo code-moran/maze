@@ -26,6 +26,12 @@ export default function Navbar({ data }: { data: SiteData }) {
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
+  const isProductsActive =
+    isActive("/products") ||
+    categories.some(
+      (c) => pathname === `/${c.id}` || pathname.startsWith(`/${c.id}/`)
+    );
+
   const closeMenu = () => {
     if (checkRef.current) checkRef.current.checked = false;
     const about = document.getElementById(aboutId) as HTMLInputElement | null;
@@ -117,7 +123,7 @@ export default function Navbar({ data }: { data: SiteData }) {
               <li className="nav-item dropdown">
                 <a
                   className={`nav-link dropdown-toggle${
-                    isActive("/products") ? " active" : ""
+                    isProductsActive ? " active" : ""
                   }`}
                   href="#"
                   data-bs-toggle="dropdown"
@@ -128,7 +134,7 @@ export default function Navbar({ data }: { data: SiteData }) {
                   {categories.map((cat) => (
                     <Link
                       key={cat.id}
-                      href={`/products/category/${cat.id}`}
+                      href={`/${cat.id}`}
                       className="dropdown-item products-menu-item"
                     >
                       <i className={`bi ${cat.icon} text-success`}></i>
@@ -231,7 +237,7 @@ export default function Navbar({ data }: { data: SiteData }) {
             {categories.map((cat) => (
               <Link
                 key={cat.id}
-                href={`/products/category/${cat.id}`}
+                href={`/${cat.id}`}
                 onClick={closeMenu}
               >
                 {cat.label}

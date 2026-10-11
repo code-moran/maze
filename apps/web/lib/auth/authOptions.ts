@@ -4,11 +4,30 @@ import GoogleProvider from "next-auth/providers/google";
 import { verifyPassword } from "@/lib/auth/password";
 import { prisma } from "@/lib/prisma";
 
+function googleAllowlist(): string[] {
+  return (
+    process.env.ADMIN_GOOGLE_ALLOWLIST ||
+    process.env.ADMIN_EMAIL ||
+    ""
+  )
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function resolveAuthSecret(): string | undefined {
+  const secret =
+    process.env.NEXTAUTH_SECRET?.trim() ||
+    process.env.ADMIN_DASHBOARD_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") return undefined;
+  return "maze-dev-only-secret-change-me";
+}
+
+const authSecret = resolveAuthSecret();
+
 export const authOptions: NextAuthOptions = {
-  secret:
-    process.env.NEXTAUTH_SECRET ||
-    process.env.ADMIN_DASHBOARD_SECRET ||
-    "maze-admin-secret-key-default-12345",
+  secret: authSecret,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -45,7 +64,6 @@ export const authOptions: NextAuthOptions = {
             ? inputEmail.toLowerCase()
             : "admin@mazetechnologies.co.ke";
 
-        // 1. Check database user if Prisma is configured
         if (prisma) {
           try {
             const dbUser = await prisma.adminUser.findFirst({
@@ -69,24 +87,20 @@ export const authOptions: NextAuthOptions = {
                   isDefaultPassword: false,
                 };
               }
-              // Once a custom password is set in DB, DO NOT allow default fallback!
               return null;
             }
 
-            // Also check if ANY admin user in DB has a set password
             const anyDbAdminWithPassword = await prisma.adminUser.findFirst({
               where: { password: { not: null } },
             });
             if (anyDbAdminWithPassword && dbUser) {
-              // User exists in DB, but password did not match
               return null;
             }
           } catch {
-            // Fallback to environment credentials if DB connection fails
+            // Fall through to env credentials if DB is unreachable
           }
         }
 
-        // 2. Validate against ADMIN_DASHBOARD_SECRET or ADMIN_ENQUIRIES_SECRET
         const validSecret =
           process.env.ADMIN_DASHBOARD_SECRET?.trim() ||
           process.env.ADMIN_ENQUIRIES_SECRET?.trim();
@@ -104,8 +118,9 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // 3. Fallback default admin credentials ONLY if no custom DB password exists
+        // Dev-only fallback — never in production
         if (
+          process.env.NODE_ENV !== "production" &&
           !validSecret &&
           (inputPassword === "admin123" || inputEmail === "admin123")
         ) {
@@ -124,14 +139,30 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") return true;
+      const allow = googleAllowlist();
+      if (!allow.length) {
+        console.warn(
+          "Google sign-in blocked: set ADMIN_GOOGLE_ALLOWLIST or ADMIN_EMAIL"
+        );
+        return false;
+      }
+      const email = (user.email || "").toLowerCase();
+      return allow.includes(email);
+    },
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image;
-        token.role = (user as unknown as { role?: string }).role || "ADMIN";
-        token.isDefaultPassword = (user as unknown as { isDefaultPassword?: boolean }).isDefaultPassword ?? false;
+        const roleFromUser = (user as { role?: string }).role;
+        token.role =
+          roleFromUser ||
+          (account?.provider === "google" ? "ADMIN" : "ADMIN");
+        token.isDefaultPassword =
+          (user as { isDefaultPassword?: boolean }).isDefaultPassword ?? false;
       }
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;
@@ -146,13 +177,13 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as unknown as { id: string }).id = token.id as string;
+        (session.user as { id: string }).id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.image = token.picture as string | null;
-        (session.user as unknown as { role: string }).role =
+        (session.user as { role: string }).role =
           (token.role as string) || "ADMIN";
-        (session.user as unknown as { isDefaultPassword: boolean }).isDefaultPassword =
+        (session.user as { isDefaultPassword: boolean }).isDefaultPassword =
           Boolean(token.isDefaultPassword);
       }
       return session;

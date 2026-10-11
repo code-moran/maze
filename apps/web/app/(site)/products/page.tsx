@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import ProductsBrowser from "@/components/ProductsBrowser";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await loadSiteContent();
   const seo = data.sectionSeo.products;
-  return {
+  const intro = data.sections.productsIntro;
+  return buildPageMetadata({
     title: seo.title,
     description: seo.description,
-  };
+    path: "/products",
+    image:
+      intro.heroBackground ||
+      data.heroBackgrounds?.[0] ||
+      data.products.find((p) => p.imgs?.[0])?.imgs?.[0],
+  });
 }
 
 export default async function ProductsPage() {
@@ -34,7 +42,9 @@ export default async function ProductsPage() {
           { href: "/services", label: "Installation", outline: true },
         ]}
       />
-      <ProductsBrowser data={data} hideIntro />
+      <Suspense fallback={<div className="container py-5">Loading products…</div>}>
+        <ProductsBrowser data={data} hideIntro />
+      </Suspense>
     </>
   );
 }

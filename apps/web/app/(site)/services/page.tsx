@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import ServicesSection from "@/components/ServicesSection";
 import { loadSiteContent } from "@/lib/content/loadSiteContent";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await loadSiteContent();
   const seo = data.sectionSeo.services;
-  return {
+  return buildPageMetadata({
     title: seo.title,
     description: seo.description,
-  };
+    path: "/services",
+    image: data.heroBackgrounds[1] || data.heroBackgrounds[0],
+  });
 }
 
 export default async function ServicesPage() {

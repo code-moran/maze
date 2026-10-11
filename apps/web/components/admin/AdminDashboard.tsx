@@ -4,17 +4,19 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SiteData, SocialLink } from "@/data/types";
+import { getCategoryIcon } from "@/data/siteData";
 import { uploadToCloudinary, uploadMultipleToCloudinary } from "@/lib/cloudinary/upload";
 
 type SectionId =
   | "overview"
+  | "categories-manager"
+  | "products-manager"
+  | "subproducts-manager"
   | "hero-manager"
   | "products-hero"
   | "general-settings"
   | "installation-charges"
   | "page-content"
-  | "products-manager"
-  | "subproducts-manager"
   | "inquiries-manager"
   | "blogs-manager"
   | "seo-manager"
@@ -23,13 +25,14 @@ type SectionId =
 
 const NAV: { id: SectionId; label: string; icon: string }[] = [
   { id: "overview", label: "Overview", icon: "bi-speedometer2" },
+  { id: "categories-manager", label: "Categories", icon: "bi-tags" },
+  { id: "products-manager", label: "Products", icon: "bi-box-seam" },
+  { id: "subproducts-manager", label: "Sub Products", icon: "bi-diagram-3" },
   { id: "hero-manager", label: "Home Hero", icon: "bi-images" },
   { id: "products-hero", label: "Products Hero", icon: "bi-card-image" },
   { id: "general-settings", label: "Settings", icon: "bi-sliders2-vertical" },
   { id: "installation-charges", label: "Charges", icon: "bi-cash-coin" },
   { id: "page-content", label: "Page Text", icon: "bi-layout-text-window-reverse" },
-  { id: "products-manager", label: "Products", icon: "bi-box-seam" },
-  { id: "subproducts-manager", label: "Sub Products", icon: "bi-diagram-3" },
   { id: "inquiries-manager", label: "Inquiries", icon: "bi-chat-dots" },
   { id: "blogs-manager", label: "Blogs", icon: "bi-journal-text" },
   { id: "seo-manager", label: "SEO", icon: "bi-search-heart" },
@@ -39,6 +42,7 @@ const NAV: { id: SectionId; label: string; icon: string }[] = [
 
 const SECTION_LABELS: Record<SectionId, string> = {
   overview: "Overview",
+  "categories-manager": "Category Management",
   "hero-manager": "Home Hero",
   "products-hero": "Products Hero",
   "general-settings": "Settings",
@@ -151,6 +155,7 @@ export default function AdminDashboard({
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [alert, setAlert] = useState("");
   const [saving, setSaving] = useState(false);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
   const [activeProductId, setActiveProductId] = useState<number | null>(
     initialData.products[0]?.id ?? null
   );
@@ -252,6 +257,10 @@ export default function AdminDashboard({
     [data.blogs, activeBlogId]
   );
 
+  const categoriesCount =
+    data.categories?.length ||
+    Object.keys(data.categorySeo || {}).filter((k) => k !== "all").length;
+
   const seoCount =
     1 +
     Object.keys(data.sectionSeo || {}).length +
@@ -340,7 +349,9 @@ export default function AdminDashboard({
             </div>
             <div className="col-lg-4">
               <div className="dashboard-note">
-                Changes save immediately and update your main website in real time.
+                {databaseConfigured
+                  ? "Changes save to Postgres and update the public site after refresh."
+                  : "DATABASE_URL is unset. Saves will fail until Postgres is configured."}
               </div>
             </div>
           </div>
@@ -349,6 +360,13 @@ export default function AdminDashboard({
 
       <main className="py-5">
         <div className="container">
+          {!databaseConfigured ? (
+            <div className="alert alert-warning mb-4" role="alert">
+              <strong>Database not configured.</strong> The site is serving
+              default JSON content. Set <code>DATABASE_URL</code> and run{" "}
+              <code>npm run db:push</code> before saving from admin.
+            </div>
+          ) : null}
           {/* Toast Notification */}
           {alert ? (
             <div
@@ -425,19 +443,25 @@ export default function AdminDashboard({
               {section === "overview" ? (
                 <section id="overview" className="mb-4">
                   <div className="row g-3">
-                    <div className="col-md-4">
+                    <div className="col-md-3 col-6">
+                      <div className="dashboard-stat">
+                        <div className="value">{categoriesCount}</div>
+                        <div className="label">Categories</div>
+                      </div>
+                    </div>
+                    <div className="col-md-3 col-6">
                       <div className="dashboard-stat">
                         <div className="value">{data.products.length}</div>
                         <div className="label">Products Managed</div>
                       </div>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-3 col-6">
                       <div className="dashboard-stat">
                         <div className="value">{enquiries.length}</div>
                         <div className="label">Saved Inquiries</div>
                       </div>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-3 col-6">
                       <div className="dashboard-stat">
                         <div className="value">{seoCount}</div>
                         <div className="label">SEO Records</div>
@@ -559,6 +583,44 @@ export default function AdminDashboard({
                   onSave={(payload) =>
                     api("/api/admin/pages", "PUT", payload, "Page text content updated successfully!")
                   }
+                />
+              ) : null}
+
+              {section === "categories-manager" ? (
+                <CategoriesPanel
+                  data={data}
+                  saving={saving}
+                  activeCategoryId={activeCategoryId}
+                  setActiveCategoryId={setActiveCategoryId}
+                  onSaveCategory={async (category, isNew) => {
+                    const ok = await api(
+                      "/api/admin/categories",
+                      isNew ? "POST" : "PUT",
+                      category,
+                      isNew
+                        ? "New category created successfully!"
+                        : "Category updated successfully!"
+                    );
+                    if (ok && isNew) setActiveCategoryId(null);
+                    return ok;
+                  }}
+                  onDeleteCategory={async (idOrKey) => {
+                    const ok = await api(
+                      `/api/admin/categories?id=${encodeURIComponent(idOrKey)}`,
+                      "DELETE",
+                      undefined,
+                      "Category deleted successfully."
+                    );
+                    if (ok) setActiveCategoryId(null);
+                    return ok;
+                  }}
+                  onNavigateToSubProducts={(catKey) => {
+                    setSubCatKey(catKey);
+                    goSection("subproducts-manager");
+                  }}
+                  onNavigateToProducts={() => {
+                    goSection("products-manager");
+                  }}
                 />
               ) : null}
 
@@ -1724,6 +1786,531 @@ function PagesPanel({
   );
 }
 
+const CATEGORY_PRESET_ICONS = [
+  { icon: "bi-tv", label: "TV / Mounts" },
+  { icon: "bi-shield-check", label: "Guards / Security" },
+  { icon: "bi-sun", label: "Solar Lights" },
+  { icon: "bi-plug", label: "Cables / Power" },
+  { icon: "bi-camera-video", label: "CCTV / Cameras" },
+  { icon: "bi-router", label: "Routers / Networking" },
+  { icon: "bi-wifi", label: "Wireless" },
+  { icon: "bi-battery-charging", label: "Power & Backup" },
+  { icon: "bi-lightning-charge", label: "Electrical" },
+  { icon: "bi-tools", label: "Tools & Hardware" },
+  { icon: "bi-cpu", label: "Smart Tech" },
+  { icon: "bi-hdd-network", label: "Network Storage" },
+  { icon: "bi-speaker", label: "Audio & PA" },
+  { icon: "bi-lamp", label: "Lighting" },
+  { icon: "bi-box-seam", label: "Products / General" },
+  { icon: "bi-grid", label: "Accessories" },
+];
+
+function CategoriesPanel({
+  data,
+  saving,
+  activeCategoryId,
+  setActiveCategoryId,
+  onSaveCategory,
+  onDeleteCategory,
+  onNavigateToSubProducts,
+  onNavigateToProducts,
+}: {
+  data: SiteData;
+  saving: boolean;
+  activeCategoryId: string | null;
+  setActiveCategoryId: (id: string | null) => void;
+  onSaveCategory: (
+    category: Record<string, unknown>,
+    isNew: boolean
+  ) => Promise<boolean>;
+  onDeleteCategory: (idOrKey: string) => Promise<boolean>;
+  onNavigateToSubProducts: (categoryKey: string) => void;
+  onNavigateToProducts: (categoryKey: string) => void;
+}) {
+  const categories = useMemo(() => {
+    if (Array.isArray(data.categories) && data.categories.length > 0) {
+      return [...data.categories].sort(
+        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+      );
+    }
+    return Object.keys(data.categorySeo || {})
+      .filter((k) => k !== "all")
+      .map((k, index) => ({
+        id: "",
+        key: k,
+        title: data.categorySeo[k]?.title || k,
+        description: data.categorySeo[k]?.description || "",
+        metaTitle: data.categorySeo[k]?.metaTitle || "",
+        metaDescription: data.categorySeo[k]?.metaDescription || "",
+        icon: getCategoryIcon(k),
+        sortOrder: index,
+        productCount: data.products.filter((p) => p.cat === k).length,
+        subProductCount: (data.subProducts[k] || []).length,
+      }));
+  }, [data.categories, data.categorySeo, data.products, data.subProducts]);
+
+  const activeCategory = useMemo(
+    () =>
+      categories.find(
+        (c) => (c.id && c.id === activeCategoryId) || c.key === activeCategoryId
+      ) || null,
+    [categories, activeCategoryId]
+  );
+
+  const emptyCategory = {
+    id: "",
+    originalKey: "",
+    key: "",
+    title: "",
+    description: "",
+    metaTitle: "",
+    metaDescription: "",
+    icon: "bi-box",
+    sortOrder: categories.length,
+  };
+
+  const [form, setForm] = useState(emptyCategory);
+  const [isSlugCustomized, setIsSlugCustomized] = useState(false);
+  const [search, setSearch] = useState("");
+  const isNew = !activeCategory;
+
+  useEffect(() => {
+    if (activeCategory) {
+      setForm({
+        id: activeCategory.id || "",
+        originalKey: activeCategory.key,
+        key: activeCategory.key,
+        title: activeCategory.title,
+        description: activeCategory.description || "",
+        metaTitle: activeCategory.metaTitle || "",
+        metaDescription: activeCategory.metaDescription || "",
+        icon: activeCategory.icon || "bi-box",
+        sortOrder: activeCategory.sortOrder ?? 0,
+      });
+      setIsSlugCustomized(true);
+    } else {
+      setForm({
+        ...emptyCategory,
+        sortOrder: categories.length,
+      });
+      setIsSlugCustomized(false);
+    }
+  }, [activeCategory, categories.length]);
+
+  const filteredCategories = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    if (!q) return categories;
+    return categories.filter(
+      (c) =>
+        c.title.toLowerCase().includes(q) ||
+        c.key.toLowerCase().includes(q) ||
+        (c.description && c.description.toLowerCase().includes(q))
+    );
+  }, [categories, search]);
+
+  const activeProductCount = activeCategory
+    ? activeCategory.productCount ??
+      data.products.filter((p) => p.cat === activeCategory.key).length
+    : 0;
+
+  const activeSubProductCount = activeCategory
+    ? activeCategory.subProductCount ??
+      (data.subProducts[activeCategory.key] || []).length
+    : 0;
+
+  return (
+    <section className="dashboard-panel mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+          <h3 className="mb-1">Category Manager</h3>
+          <p className="small text-secondary mb-0">
+            Create and organize product categories with custom URLs, icons, and SEO tags.
+          </p>
+        </div>
+        <button
+          className="btn btn-maze"
+          type="button"
+          onClick={() => setActiveCategoryId(null)}
+        >
+          <i className="bi bi-plus-lg me-2"></i>Add Category
+        </button>
+      </div>
+
+      <div className="row g-4">
+        {/* Category List Column */}
+        <div className="col-lg-4">
+          <div className="mb-3">
+            <div className="input-group input-group-sm">
+              <span className="input-group-text bg-light border-end-0">
+                <i className="bi bi-search text-secondary"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control bg-light border-start-0"
+                placeholder="Search categories..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {search && (
+                <button
+                  className="btn btn-outline-secondary border-start-0 bg-light"
+                  type="button"
+                  onClick={() => setSearch("")}
+                >
+                  <i className="bi bi-x"></i>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="dashboard-list" style={{ maxHeight: 600, overflowY: "auto" }}>
+            {filteredCategories.length === 0 ? (
+              <div className="p-3 text-center text-secondary small">
+                No categories matching &quot;{search}&quot;
+              </div>
+            ) : (
+              filteredCategories.map((c) => {
+                const isSelected =
+                  (activeCategory?.id && activeCategory.id === c.id) ||
+                  activeCategory?.key === c.key;
+                const pCount =
+                  c.productCount ??
+                  data.products.filter((p) => p.cat === c.key).length;
+
+                return (
+                  <button
+                    key={c.key}
+                    type="button"
+                    className={`dashboard-item w-100 text-start d-flex align-items-start justify-content-between gap-2${
+                      isSelected ? " active" : ""
+                    }`}
+                    onClick={() => setActiveCategoryId(c.id || c.key)}
+                  >
+                    <div className="d-flex align-items-center gap-2 overflow-hidden">
+                      <i className={`bi ${c.icon || "bi-box"} fs-5 text-success flex-shrink-0`}></i>
+                      <div className="text-truncate">
+                        <div className="fw-semibold text-truncate">{c.title}</div>
+                        <code className="small text-muted text-truncate d-block">
+                          /{c.key}
+                        </code>
+                      </div>
+                    </div>
+                    <span className="badge bg-light text-dark border flex-shrink-0">
+                      {pCount} {pCount === 1 ? "prod" : "prods"}
+                    </span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Category Edit/Create Form Column */}
+        <div className="col-lg-8">
+          <form
+            className="dashboard-form"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!form.title.trim() || !form.key.trim()) return;
+              await onSaveCategory(form, isNew);
+            }}
+          >
+            <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+              <h4 className="h6 fw-bold mb-0">
+                {isNew ? (
+                  <>
+                    <i className="bi bi-plus-circle me-2 text-success"></i>Create New Category
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-pencil-square me-2 text-success"></i>Edit Category: {activeCategory?.title}
+                  </>
+                )}
+              </h4>
+              {!isNew && (
+                <div className="d-flex gap-2">
+                  <a
+                    href={`/${form.key}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-outline-secondary btn-sm"
+                  >
+                    <i className="bi bi-box-arrow-up-right me-1"></i>View Page
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <div className="row g-3">
+              {/* Category Name */}
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold">
+                  Category Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  required
+                  className="form-control"
+                  placeholder="e.g. Solar Inverters"
+                  value={form.title}
+                  onChange={(e) => {
+                    const newTitle = e.target.value;
+                    const autoSlug = slugify(newTitle);
+                    setForm({
+                      ...form,
+                      title: newTitle,
+                      key: isSlugCustomized ? form.key : autoSlug,
+                    });
+                  }}
+                />
+              </div>
+
+              {/* Custom Slug */}
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold d-flex justify-content-between align-items-center">
+                  <span>Custom Slug <span className="text-danger">*</span></span>
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 text-decoration-none"
+                    style={{ fontSize: "0.75rem" }}
+                    onClick={() => {
+                      const autoSlug = slugify(form.title);
+                      setForm({ ...form, key: autoSlug });
+                      setIsSlugCustomized(false);
+                    }}
+                  >
+                    <i className="bi bi-magic me-1"></i>Auto from Name
+                  </button>
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /
+                  </span>
+                  <input
+                    required
+                    className="form-control font-monospace"
+                    placeholder="solar-inverters"
+                    value={form.key}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      setForm({ ...form, key: sanitized });
+                      setIsSlugCustomized(true);
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Used in URL routing. Letters, numbers, and hyphens only.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/{form.key || "..."}
+                  </span>
+                </div>
+              </div>
+
+              {/* Icon Selection */}
+              <div className="col-md-8">
+                <label className="form-label small fw-semibold">
+                  Category Icon
+                </label>
+                <div className="input-group mb-2">
+                  <span className="input-group-text bg-white">
+                    <i className={`bi ${form.icon || "bi-box"} fs-5 text-success`}></i>
+                  </span>
+                  <input
+                    className="form-control"
+                    placeholder="Bootstrap icon class e.g. bi-tv"
+                    value={form.icon}
+                    onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                  />
+                </div>
+
+                {/* Preset Icon Grid */}
+                <div className="d-flex flex-wrap gap-1 p-2 bg-light rounded border">
+                  <span className="small text-muted w-100 mb-1" style={{ fontSize: "0.75rem" }}>
+                    Quick presets:
+                  </span>
+                  {CATEGORY_PRESET_ICONS.map((preset) => (
+                    <button
+                      key={preset.icon}
+                      type="button"
+                      className={`btn btn-sm ${
+                        form.icon === preset.icon
+                          ? "btn-success"
+                          : "btn-outline-secondary bg-white"
+                      }`}
+                      style={{ padding: "0.2rem 0.45rem", fontSize: "0.8rem" }}
+                      title={preset.label}
+                      onClick={() => setForm({ ...form, icon: preset.icon })}
+                    >
+                      <i className={`bi ${preset.icon} me-1`}></i>
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort Order */}
+              <div className="col-md-4">
+                <label className="form-label small fw-semibold">Sort Order</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={form.sortOrder}
+                  onChange={(e) =>
+                    setForm({ ...form, sortOrder: Number(e.target.value) || 0 })
+                  }
+                />
+                <div className="form-text small text-muted" style={{ fontSize: "0.75rem" }}>
+                  Lower numbers display first in navigation and listing pages.
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="col-12">
+                <label className="form-label small fw-semibold">
+                  Description
+                </label>
+                <textarea
+                  className="form-control"
+                  rows={2}
+                  placeholder="Short description displayed on category cards and hero banners..."
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* SEO Section */}
+              <div className="col-12">
+                <div className="card bg-light border-0 p-3 rounded-3">
+                  <h6 className="fw-bold mb-2 small text-dark d-flex align-items-center">
+                    <i className="bi bi-search-heart text-success me-2"></i>SEO & Meta Tags
+                  </h6>
+                  <div className="row g-2">
+                    <div className="col-md-6">
+                      <label className="form-label small text-muted">
+                        Page Meta Title
+                      </label>
+                      <input
+                        className="form-control form-control-sm"
+                        placeholder="e.g. Solar Inverters in Kenya | Maze"
+                        value={form.metaTitle}
+                        onChange={(e) =>
+                          setForm({ ...form, metaTitle: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label small text-muted">
+                        Page Meta Description
+                      </label>
+                      <input
+                        className="form-control form-control-sm"
+                        placeholder="Explore premium solar inverters with installation support..."
+                        value={form.metaDescription}
+                        onChange={(e) =>
+                          setForm({ ...form, metaDescription: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Related summary info & quick jump buttons */}
+              {!isNew && (
+                <div className="col-12">
+                  <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 p-2 bg-white rounded border">
+                    <div className="d-flex gap-3 small">
+                      <span>
+                        <strong>{activeProductCount}</strong> Products
+                      </span>
+                      <span>
+                        <strong>{activeSubProductCount}</strong> Sub Products
+                      </span>
+                    </div>
+                    <div className="d-flex gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => onNavigateToSubProducts(form.key)}
+                      >
+                        <i className="bi bi-diagram-3 me-1"></i>Manage Sub Products
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={() => onNavigateToProducts(form.key)}
+                      >
+                        <i className="bi bi-box-seam me-1"></i>View Products
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Form Buttons */}
+              <div className="col-12 d-flex flex-wrap justify-content-between align-items-center gap-2 pt-2 border-top">
+                <div>
+                  {!isNew && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={async () => {
+                        if (activeProductCount > 0) {
+                          alert(
+                            `Cannot delete category "${form.title}" because it contains ${activeProductCount} product(s). Please reassign or delete the products first.`
+                          );
+                          return;
+                        }
+                        if (
+                          confirm(
+                            `Are you sure you want to delete category "${form.title}" (${form.key})? This action cannot be undone.`
+                          )
+                        ) {
+                          await onDeleteCategory(form.id || form.key);
+                        }
+                      }}
+                    >
+                      <i className="bi bi-trash me-1"></i>Delete Category
+                    </button>
+                  )}
+                </div>
+
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => setActiveCategoryId(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-maze btn-sm"
+                    disabled={saving || !form.title.trim() || !form.key.trim()}
+                  >
+                    {saving ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-check2-circle me-1"></i>
+                        {isNew ? "Create Category" : "Save Changes"}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ProductsPanel({
   data,
   saving,
@@ -1845,15 +2432,27 @@ function ProductsPanel({
                     <i className="bi bi-magic me-1"></i>Regenerate from Name
                   </button>
                 </label>
-                <input
-                  className="form-control"
-                  placeholder="e.g. full-motion-tv-wall-mount"
-                  value={form.slug || ""}
-                  onChange={(e) => {
-                    setForm({ ...form, slug: e.target.value });
-                    setIsSlugCustomized(true);
-                  }}
-                />
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /{form.cat || "category"}/
+                  </span>
+                  <input
+                    className="form-control font-monospace"
+                    placeholder="e.g. fixed-wall-mount-14-43"
+                    value={form.slug || ""}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      setForm({ ...form, slug: sanitized });
+                      setIsSlugCustomized(true);
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Used in URL routing.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/{form.cat || "category"}/{form.slug || slugify(form.name) || "..."}
+                  </span>
+                </div>
               </div>
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">Category</label>
@@ -1862,21 +2461,31 @@ function ProductsPanel({
                   value={form.cat}
                   onChange={(e) => {
                     const cat = e.target.value;
+                    const catTitle =
+                      data.categories?.find((c) => c.key === cat)?.title ||
+                      data.categorySeo[cat]?.title ||
+                      cat;
                     setForm({
                       ...form,
                       cat,
-                      catLabel: data.categorySeo[cat]?.title || cat,
+                      catLabel: catTitle,
                       subCat: data.subProducts[cat]?.[0]?.id || "",
                     });
                   }}
                 >
-                  {Object.keys(data.categorySeo)
-                    .filter((k) => k !== "all")
-                    .map((k) => (
-                      <option key={k} value={k}>
-                        {data.categorySeo[k].title}
-                      </option>
-                    ))}
+                  {(Array.isArray(data.categories) && data.categories.length > 0
+                    ? data.categories
+                    : Object.keys(data.categorySeo)
+                        .filter((k) => k !== "all")
+                        .map((k) => ({
+                          key: k,
+                          title: data.categorySeo[k]?.title || k,
+                        }))
+                  ).map((c) => (
+                    <option key={c.key} value={c.key}>
+                      {c.title}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="col-md-6">
@@ -2014,10 +2623,12 @@ function SubProductsPanel({
 }) {
   const [items, setItems] = useState(data.subProducts[categoryKey] || []);
   const [editIndex, setEditIndex] = useState(0);
+  const [customizedSlugs, setCustomizedSlugs] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     setItems(data.subProducts[categoryKey] || []);
     setEditIndex(0);
+    setCustomizedSlugs({});
   }, [data.subProducts, categoryKey]);
 
   const current = items[editIndex] || { id: "", label: "" };
@@ -2030,9 +2641,11 @@ function SubProductsPanel({
           className="btn btn-maze"
           type="button"
           onClick={() => {
+            const newLabel = "New Sub Product";
+            const newId = `sub-product-${items.length + 1}`;
             setItems([
               ...items,
-              { id: `new-${items.length + 1}`, label: "New sub product" },
+              { id: newId, label: newLabel },
             ]);
             setEditIndex(items.length);
           }}
@@ -2048,9 +2661,17 @@ function SubProductsPanel({
             value={categoryKey}
             onChange={(e) => setCategoryKey(e.target.value)}
           >
-            {Object.keys(data.subProducts).map((k) => (
-              <option key={k} value={k}>
-                {data.categorySeo[k]?.title || k}
+            {(Array.isArray(data.categories) && data.categories.length > 0
+              ? data.categories
+              : Object.keys(data.categorySeo)
+                  .filter((k) => k !== "all")
+                  .map((k) => ({
+                    key: k,
+                    title: data.categorySeo[k]?.title || k,
+                  }))
+            ).map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.title} ({c.key})
               </option>
             ))}
           </select>
@@ -2059,12 +2680,13 @@ function SubProductsPanel({
               <button
                 key={`${item.id}-${index}`}
                 type="button"
-                className={`dashboard-item w-100 text-start${
+                className={`dashboard-item w-100 text-start d-flex justify-content-between align-items-center${
                   editIndex === index ? " active" : ""
                 }`}
                 onClick={() => setEditIndex(index)}
               >
-                {item.label}
+                <span>{item.label}</span>
+                <span className="small text-muted font-monospace">/{item.id}</span>
               </button>
             ))}
           </div>
@@ -2080,31 +2702,67 @@ function SubProductsPanel({
             <div className="row g-3">
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">
-                  Sub Product ID
+                  Sub Product Name <span className="text-danger">*</span>
                 </label>
                 <input
                   className="form-control"
-                  value={current.id}
+                  required
+                  value={current.label}
                   onChange={(e) => {
+                    const newLabel = e.target.value;
+                    const autoSlug = slugify(newLabel);
                     const next = [...items];
-                    next[editIndex] = { ...current, id: e.target.value };
+                    next[editIndex] = {
+                      ...current,
+                      label: newLabel,
+                      id: customizedSlugs[editIndex] ? current.id : autoSlug,
+                    };
                     setItems(next);
                   }}
                 />
               </div>
               <div className="col-md-6">
-                <label className="form-label small fw-semibold">
-                  Sub Product Name
+                <label className="form-label small fw-semibold d-flex justify-content-between align-items-center mb-1">
+                  <span>Custom Slug <span className="text-danger">*</span></span>
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 text-success text-decoration-none"
+                    style={{ fontSize: "0.75rem" }}
+                    onClick={() => {
+                      const autoSlug = slugify(current.label);
+                      const next = [...items];
+                      next[editIndex] = { ...current, id: autoSlug };
+                      setItems(next);
+                      setCustomizedSlugs((prev) => ({ ...prev, [editIndex]: false }));
+                    }}
+                  >
+                    <i className="bi bi-magic me-1"></i>Regenerate from Name
+                  </button>
                 </label>
-                <input
-                  className="form-control"
-                  value={current.label}
-                  onChange={(e) => {
-                    const next = [...items];
-                    next[editIndex] = { ...current, label: e.target.value };
-                    setItems(next);
-                  }}
-                />
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /{categoryKey}/
+                  </span>
+                  <input
+                    required
+                    className="form-control font-monospace"
+                    placeholder="e.g. fixed-wall-mounts"
+                    value={current.id}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      const next = [...items];
+                      next[editIndex] = { ...current, id: sanitized };
+                      setItems(next);
+                      setCustomizedSlugs((prev) => ({ ...prev, [editIndex]: true }));
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Used in subcategory URL routing.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/{categoryKey}/{current.id || "..."}
+                  </span>
+                </div>
               </div>
               <div className="col-12 d-flex flex-wrap gap-2">
                 <button className="btn btn-maze" type="submit" disabled={saving}>
@@ -2148,6 +2806,7 @@ function BlogsPanel({
   const empty = {
     id: 0,
     title: "",
+    slug: "",
     date: new Date().toISOString().slice(0, 10),
     author: "Admin",
     excerpt: "",
@@ -2156,10 +2815,14 @@ function BlogsPanel({
     link: "#",
   };
   const [form, setForm] = useState(activeBlog || empty);
+  const [isSlugCustomized, setIsSlugCustomized] = useState(
+    Boolean(activeBlog?.slug)
+  );
   const isNew = !activeBlog;
 
   useEffect(() => {
     setForm(activeBlog || empty);
+    setIsSlugCustomized(Boolean(activeBlog?.slug));
   }, [activeBlog]);
 
   return (
@@ -2200,14 +2863,60 @@ function BlogsPanel({
             }}
           >
             <div className="row g-3">
-              <div className="col-12">
-                <label className="form-label small fw-semibold">Title</label>
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold">Title <span className="text-danger">*</span></label>
                 <input
                   className="form-control"
                   required
                   value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  onChange={(e) => {
+                    const newTitle = e.target.value;
+                    const autoSlug = slugify(newTitle);
+                    setForm((prev) => ({
+                      ...prev,
+                      title: newTitle,
+                      slug: isSlugCustomized ? (prev.slug || autoSlug) : autoSlug,
+                    }));
+                  }}
                 />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label small fw-semibold d-flex justify-content-between align-items-center mb-1">
+                  <span>Custom Slug</span>
+                  <button
+                    type="button"
+                    className="btn btn-link btn-sm p-0 text-success text-decoration-none"
+                    style={{ fontSize: "0.75rem" }}
+                    onClick={() => {
+                      const autoSlug = slugify(form.title);
+                      setForm((prev) => ({ ...prev, slug: autoSlug }));
+                      setIsSlugCustomized(false);
+                    }}
+                  >
+                    <i className="bi bi-magic me-1"></i>Regenerate from Title
+                  </button>
+                </label>
+                <div className="input-group">
+                  <span className="input-group-text small text-muted px-2" style={{ fontSize: "0.8rem" }}>
+                    /blog/
+                  </span>
+                  <input
+                    className="form-control font-monospace"
+                    placeholder="e.g. smart-tv-mounting-guide"
+                    value={form.slug || ""}
+                    onChange={(e) => {
+                      const sanitized = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                      setForm({ ...form, slug: sanitized });
+                      setIsSlugCustomized(true);
+                    }}
+                  />
+                </div>
+                <div className="form-text small text-muted d-flex justify-content-between align-items-center" style={{ fontSize: "0.75rem" }}>
+                  <span>Direct article path.</span>
+                  <span className="badge bg-light text-dark font-monospace border">
+                    maze.co.ke/blog/{form.slug || slugify(form.title) || "..."}
+                  </span>
+                </div>
               </div>
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">Date</label>

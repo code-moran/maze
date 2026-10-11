@@ -4,6 +4,7 @@ import {
   createAdminSessionToken,
   getAdminSecretConfigured,
   isAdminRequestAuthorized,
+  secretsMatch,
 } from "@/lib/admin/auth";
 
 export async function POST(request: Request) {
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     process.env.ADMIN_ENQUIRIES_SECRET?.trim() ||
     "";
 
-  if (!secret || secret !== expected) {
+  if (!secret || !secretsMatch(secret, expected)) {
     return NextResponse.json(
       { ok: false, error: "Invalid secret" },
       { status: 401 }
@@ -59,7 +60,7 @@ export async function DELETE() {
 
 export async function GET(request: Request) {
   return NextResponse.json({
-    ok: isAdminRequestAuthorized(request),
+    ok: await isAdminRequestAuthorized(request),
     configured: getAdminSecretConfigured(),
   });
 }

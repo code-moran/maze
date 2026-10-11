@@ -52,6 +52,7 @@ type SiteJson = {
   products: {
     id: number;
     name: string;
+    slug?: string;
     cat: string;
     catLabel: string;
     subCat: string;
@@ -85,7 +86,9 @@ type SiteJson = {
 
 const CAT_ICONS: Record<string, string> = {
   "tv-mounts": "bi-tv",
+  "solar-outdoor-lights": "bi-sun",
   guards: "bi-shield-check",
+  "extension-sockets": "bi-plug",
   solar: "bi-sun",
   cables: "bi-plug",
 };
@@ -248,11 +251,13 @@ async function main() {
   for (const p of data.products) {
     const categoryId = categoryIds[p.cat];
     if (!categoryId) continue;
+    const slug = p.slug || slugify(p.name);
     await prisma.product.upsert({
       where: { legacyId: p.id },
       create: {
         legacyId: p.id,
         name: p.name,
+        slug,
         catLabel: p.catLabel,
         subCat: p.subCat,
         shortDesc: p.shortDesc,
@@ -266,6 +271,7 @@ async function main() {
       },
       update: {
         name: p.name,
+        slug,
         catLabel: p.catLabel,
         subCat: p.subCat,
         shortDesc: p.shortDesc,

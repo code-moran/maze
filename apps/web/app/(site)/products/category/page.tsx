@@ -82,7 +82,7 @@ export default async function ProductCategoriesPage() {
                           `Explore high-grade ${cat.label.toLowerCase()} tailored for home and enterprise installations.`}
                       </p>
                       <Link
-                        href={`/products/category/${cat.id}`}
+                        href={`/${cat.id}`}
                         className="btn btn-maze btn-sm w-100"
                       >
                         Browse {cat.label} <i className="bi bi-arrow-right ms-1"></i>

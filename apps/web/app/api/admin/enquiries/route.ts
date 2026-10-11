@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonOk, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -48,7 +48,7 @@ export async function PATCH(request: Request) {
     data: { status: String(body.status) },
   });
 
-  return jsonOk({
+  return jsonSaved({
     enquiry: {
       id: enquiry.id,
       status: enquiry.status,
@@ -68,5 +68,5 @@ export async function DELETE(request: Request) {
   if (!id) return jsonError("id is required");
 
   await prisma.enquiry.delete({ where: { id } });
-  return jsonOk({});
+  return jsonSaved({});
 }

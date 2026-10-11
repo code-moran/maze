@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { getProductSlug } from "@/data/siteData";
+import { getProductHref, getProductSlug } from "@/data/siteData";
 import type { Product } from "@/data/types";
 import ProductRequestModal from "@/components/ProductRequestModal";
 
@@ -142,12 +142,24 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
                 <div className="d-flex flex-wrap gap-2">
                   <Link
                     href={`/request?type=QUOTE&product=${encodeURIComponent(product.name)}&cat=${encodeURIComponent(product.catLabel)}`}
+                    onClick={(e) => {
+                      if (typeof window !== "undefined" && window.innerWidth > 768) {
+                        e.preventDefault();
+                        setModalState({ isOpen: true, type: "QUOTE" });
+                      }
+                    }}
                     className="btn btn-maze text-white text-decoration-none"
                   >
                     <i className="bi bi-calculator me-2 text-white"></i>Request Quote
                   </Link>
                   <Link
                     href={`/request?type=INSTALLATION&product=${encodeURIComponent(product.name)}&cat=${encodeURIComponent(product.catLabel)}`}
+                    onClick={(e) => {
+                      if (typeof window !== "undefined" && window.innerWidth > 768) {
+                        e.preventDefault();
+                        setModalState({ isOpen: true, type: "INSTALLATION" });
+                      }
+                    }}
                     className="btn btn-maze-outline text-decoration-none"
                   >
                     <i className="bi bi-tools me-2"></i>Request Installation
@@ -171,17 +183,16 @@ export default function ProductDetailView({ product, relatedProducts }: Props) {
           <div>
             <div className="d-flex align-items-center justify-content-between mb-4">
               <h3 className="fw-bold h4 mb-0">Related Products</h3>
-              <Link href={`/products?cat=${product.cat}`} className="text-success text-decoration-none fw-semibold small">
+              <Link href={`/${product.cat}`} className="text-success text-decoration-none fw-semibold small">
                 View All in {product.catLabel} <i className="bi bi-arrow-right ms-1"></i>
               </Link>
             </div>
             <div className="row g-4">
               {relatedProducts.map((item) => {
-                const itemSlug = getProductSlug(item);
                 return (
                   <div key={item.id} className="col-12 col-sm-6 col-lg-4">
                     <Link
-                      href={`/products/${itemSlug}`}
+                      href={getProductHref(item)}
                       className="text-decoration-none text-dark d-block h-100"
                     >
                       <div className="product-card h-100 shadow-sm border rounded-3 overflow-hidden">

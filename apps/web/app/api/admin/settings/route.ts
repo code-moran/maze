@@ -1,4 +1,4 @@
-import { requireAdmin, jsonOk, jsonError } from "@/lib/admin/api";
+import { requireAdmin, jsonSaved, jsonError } from "@/lib/admin/api";
 import { isDatabaseConfigured, prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request) {
@@ -12,6 +12,10 @@ export async function PUT(request: Request) {
   if (!body || typeof body !== "object") {
     return jsonError("Invalid body");
   }
+
+  const existing = await prisma.siteSettings.findUnique({
+    where: { id: "default" },
+  });
 
   const settings = await prisma.siteSettings.upsert({
     where: { id: "default" },
@@ -41,10 +45,16 @@ export async function PUT(request: Request) {
       hours: String(body.hours ?? ""),
       businessHoursDetail: String(body.businessHoursDetail ?? ""),
       copyright: String(body.copyright ?? ""),
-      logoIconUrl: String(body.logoIconUrl ?? ""),
-      logoWordmarkUrl: String(body.logoWordmarkUrl ?? ""),
+      ...(body.logoIconUrl !== undefined
+        ? { logoIconUrl: String(body.logoIconUrl ?? "") }
+        : {}),
+      ...(body.logoWordmarkUrl !== undefined
+        ? { logoWordmarkUrl: String(body.logoWordmarkUrl ?? "") }
+        : existing
+          ? {}
+          : {}),
     },
   });
 
-  return jsonOk({ settings });
+  return jsonSaved({ settings });
 }

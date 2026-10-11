@@ -8,6 +8,19 @@ export type CategorySeo = SeoBlock & {
   metaDescription: string;
 };
 
+export type CategoryItem = {
+  id?: string;
+  key: string;
+  title: string;
+  description: string;
+  metaTitle: string;
+  metaDescription: string;
+  icon: string;
+  sortOrder: number;
+  productCount?: number;
+  subProductCount?: number;
+};
+
 export type SubProduct = {
   id: string;
   label: string;
@@ -40,6 +53,7 @@ export type ServiceCharge = {
 export type BlogPost = {
   id: number;
   title: string;
+  slug?: string;
   date: string;
   author: string;
   excerpt: string;
@@ -141,6 +155,7 @@ export type SiteData = {
   };
   sectionSeo: Record<string, SeoBlock>;
   categorySeo: Record<string, CategorySeo>;
+  categories?: CategoryItem[];
   subProducts: Record<string, SubProduct[]>;
   generalSettings: GeneralSettings;
   serviceCharges: Record<string, ServiceCharge>;
@@ -163,4 +178,10 @@ export type SiteData = {
   heroBackgrounds: string[];
 };
 
-export type ProductCategoryId = "tv-mounts" | "guards" | "solar" | "cables";
+export type ProductCategoryId =
+  | "tv-mounts"
+  | "solar-outdoor-lights"
+  | "guards"
+  | "extension-sockets"
+  | "solar"
+  | "cables";

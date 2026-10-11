@@ -40,6 +40,31 @@ const nextConfig: NextConfig = {
         destination: "/admin",
         permanent: false,
       },
+      {
+        source: "/products/category/:slug",
+        destination: "/:slug",
+        permanent: true,
+      },
+      {
+        source: "/solar",
+        destination: "/solar-outdoor-lights",
+        permanent: true,
+      },
+      {
+        source: "/solar/:slug",
+        destination: "/solar-outdoor-lights/:slug",
+        permanent: true,
+      },
+      {
+        source: "/cables",
+        destination: "/extension-sockets",
+        permanent: true,
+      },
+      {
+        source: "/cables/:slug",
+        destination: "/extension-sockets/:slug",
+        permanent: true,
+      },
     ];
   },
 };
