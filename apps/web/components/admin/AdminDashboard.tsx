@@ -1536,6 +1536,7 @@ function ProductsHeroPanel({
     title: intro.title || "Products & Solutions",
     subtitle: intro.subtitle || "",
     heroBackground: intro.heroBackground || "",
+    productHeroMode: intro.productHeroMode || "category",
     cta1Label: intro.cta1Label || "Request a Quote",
     cta1Href: intro.cta1Href || "/contact",
     cta2Label: intro.cta2Label || "Installation Services",
@@ -1548,6 +1549,7 @@ function ProductsHeroPanel({
       title: intro.title || "Products & Solutions",
       subtitle: intro.subtitle || "",
       heroBackground: intro.heroBackground || "",
+      productHeroMode: intro.productHeroMode || "category",
       cta1Label: intro.cta1Label || "Request a Quote",
       cta1Href: intro.cta1Href || "/contact",
       cta2Label: intro.cta2Label || "Installation Services",
@@ -1570,6 +1572,7 @@ function ProductsHeroPanel({
             title: form.title.trim(),
             subtitle: form.subtitle.trim(),
             heroBackground: form.heroBackground.trim(),
+            productHeroMode: form.productHeroMode,
             cta1Label: form.cta1Label.trim(),
             cta1Href: form.cta1Href.trim(),
             cta2Label: form.cta2Label.trim(),
@@ -1642,6 +1645,50 @@ function ProductsHeroPanel({
               value={form.cta2Href}
               onChange={(e) => setForm({ ...form, cta2Href: e.target.value })}
             />
+          </div>
+          <div className="col-12">
+            <div className="p-3 bg-light rounded border">
+              <label className="form-label small fw-semibold d-block mb-1">
+                Product Detail Pages Hero Banner
+              </label>
+              <div className="form-text text-muted mb-3" style={{ fontSize: "0.8rem" }}>
+                Controls the hero banner displayed when a user opens an individual product under any category. Individual products can still override this in Products Manager.
+              </div>
+              <div className="d-flex flex-wrap gap-4">
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="productHeroMode"
+                    id="heroModeCategory"
+                    checked={form.productHeroMode !== "product"}
+                    onChange={() => setForm({ ...form, productHeroMode: "category" })}
+                  />
+                  <label className="form-check-label small" htmlFor="heroModeCategory">
+                    <strong>Maintain Category Hero (Default)</strong>
+                    <span className="d-block text-muted" style={{ fontSize: "0.78rem" }}>
+                      Product page keeps the parent category title, description, and hero banner.
+                    </span>
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="productHeroMode"
+                    id="heroModeProduct"
+                    checked={form.productHeroMode === "product"}
+                    onChange={() => setForm({ ...form, productHeroMode: "product" })}
+                  />
+                  <label className="form-check-label small" htmlFor="heroModeProduct">
+                    <strong>Show Product Detail Banner</strong>
+                    <span className="d-block text-muted" style={{ fontSize: "0.78rem" }}>
+                      Product page displays product name and image in the hero banner.
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="col-12">
             <button className="btn btn-maze" type="submit" disabled={saving}>
@@ -2179,6 +2226,15 @@ function CategoriesPanel({
                 />
               </div>
 
+              <div className="col-12">
+                <div className="alert alert-success d-flex align-items-center py-2 px-3 mb-0 small" style={{ fontSize: "0.82rem" }}>
+                  <i className="bi bi-info-circle me-2 fs-6"></i>
+                  <span>
+                    This category&apos;s title and description are automatically maintained as the hero banner for all products under <strong>{form.title || form.key || "this category"}</strong> by default.
+                  </span>
+                </div>
+              </div>
+
               {/* SEO Section */}
               <div className="col-12">
                 <div className="card bg-light border-0 p-3 rounded-3">
@@ -2343,15 +2399,39 @@ function ProductsPanel({
     specs: [] as string[][],
     features: [] as string[],
     imgs: [] as string[],
+    overrideHero: false,
+    heroTitle: "",
+    heroSubtitle: "",
+    heroBackground: "",
   };
-  const [form, setForm] = useState(activeProduct || empty);
+  const [form, setForm] = useState(
+    activeProduct
+      ? {
+          ...activeProduct,
+          overrideHero: Boolean(activeProduct.overrideHero),
+          heroTitle: activeProduct.heroTitle || "",
+          heroSubtitle: activeProduct.heroSubtitle || "",
+          heroBackground: activeProduct.heroBackground || "",
+        }
+      : empty
+  );
   const [isSlugCustomized, setIsSlugCustomized] = useState(
     Boolean(activeProduct?.slug)
   );
   const isNew = !activeProduct;
 
   useEffect(() => {
-    setForm(activeProduct || empty);
+    setForm(
+      activeProduct
+        ? {
+            ...activeProduct,
+            overrideHero: Boolean(activeProduct.overrideHero),
+            heroTitle: activeProduct.heroTitle || "",
+            heroSubtitle: activeProduct.heroSubtitle || "",
+            heroBackground: activeProduct.heroBackground || "",
+          }
+        : empty
+    );
     setIsSlugCustomized(Boolean(activeProduct?.slug));
   }, [activeProduct]);
 
@@ -2559,6 +2639,69 @@ function ProductsPanel({
                   }
                   placeholder="Meta description for this product"
                 />
+              </div>
+
+              {/* Product Hero Section Override */}
+              <div className="col-12">
+                <div className="p-3 bg-light rounded border">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <label className="form-label small fw-semibold mb-0 d-block">
+                        Product Page Hero Section
+                      </label>
+                      <span className="text-muted small" style={{ fontSize: "0.8rem" }}>
+                        By default, this product inherits the <strong>{form.catLabel || "Category"}</strong> hero banner. Enable override to customize for this product.
+                      </span>
+                    </div>
+                    <div className="form-check form-switch m-0 ms-3">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="overrideHeroSwitch"
+                        checked={Boolean(form.overrideHero)}
+                        onChange={(e) =>
+                          setForm({ ...form, overrideHero: e.target.checked })
+                        }
+                      />
+                      <label className="form-check-label small fw-semibold" htmlFor="overrideHeroSwitch">
+                        {form.overrideHero ? "Custom Override" : "Category Hero (Default)"}
+                      </label>
+                    </div>
+                  </div>
+
+                  {form.overrideHero && (
+                    <div className="row g-3 mt-2 pt-2 border-top">
+                      <div className="col-md-6">
+                        <label className="form-label small fw-semibold">Custom Hero Title (Optional)</label>
+                        <input
+                          className="form-control"
+                          placeholder={form.name || "Defaults to product name"}
+                          value={form.heroTitle || ""}
+                          onChange={(e) => setForm({ ...form, heroTitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="form-label small fw-semibold">Custom Hero Subtitle (Optional)</label>
+                        <input
+                          className="form-control"
+                          placeholder={form.shortDesc || "Defaults to short description"}
+                          value={form.heroSubtitle || ""}
+                          onChange={(e) => setForm({ ...form, heroSubtitle: e.target.value })}
+                        />
+                      </div>
+                      <div className="col-12">
+                        <label className="form-label small fw-semibold">Custom Hero Background Image (Optional)</label>
+                        <CloudinarySingleUpload
+                          label="Custom Hero Background"
+                          value={form.heroBackground || ""}
+                          onChange={(url) => setForm({ ...form, heroBackground: url })}
+                          folder="maze/products/hero"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="col-md-6">
                 <label className="form-label small fw-semibold">

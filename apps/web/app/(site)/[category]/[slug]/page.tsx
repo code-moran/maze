@@ -132,6 +132,43 @@ export default async function CategorySubOrProductDetailPage({
   const categories = getProductCategories(data);
   const catObj = categories.find((c) => c.id === category);
   const catTitle = categorySeo?.title || catObj?.label || category;
+  const catDescription =
+    categorySeo?.description ||
+    catObj?.description ||
+    `Explore our range of high-performance ${catTitle.toLowerCase()}.`;
+
+  const categoryProducts = data.products.filter(
+    (p) => normalizeCategorySlug(p.cat) === category
+  );
+
+  const catHeroBackground =
+    categoryProducts.find((p) => p.imgs?.[0])?.imgs?.[0] ||
+    data.sections.productsIntro.heroBackground ||
+    data.heroBackgrounds?.[0] ||
+    "";
+
+  const getProductHeroProps = (p: typeof data.products[number]) => {
+    const globalMode = data.sections.productsIntro?.productHeroMode || "category";
+    const shouldOverride =
+      p.overrideHero === true ||
+      (globalMode === "product" && p.overrideHero !== false);
+
+    if (shouldOverride) {
+      return {
+        label: p.catLabel || catTitle,
+        title: p.heroTitle || p.name,
+        subtitle: p.heroSubtitle || p.shortDesc,
+        backgroundImage: p.heroBackground || p.imgs?.[0] || catHeroBackground,
+      };
+    }
+
+    return {
+      label: undefined,
+      title: catTitle,
+      subtitle: catDescription,
+      backgroundImage: catHeroBackground,
+    };
+  };
 
   // 1. Check if slug matches a subcategory
   const subItems = data.subProducts[category] || [];
@@ -162,9 +199,8 @@ export default async function CategorySubOrProductDetailPage({
         )
         .slice(0, 3);
 
-      const heroBackground =
-        singleProduct.imgs[0] || data.heroBackgrounds?.[0] || "";
       const canonicalPath = `/${category}/${getProductSlug(singleProduct)}`;
+      const heroProps = getProductHeroProps(singleProduct);
 
       const crumbs: { label: string; href?: string }[] = [
         { label: "Products", href: "/products" },
@@ -184,10 +220,10 @@ export default async function CategorySubOrProductDetailPage({
             )}
           />
           <PageHero
-            label={singleProduct.catLabel || catTitle}
-            title={singleProduct.name}
-            subtitle={singleProduct.shortDesc}
-            backgroundImage={heroBackground}
+            label={heroProps.label}
+            title={heroProps.title}
+            subtitle={heroProps.subtitle}
+            backgroundImage={heroProps.backgroundImage}
             crumbs={crumbs}
             ctas={[
               { href: "/contact", label: "Request a Quote" },
@@ -253,9 +289,8 @@ export default async function CategorySubOrProductDetailPage({
       )
       .slice(0, 3);
 
-    const heroBackground =
-      product.imgs[0] || data.heroBackgrounds?.[0] || "";
     const canonicalPath = `/${category}/${getProductSlug(product)}`;
+    const heroProps = getProductHeroProps(product);
 
     const crumbs: { label: string; href?: string }[] = [
       { label: "Products", href: "/products" },
@@ -290,10 +325,10 @@ export default async function CategorySubOrProductDetailPage({
           )}
         />
         <PageHero
-          label={product.catLabel || catTitle}
-          title={product.name}
-          subtitle={product.shortDesc}
-          backgroundImage={heroBackground}
+          label={heroProps.label}
+          title={heroProps.title}
+          subtitle={heroProps.subtitle}
+          backgroundImage={heroProps.backgroundImage}
           crumbs={crumbs}
           ctas={[
             { href: "/contact", label: "Request a Quote" },

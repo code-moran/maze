@@ -169,6 +169,8 @@ export async function loadSiteContent(): Promise<SiteData> {
           merged.sections.productsIntro.heroBackground ||
           merged.heroBackgrounds[0] ||
           "",
+        productHeroMode:
+          (productsPage.productHeroMode as "category" | "product") || "category",
       };
     }
 
@@ -218,6 +220,10 @@ export async function loadSiteContent(): Promise<SiteData> {
         specs: asArray<string[]>(p.specs),
         features: asArray<string>(p.features),
         imgs: asArray<string>(p.imageUrls),
+        overrideHero: Boolean(p.overrideHero),
+        heroTitle: p.heroTitle || undefined,
+        heroSubtitle: p.heroSubtitle || undefined,
+        heroBackground: p.heroBackground || undefined,
       }));
     }
 
